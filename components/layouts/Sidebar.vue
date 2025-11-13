@@ -85,11 +85,11 @@ watchEffect(() => {
       class="flex h-[60px] items-center border-b justify-between gap-3 py-3 px-4"
     >
       <NuxtLink to="/" class="flex items-center gap-3">
-        <img
+        <!-- <img
           src="/images/logo-pertamina.svg"
           alt="Pertamina logo"
           class="w-14"
-        />
+        /> -->
         <div class="leading-tight">
           <p
             class="text-sm font-semibold uppercase tracking-wide text-gray-900"
