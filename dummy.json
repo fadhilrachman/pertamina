@@ -1,0 +1,175 @@
+{
+  "DATA_SKU": [
+    {
+      "sku_code": "SKU-001",
+      "name": "White T-Shirt",
+      "category": "Apparel",
+      "uom": "PCS",
+      "max": "500",
+      "min": "50",
+      "description": ""
+    },
+    {
+      "sku_code": "SKU-002",
+      "name": "Blue Jeans",
+      "category": "Apparel",
+      "uom": "PCS",
+      "max": "300",
+      "min": "30",
+      "description": ""
+    },
+    {
+      "sku_code": "SKU-003",
+      "name": "Running Shoes",
+      "category": "Footwear",
+      "uom": "PAIR",
+      "max": "200",
+      "min": "20",
+      "description": ""
+    },
+    {
+      "sku_code": "SKU-004",
+      "name": "Hoodie Jacket",
+      "category": "Apparel",
+      "uom": "PCS",
+      "max": "250",
+      "min": "25",
+      "description": ""
+    },
+    {
+      "sku_code": "SKU-005",
+      "name": "Sport Watch",
+      "category": "Accessories",
+      "uom": "PCS",
+      "max": "150",
+      "min": "10",
+      "description": ""
+    },
+    {
+      "sku_code": "SKU-006",
+      "name": "Leather Wallet",
+      "category": "Accessories",
+      "uom": "PCS",
+      "max": "100",
+      "min": "10",
+      "description": ""
+    },
+    {
+      "sku_code": "SKU-007",
+      "name": "Baseball Cap",
+      "category": "Apparel",
+      "uom": "PCS",
+      "max": "400",
+      "min": "40",
+      "description": ""
+    },
+    {
+      "sku_code": "SKU-008",
+      "name": "Socks Pack",
+      "category": "Apparel",
+      "uom": "PACK",
+      "max": "600",
+      "min": "60",
+      "description": ""
+    },
+    {
+      "sku_code": "SKU-009",
+      "name": "Backpack",
+      "category": "Bags",
+      "uom": "PCS",
+      "max": "180",
+      "min": "15",
+      "description": ""
+    },
+    {
+      "sku_code": "SKU-010",
+      "name": "Sunglasses",
+      "category": "Accessories",
+      "uom": "PCS",
+      "max": "120",
+      "min": "12",
+      "description": ""
+    }
+  ],
+
+  "DATA_FACILITES": [
+    {
+      "facility_code": "1",
+      "name": "SBS",
+      "address": "-",
+      "city": "-",
+      "capacity": "100,000",
+      "status": "ACTIVE"
+    },
+    {
+      "facility_code": "2",
+      "name": "Central Warehouse",
+      "address": "Jl. Merdeka No. 10",
+      "city": "Jakarta",
+      "capacity": "250,000",
+      "status": "ACTIVE"
+    },
+    {
+      "facility_code": "3",
+      "name": "East Depot",
+      "address": "Jl. Kenanga No. 21",
+      "city": "Surabaya",
+      "capacity": "75,000",
+      "status": "PENDING"
+    },
+    {
+      "facility_code": "4",
+      "name": "North Storage",
+      "address": "-",
+      "city": "Medan",
+      "capacity": "50,000",
+      "status": "INACTIVE"
+    },
+    {
+      "facility_code": "5",
+      "name": "South Logistics",
+      "address": "Jl. Gading No. 55",
+      "city": "Bandung",
+      "capacity": "120,000",
+      "status": "ACTIVE"
+    }
+  ],
+
+  "DATA_VEHICLES": [
+    {
+      "vehicle_id": "V001",
+      "plate_number": "B 1234 ABC",
+      "type": "Truck",
+      "capacity": "10,000 KG",
+      "assigned_facility": "SBS Warehouse"
+    },
+    {
+      "vehicle_id": "V002",
+      "plate_number": "B 9821 CFD",
+      "type": "Pickup",
+      "capacity": "3,000 KG",
+      "assigned_facility": "Central Warehouse"
+    },
+    {
+      "vehicle_id": "V003",
+      "plate_number": "D 2203 VTR",
+      "type": "Van",
+      "capacity": "1,500 KG",
+      "assigned_facility": "Bandung Depot"
+    },
+    {
+      "vehicle_id": "V004",
+      "plate_number": "L 7002 LKS",
+      "type": "Trailer",
+      "capacity": "20,000 KG",
+      "assigned_facility": "Surabaya Facility"
+    },
+    {
+      "vehicle_id": "V005",
+      "plate_number": "B 9921 RFS",
+      "type": "Box Truck",
+      "capacity": "7,500 KG",
+      "assigned_facility": "Jakarta Main Hub"
+    }
+  ]
+}

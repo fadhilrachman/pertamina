@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from "vue";
 import { useAuthStore } from "~/store/auth";
 import { usePageStore } from "~/store/page";
 import type { ElementEvent } from "~/types/element";
@@ -9,8 +10,20 @@ const $page = usePageStore();
 const { data } = useAuth();
 
 const emit = defineEmits(["on-click-open-sidebar"]);
-// logout
-let modalLogout: ElementEvent | null = null;
+const modalLogout = ref<ElementEvent | null>(null);
+
+const handleLogoutModalMounted = (instance: ElementEvent) => {
+  modalLogout.value = instance;
+};
+
+const closeLogoutModal = () => {
+  modalLogout.value?.hide();
+};
+
+const openLogoutModal = () => {
+  modalLogout.value?.show();
+};
+
 async function logout() {
   $auth.logout().then(() => {
     window.location.href = "/login";
@@ -25,8 +38,8 @@ async function logout() {
     subtitle="Are you sure you want to log out? This will end your current session. Press 'Log out' to continue."
     confirm-label="Log Out"
     :is-loading="$auth.isLoading"
-    @mounted="modalLogout = $event"
-    @negative="modalLogout?.hide()"
+    @mounted="handleLogoutModalMounted"
+    @negative="closeLogoutModal"
     @positive="logout()"
   >
     <template #icon>
@@ -78,7 +91,7 @@ async function logout() {
           </ul>
           <div
             class="py-2.5 px-4 flex items-center cursor-pointer hover:bg-gray-100"
-            @click="modalLogout?.show()"
+            @click="openLogoutModal"
           >
             <IconsLogout size="16" class="mr-2 stroke-gray-700" />
             <p class="text-sm text-gray-700">Log out</p>

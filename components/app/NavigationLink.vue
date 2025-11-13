@@ -17,19 +17,35 @@ const props = defineProps({
   },
 });
 
+const router = useRouter();
+
 const linkClass = computed((): string => {
-  const hover = isActive(props.destination || "")
-    ? "bg-white-50 text-primary-700 border border-primary-700"
-    : "hover:bg-gray-100";
-  return `py-2 px-3 space-x-3 flex items-center rounded-md transition ${hover}`;
+  const active = isActive(props.destination || "");
+  const base =
+    "py-2 px-3 gap-3 flex w-full items-center rounded-lg text-sm font-medium transition-colors";
+  const state = active
+    ? "bg-primary-50 text-primary-700"
+    : "text-gray-500 hover:bg-gray-100 hover:text-gray-900";
+  return `${base} ${state}`;
 });
+
+const handleNavigate = () => {
+  if (!props.destination) return;
+  if (router.currentRoute.value.path === props.destination) return;
+  router.push(props.destination);
+};
 </script>
 
 <template>
-  <nuxt-link :id="props.id" :to="props.destination" :class="linkClass">
+  <button
+    :id="props.id"
+    type="button"
+    :class="linkClass"
+    @click="handleNavigate"
+  >
     <slot name="icon" />
-    <span class="font-medium text-base">{{ props.name }}</span>
-  </nuxt-link>
+    <span>{{ props.name }}</span>
+  </button>
 </template>
 
 <style scoped></style>

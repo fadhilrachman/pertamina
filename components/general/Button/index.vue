@@ -27,6 +27,14 @@ const props = defineProps({
     type: String as () => "primary" | "success" | "info" | "warning" | "error",
     default: "primary",
   },
+  size: {
+    type: String as () => "sm" | "md" | "lg",
+    default: "md",
+  },
+  form: {
+    type: String,
+    default: "",
+  },
 });
 
 const emit = defineEmits<{
@@ -35,19 +43,19 @@ const emit = defineEmits<{
 
 const buttonClass = computed((): string => {
   const baseClass =
-    "py-2.5 px-3.5 text-sm font-[600] text-white stroke-white rounded-lg flex items-center justify-center transition";
+    "font-light text-white stroke-white rounded-lg flex items-center justify-center transition";
   const hoverClass = props.disabled || props.loading ? "" : bgButtonHover.value;
   const disabled = props.disabled ? bgColorDisabled.value : bgColor.value;
   const cursor =
     props.disabled || props.loading ? "cursor-not-allowed" : "cursor-pointer";
-  return `${baseClass} ${disabled} ${cursor} ${hoverClass}`;
+  return `${baseClass} ${sizeClass.value} ${disabled} ${cursor} ${hoverClass}`;
 });
 
 const variant = {
-  primary: "bg-primary-700 ",
-  success: "bg-success-700 ",
-  info: "bg-info-700 ",
-  warning: "bg-warning-700 ",
+  primary: "bg-primary-500 ",
+  success: "bg-success-500 ",
+  info: "bg-info-500 ",
+  warning: "bg-warning-500 ",
   error: "bg-error-700 ",
 };
 
@@ -78,12 +86,23 @@ const bgColorDisabled = computed(() => {
 const bgButtonHover = computed(() => {
   return variantHover[props.color];
 });
+
+const sizeClass = computed(() => {
+  const sizes: Record<"sm" | "md" | "lg", string> = {
+    sm: "py-2 px-3 text-xs",
+    md: "py-2.5 px-3.5 text-sm",
+    lg: "py-3 px-4 text-base",
+  };
+
+  return sizes[props.size];
+});
 </script>
 
 <template>
   <button
     :id="props.id"
     :type="type"
+    :form="props.form || undefined"
     :disabled="props.disabled"
     :class="buttonClass"
     @click="emit('on-click')"

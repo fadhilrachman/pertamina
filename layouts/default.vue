@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { DrawerInterface } from "flowbite";
 
-let drawerSidebar: DrawerInterface | null = null;
+const drawerSidebar = ref<DrawerInterface | null>(null);
 
 const windowWidth = ref(0);
 
@@ -15,9 +15,15 @@ function resizeHandler() {
   }
 }
 
-watch(isMdAndUp, () => {
-  drawerSidebar?.hide();
-});
+const closeSidebar = () => {
+  drawerSidebar.value?.hide();
+};
+
+const handleSidebarMounted = (instance: DrawerInterface) => {
+  drawerSidebar.value = instance;
+};
+
+watch(isMdAndUp, closeSidebar);
 
 onMounted(() => {
   if (process.client) {
@@ -30,12 +36,15 @@ onMounted(() => {
 <template>
   <div class="min-h-screen bg-gray-100">
     <LayoutsSidebar
-      @on-mounted="drawerSidebar = $event"
-      @on-click-close-sidebar="drawerSidebar?.hide()"
+      @on-mounted="handleSidebarMounted"
+      @on-click-close-sidebar="closeSidebar"
     />
-    <div class="px-6 py-4 md:pl-[340px] min-h-screen w-full">
-      <LayoutsHeader />
-      <slot />
+    <div class="md:pl-[280px] min-h-screen w-full">
+      <LayoutsNavbar />
+      <!-- <GeneralButton label="Uhuy" size="sm" /> -->
+      <div class="p-6">
+        <slot />
+      </div>
     </div>
   </div>
 </template>

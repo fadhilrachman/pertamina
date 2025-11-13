@@ -9,7 +9,7 @@ export default {
     "./pages/**/*.vue",
     "./plugins/**/*.{js,ts}",
     "./nuxt.config.{js,ts}",
-    "./node_modules/flowbite/**/*.{js,ts}",
+    // "./node_modules/flowbite/**/*.{js,ts}", // watching the entire Flowbite package makes HMR rebuilds very slow; re-enable only if needed.
   ],
   safelist: [
     {
@@ -192,9 +192,9 @@ export default {
       },
     },
     fontFamily: {
-      sans: ["Poppins", "sans-serif"],
-      serif: ["Poppins", "serif"],
-      body: ["Poppins", "sans-serif"],
+      sans: ["Inter", "sans-serif"],
+      serif: ["Inter", "serif"],
+      body: ["Inter", "sans-serif"],
     },
   },
   plugins: [flowbitePlugin],

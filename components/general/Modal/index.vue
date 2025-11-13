@@ -61,7 +61,7 @@
           </div>
         </div>
 
-        <div class="w-full p-2">
+        <div class="w-full p-3">
           <slot name="body" />
         </div>
       </div>

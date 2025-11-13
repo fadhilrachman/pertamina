@@ -1,0 +1,218 @@
+   1: <script setup lang="ts">
+   4:   Field,
+   5:   ErrorMessage,
+   6:   useForm,
+   7:   type FieldSlotProps,
+  10: import GeneralTextInput from "~/components/general/TextInput/index.vue";
+  11: 
+  12: type FieldType = "text" | "email" | "date" | "textarea" | "select" | "file";
+  13: 
+  15:   id: string | number;
+  16:   label: string;
+  18: 
+  20:   label?: string;
+  21:   type: FieldType;
+  22:   name: string;
+  23:   placeholder?: string;
+  24:   helperText?: string;
+  25:   disabled?: boolean;
+  26:   grid?: keyof typeof listColSpan;
+  27:   defaultValue?: any;
+  28:   options?: SelectOption[];
+  29:   multiple?: boolean;
+  31: 
+  33:   1: "col-span-1",
+  34:   2: "col-span-2",
+  35:   3: "col-span-3",
+  36:   4: "col-span-4",
+  37:   5: "col-span-5",
+  38:   6: "col-span-6",
+  39:   7: "col-span-7",
+  40:   8: "col-span-8",
+  41:   9: "col-span-9",
+  42:   10: "col-span-10",
+  43:   11: "col-span-11",
+  44:   12: "col-span-12",
+  46: 
+  49:     type: String,
+  50:     default: "formGenerator",
+  53:     type: Array as PropType<readonly FieldConfig[]>,
+  54:     required: true,
+  57:     type: Number,
+  58:     default: 12,
+  61:     type: String,
+  62:     default: "",
+  65:     type: Object as PropType<AnyObjectSchema | undefined>,
+  66:     default: undefined,
+  69:     type: Object as PropType<Record<string, any>>,
+  73:     type: Object as PropType<Record<string, any>>,
+  77: 
+  79:   (e: "update:modelValue", payload: Record<string, any>): void;
+  80:   (e: "submit", payload: Record<string, any>): void;
+  82: 
+  86:     base[field.name] =
+  87:       props.modelValue[field.name] ??
+  88:       props.initialValues[field.name] ??
+  89:       field.defaultValue ??
+  90:       (field.type === "file" ? null : "");
+  92:   return base;
+  94: 
+  96:   validationSchema: props.validationSchema,
+  97:   initialValues: fallbackInitials.value,
+  99: 
+ 100: watch(
+ 101:   fallbackInitials,
+ 106: );
+ 107: 
+ 108: watch(
+ 109:   () => props.modelValue,
+ 111:     if (!next) return;
+ 115: );
+ 116: 
+ 117: watch(
+ 118:   values,
+ 123: );
+ 124: 
+ 126:   emit("submit", formData);
+ 128: 
+ 130:   const spanKey = String(
+ 131:     field.grid ?? props.columns
+ 132:   ) as keyof typeof listColSpan;
+ 133:   return listColSpan[spanKey] ?? listColSpan[12];
+ 135: 
+ 136: function handleFileChange(
+ 137:   field: FieldConfig,
+ 139:   control: FieldSlotProps["field"]
+ 141:   const files = event.target.files ? Array.from(event.target.files) : [];
+ 142:   const parsed = field.multiple ? files : files[0] ?? null;
+ 143:   control.onChange(parsed);
+ 145: 
+ 147:   const cursor = disabled ? "cursor-not-allowed" : "cursor-text";
+ 148:   const background = disabled
+ 149:     ? "bg-gray-100 text-gray-500"
+ 150:     : "bg-white text-gray-900";
+ 153: 
+ 155:   return invalid
+ 156:     ? "border-error-500 focus:border-error-500 focus:ring-2 focus:ring-error-100"
+ 157:     : "border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100";
+ 159: 
+ 162:     invalid
+ 165: 
+ 169: 
+ 173: 
+ 175:   const disabledClass = disabled ? "cursor-not-allowed bg-gray-100" : "";
+ 176:   const state = invalid
+ 177:     ? "border-error-500 focus:border-error-500 focus:ring-2 focus:ring-error-100"
+ 178:     : "border-dashed border-gray-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-100";
+ 181: </script>
+ 182: 
+ 183: <template>
+ 184:   <form
+ 185:     :id="id"
+ 186:     :class="['grid grid-cols-12 gap-4', className]"
+ 187:     @submit.prevent="onSubmit"
+ 188:   >
+ 189:     <template v-for="field in fields" :key="field.name">
+ 191:         <div :class="['flex flex-col space-y-1', getColSpanClass(field)]">
+ 192:           <label
+ 193:             v-if="field.label"
+ 195:             class="text-sm font-semibold text-gray-700"
+ 196:           >
+ 197:             { field.label }
+ 198:           </label>
+ 199: 
+ 200:           <template v-if="field.type === 'text' || field.type === 'email'">
+ 201:             <GeneralTextInput
+ 203:               :model-value="fieldBinding.value"
+ 204:               :type="field.type"
+ 205:               :placeholder="field.placeholder"
+ 206:               :disabled="field.disabled"
+ 207:               :invalid="meta.touched && meta.invalid"
+ 208:               @update:model-value="fieldBinding.onChange"
+ 209:             />
+ 210:           </template>
+ 211: 
+ 212:           <template v-else-if="field.type === 'textarea'">
+ 213:             <textarea
+ 215:               :value="fieldBinding.value"
+ 216:               :placeholder="field.placeholder"
+ 217:               :disabled="field.disabled"
+ 218:               :class="
+ 219:                 textareaClasses(meta.touched && meta.invalid, field.disabled)
+ 220:               "
+ 221:               @input="
+ 222:                 fieldBinding.onChange(
+ 223:                   ($event.target as HTMLTextAreaElement).value
+ 224:                 )
+ 225:               "
+ 226:             />
+ 227:           </template>
+ 228: 
+ 229:           <template v-else-if="field.type === 'date'">
+ 230:             <input
+ 232:               type="date"
+ 233:               :value="fieldBinding.value"
+ 234:               :placeholder="field.placeholder"
+ 235:               :disabled="field.disabled"
+ 236:               :class="
+ 237:                 dateInputClasses(meta.touched && meta.invalid, field.disabled)
+ 238:               "
+ 239:               @input="
+ 240:                 fieldBinding.onChange(($event.target as HTMLInputElement).value)
+ 241:               "
+ 242:             />
+ 243:           </template>
+ 244: 
+ 245:           <template v-else-if="field.type === 'select'">
+ 246:             <select
+ 248:               :value="fieldBinding.value"
+ 249:               :disabled="field.disabled"
+ 250:               :class="
+ 251:                 selectClasses(meta.touched && meta.invalid, field.disabled)
+ 252:               "
+ 253:               @change="
+ 254:                 fieldBinding.onChange(
+ 255:                   ($event.target as HTMLSelectElement).value
+ 256:                 )
+ 257:               "
+ 258:             >
+ 259:               <option value="" disabled>
+ 260:                 { field.placeholder || "Select option" }
+ 261:               </option>
+ 262:               <option
+ 263:                 v-for="option in field.options || []"
+ 264:                 :key="option.id"
+ 265:                 :value="option.id"
+ 266:               >
+ 267:                 { option.label }
+ 268:               </option>
+ 269:             </select>
+ 270:           </template>
+ 271: 
+ 272:           <template v-else-if="field.type === 'file'">
+ 273:             <input
+ 275:               type="file"
+ 276:               :multiple="field.multiple"
+ 277:               :disabled="field.disabled"
+ 278:               :class="
+ 279:                 fileInputClasses(meta.touched && meta.invalid, field.disabled)
+ 280:               "
+ 281:               @change="handleFileChange(field, $event, fieldBinding)"
+ 282:             />
+ 283:           </template>
+ 284: 
+ 285:           <p v-if="field.helperText" class="text-xs text-gray-500">
+ 286:             { field.helperText }
+ 287:           </p>
+ 288: 
+ 289:           <ErrorMessage
+ 290:             :name="field.name"
+ 292:             class="text-xs !text-red-500"
+ 293:           >
+ 294:             { message }
+ 295:           </ErrorMessage>
+ 296:         </div>
+ 297:       </Field>
+ 298:     </template>
+ 299:   </form>
+ 300: </template>

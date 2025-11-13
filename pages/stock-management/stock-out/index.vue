@@ -1,0 +1,1 @@
+<template>Stock Out</template>

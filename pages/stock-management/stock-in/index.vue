@@ -1,0 +1,1 @@
+<template>Stock In</template>

@@ -50,6 +50,10 @@ const props = defineProps({
     type: String as () => "primary" | "success" | "info" | "warning" | "error",
     default: "primary",
   },
+  invalid: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(["on-input", "on-click-clear", "update:modelValue"]);
@@ -76,7 +80,11 @@ function onClickClear() {
 const classContainer = computed(() => {
   const baseClass =
     "w-full rounded-lg overflow-hidden stroke-gray-500 border-2 flex h-10";
-  const border = isFocused.value ? borderColor.value : "border-gray-200";
+  const border = props.invalid
+    ? "border-error-500"
+    : isFocused.value
+    ? borderColor.value
+    : "border-gray-200";
   const background = props.disabled ? "bg-gray-100" : "bg-white";
   const cursor = props.disabled ? "cursor-not-allowed" : "";
   return `${baseClass} ${border} ${background} ${cursor}`;
@@ -84,7 +92,7 @@ const classContainer = computed(() => {
 
 const classInput = computed(() => {
   const baseClass =
-    "block px-2.5 w-full h-full border-none text-gray-900 bg-transparent focus:ring-0";
+    "block px-2.5 w-full placeholder-neutral-400 h-full border-none text-gray-900 bg-transparent focus:ring-0";
   const hideSpinButton =
     "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none";
   const cursor = props.disabled ? "cursor-not-allowed" : "";

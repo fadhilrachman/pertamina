@@ -1,13 +1,13 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 
 export default defineNuxtConfig({
-  devtools: {
-    enabled: true,
-
-    timeline: {
-      enabled: true,
-    },
-  },
+  // devtools: {
+  //   enabled: true,
+  //
+  //   timeline: {
+  //     enabled: true,
+  //   },
+  // },
 
   app: {
     pageTransition: { name: "page", mode: "out-in" },
@@ -25,7 +25,7 @@ export default defineNuxtConfig({
   css: ["@/assets/css/global.css"],
 
   modules: [
-    "@vite-pwa/nuxt",
+    "@vite-pwa/nuxt", // comment for now: regenerating the service worker during dev hurts hot reload speed.
     "@nuxtjs/tailwindcss",
     "@pinia/nuxt",
     "@pinia-plugin-persistedstate/nuxt",
@@ -62,13 +62,14 @@ export default defineNuxtConfig({
         maxAgeInSeconds: 60 * 60 * 24,
       },
     },
-    globalAppMiddleware: true,
+    globalAppMiddleware: false, /// IMPORTANT
   },
 
   runtimeConfig: {
     appKey: process.env.APP_KEY,
     public: {
       baseAPI: process.env.API_BASE_URL,
+      // auth: false,
     },
   },
 
