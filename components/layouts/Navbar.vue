@@ -1,7 +1,10 @@
 <template>
   <nav
-    class="w-full bg-white border-b px-8 h-[60px] flex items-center justify-end"
+    class="fixed w-full z-0 bg-white border-b px-8 h-[60px] flex items-center justify-between"
   >
+    <h3 class="font-semibold ml-[18.5%] text-gray-900">
+      Inventory Management System
+    </h3>
     <div class="flex items-center space-x-4">
       <GeneralTextInput
         class="w-[400px] placeholder:text-neutral-400"

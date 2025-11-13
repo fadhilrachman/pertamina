@@ -96,9 +96,9 @@ watchEffect(() => {
           >
             LOGO
           </p>
-          <p class="text-[11px] uppercase tracking-[0.2em] text-gray-500">
+          <!-- <p class="text-[11px] uppercase tracking-[0.2em] text-gray-500">
             Lorem, ipsum dolor.
-          </p>
+          </p> -->
         </div>
       </NuxtLink>
       <button

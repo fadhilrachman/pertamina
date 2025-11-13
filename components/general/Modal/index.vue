@@ -8,65 +8,67 @@
       }
     "
   />
-  <div
-    :id="props.id"
-    tabindex="-1"
-    aria-hidden="true"
-    class="backdrop-blur-sm fixed flex justify-center items-center align-center top-0 left-0 right-0 bottom-0 z-50 hidden bg-black bg-opacity-50 p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-full"
-  >
-    <div :class="`relative w-full ${classModal} max-h-full`">
-      <div class="relative bg-white rounded-lg shadow dark:bg-gray-700 p-4">
-        <div
-          v-if="
-            $slots.icon || !isEmpty(props.title) || !isEmpty(props.subtitle)
-          "
-          class="w-full p-2"
-        >
-          <div class="flex items-start justify-between">
-            <div class="flex flex-col items-start space-y-4">
-              <div
-                v-if="$slots.icon"
-                class="p-2 mr-3 aspect-square w-min rounded-full bg-[#FEF3F2]"
-              >
-                <div class="p-2 aspect-square w-min rounded-full bg-[#FFEBEB]">
-                  <slot name="icon" />
+  <Teleport to="body">
+    <div
+      :id="props.id"
+      tabindex="-1"
+      aria-hidden="true"
+      class="backdrop-blur-sm fixed flex justify-center items-center align-center top-0 left-0 right-0 bottom-0 z-50 hidden bg-black bg-opacity-50 p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-full"
+    >
+      <div :class="`relative w-full ${classModal} max-h-full`">
+        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700 p-4">
+          <div
+            v-if="
+              $slots.icon || !isEmpty(props.title) || !isEmpty(props.subtitle)
+            "
+            class="w-full p-2"
+          >
+            <div class="flex items-start justify-between">
+              <div class="flex flex-col items-start space-y-4">
+                <div
+                  v-if="$slots.icon"
+                  class="p-2 mr-3 aspect-square w-min rounded-full bg-[#FEF3F2]"
+                >
+                  <div class="p-2 aspect-square w-min rounded-full bg-[#FFEBEB]">
+                    <slot name="icon" />
+                  </div>
+                </div>
+
+                <div class="space-y-2">
+                  <h3
+                    v-if="props.title"
+                    class="text-lg font-semibold text-gray-900 dark:text-gray-300"
+                  >
+                    {{ props.title }}
+                  </h3>
+                  <h5
+                    v-if="props.subtitle"
+                    class="text-sm text-gray-500 dark:text-gray-300"
+                  >
+                    {{ props.subtitle }}
+                  </h5>
                 </div>
               </div>
 
-              <div class="space-y-2">
-                <h3
-                  v-if="props.title"
-                  class="text-lg font-semibold text-gray-900 dark:text-gray-300"
-                >
-                  {{ props.title }}
-                </h3>
-                <h5
-                  v-if="props.subtitle"
-                  class="text-sm text-gray-500 dark:text-gray-300"
-                >
-                  {{ props.subtitle }}
-                </h5>
-              </div>
+              <button
+                v-if="props.isHasClose"
+                type="button"
+                class="top-9 right-8 text-gray-400 bg-transparent transition hover:bg-gray-200 hover:text-gray-900 rounded-full text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white"
+                @click.prevent="toggleModal(false)"
+              >
+                <Close class="stroke-gray-700" />
+                <span class="sr-only">Close modal</span>
+              </button>
             </div>
-
-            <button
-              v-if="props.isHasClose"
-              type="button"
-              class="top-9 right-8 text-gray-400 bg-transparent transition hover:bg-gray-200 hover:text-gray-900 rounded-full text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white"
-              @click.prevent="toggleModal(false)"
-            >
-              <Close class="stroke-gray-700" />
-              <span class="sr-only">Close modal</span>
-            </button>
           </div>
-        </div>
 
-        <div class="w-full p-3">
-          <slot name="body" />
+          <div class="w-full p-3">
+            <slot name="body" />
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
