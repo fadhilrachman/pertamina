@@ -5,54 +5,71 @@ import Loading from "~/components/icons/Loading/index.vue";
 const props = defineProps({
   id: {
     type: String,
-    default: ''
+    default: "",
   },
   type: {
-    type: String as () => 'button' | 'submit' | 'reset',
-    default: 'button',
+    type: String as () => "button" | "submit" | "reset",
+    default: "button",
   },
   label: {
     type: String,
-    default: ''
+    default: "",
   },
   disabled: {
     type: Boolean,
-    default: false
+    default: false,
   },
   loading: {
     type: Boolean,
-    default: false
+    default: false,
   },
   color: {
-    type: String as () =>  'primary' | 'success' | 'info' | 'warning' |'error' |'default',
-    default: 'primary'
-  }
-})
-
+    type: String as () =>
+      | "primary"
+      | "success"
+      | "info"
+      | "warning"
+      | "error"
+      | "default",
+    default: "primary",
+  },
+  size: {
+    type: String as () => "sm" | "md" | "lg",
+    default: "md",
+  },
+});
 
 const variant = {
-  default: '',
-  primary: 'border-primary-500 text-primary-500 ',
-  success: 'border-success-500 text-success-500 ',
-  info: 'border-info-500 text-info-500 ',
-  warning: 'border-warning-500 text-warning-500 ',
-  error: 'border-error-500 text-error-500 ',
-}
+  default: "",
+  primary: "border-neutral-500 text-neutral-500 ",
+  success: "border-success-500 text-success-500 ",
+  info: "border-info-500 text-info-500 ",
+  warning: "border-warning-500 text-warning-500 ",
+  error: "border-error-500 text-error-500 ",
+};
 
 const borderColor = computed(() => {
-  return variant[props.color]
-})
+  return variant[props.color];
+});
 
-const emit = defineEmits(['on-click'])
+const emit = defineEmits(["on-click"]);
 
 const buttonClass = computed((): string => {
-  const borderClass = borderColor.value
-  const baseClass = 'py-2.5 px-3.5 text-sm font-[600] text-gray-700 stroke-gray-700 border rounded-lg flex items-center justify-center transition'
-  const hoverClass = props.disabled || props.loading ? '' : 'hover:bg-[#0000000a]'
-  const disabled = props.disabled ? 'bg-gray-100 opacity-75' : ''
-  const cursor = props.disabled || props.loading ? 'cursor-not-allowed' : 'cursor-pointer'
-  return `${baseClass} ${disabled} ${cursor} ${hoverClass} ${borderClass}`
-})
+  const borderClass = borderColor.value;
+  const sizeTokens: Record<"sm" | "md" | "lg", string> = {
+    sm: "py-2 px-3 text-xs",
+    md: "py-2.5 px-3.5 text-sm",
+    lg: "py-3 px-4 text-base",
+  };
+  const baseClass =
+    "font-[600] text-gray-700 stroke-gray-700 border rounded-lg flex items-center justify-center transition";
+  const hoverClass =
+    props.disabled || props.loading ? "" : "hover:bg-[#0000000a]";
+  const disabled = props.disabled ? "bg-gray-100 opacity-75" : "";
+  const cursor =
+    props.disabled || props.loading ? "cursor-not-allowed" : "cursor-pointer";
+  return `${baseClass} ${sizeTokens[props.size]} ${disabled} ${cursor} ${hoverClass} ${borderClass}`;
+});
 </script>
 
 <template>
@@ -68,15 +85,17 @@ const buttonClass = computed((): string => {
       <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
     </svg> -->
 
-    <Loading v-if="props.loading" class="w-6 h-6 animate-spin text-gray-200 fill-gray-400" />
-
+    <Loading
+      v-if="props.loading"
+      class="w-6 h-6 animate-spin text-gray-200 fill-gray-400"
+    />
 
     <span v-else class="space-x-2 flex items-center">
-      <slot name="prefix"/>
-      <span>{{props.label}}</span>
-      <slot name="suffix"/>
+      <slot name="prefix" />
+      <span>{{ props.label }}</span>
+      <slot name="suffix" />
     </span>
   </button>
 </template>
 
-<style scoped> </style>
+<style scoped></style>

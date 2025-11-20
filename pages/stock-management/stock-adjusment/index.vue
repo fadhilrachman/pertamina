@@ -1,1 +1,0 @@
-<template>Stock Adjusment</template>

@@ -1,4 +1,8 @@
-import type { QueryParams, ResponseApi } from "~/types/common";
+import type {
+  QueryParams,
+  ResponseApi,
+  ResponseApiDetail,
+} from "~/types/common";
 import {
   deleteSku,
   getSku,
@@ -9,25 +13,42 @@ import {
 import { toast } from "vue3-toastify";
 import { DATA_SKU } from "../../dummy.json";
 import { defineStore } from "pinia";
+import type { SKUType } from "~/types/sku-type";
 
 export const useSkuStore = defineStore("sku", {
   state: () => ({
     loadingList: false,
     loadingWrite: false,
     loadingDetail: false,
-    data: {} as ResponseApi<any>,
-    dataDetail: {},
+    data: {} as ResponseApi<SKUType>,
+    dataDetail: {} as ResponseApiDetail<SKUType>,
+    selectedData: {} as SKUType,
   }),
   actions: {
-    async getDataSku(params: QueryParams) {
+    setSelectedData(data: SKUType) {
+      this.selectedData = data;
+    },
+    async getDataSku(
+      params: QueryParams & { search?: string; status?: string }
+    ) {
       this.loadingList = true;
       try {
-        // const { data } = await getSku(params);
-        this.data = {
-          count: 10,
-          result: DATA_SKU,
-          total_pages: 1,
-        };
+        const data = await getSku(params); // API_UNCOMMENT
+        this.data = data; // API_UNCOMMENT
+        // this.data = {
+        //   // count: 10,
+        //   data: {
+        //     data: DATA_SKU,
+        //     limit: 10,
+        //     page: 1,
+        //     total: 200,
+        //     total_pages: 10,
+        //   },
+        //   code: 200,
+        //   error: "",
+        //   message: "Success",
+        //   success: true,
+        // };
       } catch (error) {
         toast.error("Failed get data SKU", {
           toastClassName: "toastify-error",
@@ -42,8 +63,8 @@ export const useSkuStore = defineStore("sku", {
     async getDataDetailSku({ id }: { id: string }) {
       this.loadingDetail = true;
       try {
-        const { data } = await getSkuDetail({ id });
-        this.dataDetail = data;
+        // const { data } = await getSkuDetail({ id }); // API_UNCOMMENT
+        // this.dataDetail = data;
       } catch (error) {
         toast.error("Failed get data SKU", {
           toastClassName: "toastify-error",
@@ -58,7 +79,7 @@ export const useSkuStore = defineStore("sku", {
     async createDataSku(body: any) {
       this.loadingWrite = true;
       try {
-        await postSku(body);
+        await postSku(body); // API_UNCOMMENT
         toast.success("Success create data SKU");
         return true;
       } catch (error) {
@@ -74,7 +95,7 @@ export const useSkuStore = defineStore("sku", {
     async updateDataSku(body: any) {
       this.loadingWrite = true;
       try {
-        await putSku(body);
+        await putSku(body); // API_UNCOMMENT
         toast.success("Success update data SKU");
         return true;
       } catch (error) {
@@ -90,7 +111,7 @@ export const useSkuStore = defineStore("sku", {
     async deleteDataSku({ id }: { id: string }) {
       this.loadingWrite = true;
       try {
-        await deleteSku({ id });
+        await deleteSku({ id }); // API_UNCOMMENT
         toast.success("Success delete data SKU");
         return true;
       } catch (error) {

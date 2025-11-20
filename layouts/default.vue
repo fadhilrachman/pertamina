@@ -40,7 +40,7 @@ onMounted(() => {
       @on-click-close-sidebar="closeSidebar"
     />
     <LayoutsNavbar />
-    <div class="md:pl-[18.5%] pt-[4%] min-h-screen w-full">
+    <div class="md:pl-[276px] pt-[60px] min-h-screen w-full">
       <!-- <GeneralButton label="Uhuy" size="sm" /> -->
       <div class="p-6">
         <slot />

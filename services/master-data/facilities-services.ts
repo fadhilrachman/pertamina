@@ -1,7 +1,8 @@
 import { api } from "~/services/api";
 import type { QueryParams } from "~/types/common";
+import type { PayloadFacilitiesType } from "~/types/facilities-type";
 
-export async function postFacilities(payload: { name: string; email: string }) {
+export async function postFacilities(payload: PayloadFacilitiesType) {
   return await api.post("/api/v1/facilities", { body: payload });
 }
 
@@ -12,9 +13,11 @@ export async function getFacilitiesDetail(params: { id: string }) {
   return await api.get(`/api/v1/facilities/${params.id}`);
 }
 
-export async function putFacilities(params: QueryParams & { id: string }) {
-  return await api.put(`/api/v1/facilities/${params.id}`, {
-    queryParams: params,
+export async function putFacilities(
+  body: PayloadFacilitiesType & { id: string }
+) {
+  return await api.put(`/api/v1/facilities/${body.id}`, {
+    body: body,
   });
 }
 

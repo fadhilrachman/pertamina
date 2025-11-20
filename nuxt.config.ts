@@ -46,11 +46,11 @@ export default defineNuxtConfig({
           method: "post",
         },
         signOut: {
-          path: "/signOut",
+          path: "/logout",
           method: "post",
         },
         getSession: {
-          path: "/getSession",
+          path: "/session",
           method: "get",
         },
       },
@@ -62,7 +62,7 @@ export default defineNuxtConfig({
         maxAgeInSeconds: 60 * 60 * 24,
       },
     },
-    globalAppMiddleware: false, /// IMPORTANT
+    globalAppMiddleware: true, /// IMPORTANT
   },
 
   runtimeConfig: {

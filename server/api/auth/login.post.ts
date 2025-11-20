@@ -89,7 +89,7 @@ export default defineEventHandler(async (event) => {
     const plainText = JSON.stringify({ email, password });
 
     // Encrypt the plain text
-    const encryptedPayload = await encryptAES(plainText, appKey);
+    // const encryptedPayload = await encryptAES(plainText, appKey);
 
     // Forward the encrypted payload to the third-party API
     const apiBaseUrl = config.public.baseAPI;
@@ -100,13 +100,20 @@ export default defineEventHandler(async (event) => {
         message: "API base URL not configured",
       });
     }
+    console.log({
+      apiBaseUrl,
+      payload: {
+        email,
+        password,
+      },
+    });
 
     // Make the request to the third-party API
     const response = await $fetch<LoginResponse>(
       `${apiBaseUrl}/api/v1/auth/login`,
       {
         method: "POST",
-        body: { payload: encryptedPayload },
+        body: { email, password },
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",

@@ -56,70 +56,81 @@ onMounted(async () => {
 </script>
 
 <template>
-  <AppLayoutsAuth class="items-center">
-    <div class="w-full max-w-[500px]">
-      <div class="absolute top-[130px] z-10">
-        <h2 class="text-[44px] font-bold">Welcome back</h2>
-        <h3 class="text-[44px] font-bold">
-          to <span class="text-primary-700">Bunker Monitor System</span>
-        </h3>
+  <main
+    class="bg-primary-100 flex min-h-screen w-full items-center justify-center"
+  >
+    <div class="bg-white rounded-lg p-5 max-w-[560px] w-full">
+      <div class="text-center space-y-3">
+        <h3 class="font-semibold text-2xl">PDSI IMS</h3>
+        <div>
+          <p class="text-neutral-500">Pertamina Drilling Services Indonesia</p>
+          <small class="font-light text-neutral-500"
+            >Inventory Management System</small
+          >
+        </div>
       </div>
-
       <form
-        class="mt-24 space-y-6"
+        class="space-y-4"
         @submit.prevent="onSubmitLogin"
         @keydown.enter.prevent="handleKeyPress"
       >
-        <p class="text-sm text-gray-700">
-          Please sign in to your account below.
-        </p>
-        <GeneralTextInput
-          v-model="email"
-          id="inputEmail"
-          type="text"
-          label="Email"
-          placeholder="Email Addess"
-          class="mb-5"
-          required
-        />
-        <p v-if="errors.email" class="text-sm text-red-500">
-          {{ errors.email }}
-        </p>
-        <GeneralTextInput
-          v-model="password"
-          id="inputPass"
-          :type="isShowPw ? 'text' : 'password'"
-          label="Password"
-          placeholder="Password"
-          class="mb-2"
-          required
-        >
-          <template #suffix>
-            <div
-              class="pointer-events-auto cursor-pointer"
-              @click.stop="isShowPw = !isShowPw"
-            >
-              <IconsEye v-if="isShowPw" size="20" class="stroke-gray-700" />
-              <IconsEyeOff v-else size="20" class="stroke-gray-700" />
-            </div>
-          </template>
-        </GeneralTextInput>
-        <p v-if="errors.password" class="text-sm text-red-500">
-          {{ errors.password }}
-        </p>
+        <div>
+          <GeneralTextInput
+            v-model="email"
+            id="inputEmail"
+            type="text"
+            label="Email"
+            placeholder="Email Addess"
+            class="mb35"
+            required
+          />
+          <p v-if="errors.email" class="text-sm text-red-500">
+            {{ errors.email }}
+          </p>
+        </div>
+        <div>
+          <GeneralTextInput
+            v-model="password"
+            id="inputPass"
+            :type="isShowPw ? 'text' : 'password'"
+            label="Password"
+            placeholder="Password"
+            class="mb-2"
+            required
+          >
+            <template #suffix>
+              <div
+                class="pointer-events-auto cursor-pointer"
+                @click.stop="isShowPw = !isShowPw"
+              >
+                <IconsEye v-if="isShowPw" size="20" class="stroke-gray-700" />
+                <IconsEyeOff v-else size="20" class="stroke-gray-700" />
+              </div>
+            </template>
+          </GeneralTextInput>
+          <p v-if="errors.password" class="text-sm text-red-500">
+            {{ errors.password }}
+          </p>
+        </div>
 
         <p class="w-full text-sm text-black hover:underline">
           <nuxt-link to="/forgot-password">Forgot password?</nuxt-link>
         </p>
-        <GeneralButton
-          type="submit"
-          label="Login"
-          :disabled="$auth.isLoading"
-          :loading="$auth.isLoading"
-          variant="primary"
-          class="w-[181px] h-12"
-        />
+        <div>
+          <GeneralButton
+            type="submit"
+            label="Login"
+            :disabled="$auth.isLoading"
+            :loading="$auth.isLoading"
+            variant="primary"
+            class="w-full h-12"
+          />
+          <div class="flex justify-end text-sm space-x-1">
+            <p>Don't have an account?</p>
+            <a href="/register" class="text-blue-500">Register</a>
+          </div>
+        </div>
       </form>
     </div>
-  </AppLayoutsAuth>
+  </main>
 </template>

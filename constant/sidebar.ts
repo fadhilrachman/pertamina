@@ -9,6 +9,8 @@ import {
   IconsStockOut,
   IconsTransactions,
   IconsTruck,
+  IconsUser,
+  IconsUserRole,
   IconsWarehouse,
 } from "#components";
 import type { ISidebar } from "@/types/sidebar";
@@ -21,6 +23,33 @@ export const sidebarMenu: ISidebar[] = [
     route: "/dashboard",
     icon: markRaw(IconsDashboard),
     active: false,
+  },
+  {
+    id: "menu__companies",
+    label: "Company",
+    route: "/company",
+    icon: markRaw(IconsBuilding),
+  },
+  {
+    label: "User Management",
+    icon: markRaw(IconsUser),
+    id: "menu__user-management",
+    startWith: "/user-management",
+    isOpen: false,
+    menu: [
+      {
+        label: "User",
+        id: "menu__user-management",
+        route: "/user-management/user",
+        icon: markRaw(IconsUser),
+      },
+      {
+        label: "Roles",
+        id: "menu__user-management",
+        route: "/user-management/roles",
+        icon: markRaw(IconsUserRole),
+      },
+    ],
   },
   {
     label: "Stock Management",

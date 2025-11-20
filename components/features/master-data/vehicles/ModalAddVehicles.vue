@@ -1,14 +1,10 @@
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { ref } from "vue";
+import { useForm } from "vee-validate";
 import type { ElementEvent } from "~/types/element";
 import { object, string } from "yup";
 import type { FieldConfig } from "~/components/general/FormGenerator/index.vue";
-
-const modalInstance = ref<ElementEvent | null>(null);
-const form = reactive({
-  skuCode: "",
-  skuName: "",
-});
+import { useVehiclesStore } from "~/store/master-data/vehicles-store";
 
 const formFields: FieldConfig[] = [
   {
@@ -67,6 +63,11 @@ const formFields: FieldConfig[] = [
   },
 ];
 
+const modalInstance = ref<ElementEvent | null>(null);
+
+const { createDataVehicles, loadingWrite, getDataVehicles } =
+  useVehiclesStore();
+
 const formSchema = object({
   vehicle_id: string().required("Vehicle ID is required"),
   plate_number: string().required("Plate Number is required"),
@@ -74,6 +75,29 @@ const formSchema = object({
   capacity: string().required("Capacity is required"),
   assigned_facility: string().required("Assigned Facility is required"),
   notes: string().nullable(),
+});
+
+type VehicleFormValues = {
+  vehicle_id: string;
+  plate_number: string;
+  type: string;
+  capacity: string;
+  assigned_facility: string;
+  notes: string | null;
+};
+
+const createInitialValues = (): VehicleFormValues => ({
+  vehicle_id: "",
+  plate_number: "",
+  type: "",
+  capacity: "",
+  assigned_facility: "",
+  notes: "",
+});
+
+const form = useForm<VehicleFormValues>({
+  validationSchema: formSchema,
+  initialValues: createInitialValues(),
 });
 const handleModalMounted = (instance: ElementEvent) => {
   modalInstance.value = instance;
@@ -84,10 +108,19 @@ const close = () => modalInstance.value?.hide();
 
 const handleCancel = () => {
   close();
+  form.resetForm({ values: createInitialValues() });
 };
 
-function handleFormSubmit(values: Record<string, any>) {
-  console.log("Submit dashboard form:", values);
+async function handleFormSubmit(values: Record<string, any>) {
+  try {
+    await createDataVehicles(values);
+    getDataVehicles({ page: "1", per_page: "10" });
+    handleCancel();
+
+    return true;
+  } catch (error) {
+    throw error;
+  }
 }
 
 defineExpose({
@@ -107,6 +140,7 @@ defineExpose({
     <template #body>
       <GeneralFormGenerator
         id="AddSku"
+        :form-context="form"
         :fields="formFields"
         :validation-schema="formSchema"
         class-name=""
@@ -116,6 +150,8 @@ defineExpose({
       <div class="flex justify-end gap-3 pt-2">
         <GeneralOutlinedButton label="Cancel" @on-click="handleCancel" />
         <GeneralButton
+          :disabled="loadingWrite"
+          :loading="loadingWrite"
           type="submit"
           form="AddSku"
           color="primary"

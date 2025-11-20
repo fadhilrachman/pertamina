@@ -54,6 +54,12 @@ const rowBackgroundClass = (index: number) => {
   if (!props.striped) return "bg-white";
   return index % 2 === 0 ? "bg-white" : "bg-gray-50";
 };
+
+const skeletonRowCount = 4;
+const skeletonWidths = ["w-5/6", "w-2/3", "w-3/4", "w-1/2"];
+const getSkeletonWidthClass = (index: number) => {
+  return skeletonWidths[index % skeletonWidths.length];
+};
 </script>
 
 <template>
@@ -76,17 +82,29 @@ const rowBackgroundClass = (index: number) => {
         </tr>
       </thead>
 
-      <tbody v-if="loading">
-        <tr>
-          <td
-            :colspan="columnCount"
-            class="px-4 py-10 text-center text-sm text-gray-500"
+      <tbody v-if="loading" class="divide-y divide-gray-100">
+        <slot name="loading">
+          <tr
+            v-for="rowIndex in skeletonRowCount"
+            :key="`skeleton-${rowIndex}`"
+            class="bg-white animate-pulse"
           >
-            <slot name="loading">
-              {{ loadingText }}
-            </slot>
-          </td>
-        </tr>
+            <td
+              v-for="(column, columnIndex) in columns"
+              :key="`skeleton-cell-${rowIndex}-${column.key}`"
+              :class="['px-4 py-4', alignClass(column.align), column.cellClass]"
+            >
+              <div
+                :class="[
+                  'h-4 rounded bg-gray-200',
+                  getSkeletonWidthClass(columnIndex),
+                ]"
+              >
+                <span class="sr-only">{{ loadingText }}</span>
+              </div>
+            </td>
+          </tr>
+        </slot>
       </tbody>
 
       <tbody v-else-if="data.length === 0">

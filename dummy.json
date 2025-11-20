@@ -1,140 +1,146 @@
 {
   "DATA_SKU": [
     {
+      "id": "sku-001",
       "sku_code": "SKU-001",
       "name": "White T-Shirt",
-      "category": "Apparel",
-      "uom": "PCS",
-      "max": "500",
-      "min": "50",
-      "description": ""
+      "unit": "PCS",
+      "status": "active",
+      "description": "Classic cotton tee",
+      "created_at": "2024-01-05T08:00:00Z",
+      "deleted_at": null,
+      "updated_at": "2024-02-10T12:00:00Z"
     },
     {
+      "id": "sku-002",
       "sku_code": "SKU-002",
       "name": "Blue Jeans",
-      "category": "Apparel",
-      "uom": "PCS",
-      "max": "300",
-      "min": "30",
-      "description": ""
+      "unit": "PCS",
+      "status": "active",
+      "description": "Denim slim fit",
+      "created_at": "2024-01-10T08:00:00Z",
+      "deleted_at": null,
+      "updated_at": "2024-02-14T12:00:00Z"
     },
     {
+      "id": "sku-003",
       "sku_code": "SKU-003",
       "name": "Running Shoes",
-      "category": "Footwear",
-      "uom": "PAIR",
-      "max": "200",
-      "min": "20",
-      "description": ""
+      "unit": "PAIR",
+      "status": "inactive",
+      "description": "Lightweight runners",
+      "created_at": "2024-01-12T08:00:00Z",
+      "deleted_at": null,
+      "updated_at": "2024-02-18T12:00:00Z"
     },
     {
+      "id": "sku-004",
       "sku_code": "SKU-004",
       "name": "Hoodie Jacket",
-      "category": "Apparel",
-      "uom": "PCS",
-      "max": "250",
-      "min": "25",
-      "description": ""
+      "unit": "PCS",
+      "status": "active",
+      "description": "Fleece hoodie",
+      "created_at": "2024-01-15T08:00:00Z",
+      "deleted_at": null,
+      "updated_at": "2024-02-20T12:00:00Z"
     },
     {
+      "id": "sku-005",
       "sku_code": "SKU-005",
       "name": "Sport Watch",
-      "category": "Accessories",
-      "uom": "PCS",
-      "max": "150",
-      "min": "10",
-      "description": ""
+      "unit": "PCS",
+      "status": "active",
+      "description": "Water resistant watch",
+      "created_at": "2024-01-18T08:00:00Z",
+      "deleted_at": null,
+      "updated_at": "2024-02-25T12:00:00Z"
     },
     {
+      "id": "sku-006",
       "sku_code": "SKU-006",
       "name": "Leather Wallet",
-      "category": "Accessories",
-      "uom": "PCS",
-      "max": "100",
-      "min": "10",
-      "description": ""
+      "unit": "PCS",
+      "status": "active",
+      "description": "Brown leather wallet",
+      "created_at": "2024-01-20T08:00:00Z",
+      "deleted_at": null,
+      "updated_at": "2024-02-27T12:00:00Z"
     },
     {
+      "id": "sku-007",
       "sku_code": "SKU-007",
       "name": "Baseball Cap",
-      "category": "Apparel",
-      "uom": "PCS",
-      "max": "400",
-      "min": "40",
-      "description": ""
+      "unit": "PCS",
+      "status": "inactive",
+      "description": "Adjustable cap",
+      "created_at": "2024-01-22T08:00:00Z",
+      "deleted_at": null,
+      "updated_at": "2024-03-01T12:00:00Z"
     },
     {
+      "id": "sku-008",
       "sku_code": "SKU-008",
       "name": "Socks Pack",
-      "category": "Apparel",
-      "uom": "PACK",
-      "max": "600",
-      "min": "60",
-      "description": ""
+      "unit": "PACK",
+      "status": "active",
+      "description": "Pack of 3 cotton socks",
+      "created_at": "2024-01-25T08:00:00Z",
+      "deleted_at": null,
+      "updated_at": "2024-03-02T12:00:00Z"
     },
     {
+      "id": "sku-009",
       "sku_code": "SKU-009",
       "name": "Backpack",
-      "category": "Bags",
-      "uom": "PCS",
-      "max": "180",
-      "min": "15",
-      "description": ""
+      "unit": "PCS",
+      "status": "active",
+      "description": "Laptop friendly backpack",
+      "created_at": "2024-01-28T08:00:00Z",
+      "deleted_at": null,
+      "updated_at": "2024-03-05T12:00:00Z"
     },
     {
+      "id": "sku-010",
       "sku_code": "SKU-010",
       "name": "Sunglasses",
-      "category": "Accessories",
-      "uom": "PCS",
-      "max": "120",
-      "min": "12",
-      "description": ""
+      "unit": "PCS",
+      "status": "inactive",
+      "description": "Polarized shades",
+      "created_at": "2024-01-30T08:00:00Z",
+      "deleted_at": null,
+      "updated_at": "2024-03-08T12:00:00Z"
     }
   ],
 
   "DATA_FACILITES": [
     {
-      "facility_code": "1",
-      "name": "SBS",
-      "address": "-",
-      "city": "-",
-      "capacity": "100,000",
-      "status": "ACTIVE"
+      "address": "Jl. Merdeka No. 10, Jakarta",
+      "code": "CMP001",
+      "company_id": "1",
+      "created_at": "2024-01-10T10:00:00.000Z",
+      "id": "A1",
+      "name": "PT Maju Jaya",
+      "status": "active"
     },
     {
-      "facility_code": "2",
-      "name": "Central Warehouse",
-      "address": "Jl. Merdeka No. 10",
-      "city": "Jakarta",
-      "capacity": "250,000",
-      "status": "ACTIVE"
+      "address": "Jl. Sudirman No. 22, Bandung",
+      "code": "CMP002",
+      "company_id": "2",
+      "created_at": "2024-02-15T14:30:00.000Z",
+      "id": "A2",
+      "name": "PT Sukses Selalu",
+      "status": "inactive"
     },
     {
-      "facility_code": "3",
-      "name": "East Depot",
-      "address": "Jl. Kenanga No. 21",
-      "city": "Surabaya",
-      "capacity": "75,000",
-      "status": "PENDING"
-    },
-    {
-      "facility_code": "4",
-      "name": "North Storage",
-      "address": "-",
-      "city": "Medan",
-      "capacity": "50,000",
-      "status": "INACTIVE"
-    },
-    {
-      "facility_code": "5",
-      "name": "South Logistics",
-      "address": "Jl. Gading No. 55",
-      "city": "Bandung",
-      "capacity": "120,000",
-      "status": "ACTIVE"
+      "address": "Jl. Diponegoro No. 5, Surabaya",
+      "code": "CMP003",
+      "company_id": "3",
+      "created_at": "2024-03-01T08:15:00.000Z",
+      "id": "A3",
+      "name": "PT Aman Sentosa",
+      "status": "active"
     }
   ],
-
   "DATA_VEHICLES": [
     {
       "vehicle_id": "V001",
@@ -170,6 +176,105 @@
       "type": "Box Truck",
       "capacity": "7,500 KG",
       "assigned_facility": "Jakarta Main Hub"
+    }
+  ],
+  "DATA_USERS": [
+    {
+      "id": "user-001",
+      "name": "John Doe",
+      "email": "john.doe@pdsi.co.id",
+      "role": "Warehouse Admin",
+      "status": "active",
+      "created_at": "2024-01-05T08:00:00Z"
+    },
+    {
+      "id": "user-002",
+      "name": "Jane Smith",
+      "email": "jane.smith@pdsi.co.id",
+      "role": "Inventory Controller",
+      "status": "active",
+      "created_at": "2024-01-10T09:30:00Z"
+    },
+    {
+      "id": "user-003",
+      "name": "Michael Lee",
+      "email": "michael.lee@pdsi.co.id",
+      "role": "Warehouse Staff",
+      "status": "inactive",
+      "created_at": "2024-02-02T11:15:00Z"
+    },
+    {
+      "id": "user-004",
+      "name": "Ayu Lestari",
+      "email": "ayu.lestari@pdsi.co.id",
+      "role": "Procurement",
+      "status": "active",
+      "created_at": "2024-02-18T14:45:00Z"
+    },
+    {
+      "id": "user-005",
+      "name": "Rizky Putra",
+      "email": "rizky.putra@pdsi.co.id",
+      "role": "Viewer",
+      "status": "active",
+      "created_at": "2024-03-01T07:20:00Z"
+    }
+  ],
+  "DATA_STOCK_ON_HAND": [
+    {
+      "id": "soh-001",
+      "sku_code": "SKU-001",
+      "sku_name": "Diesel Oil 20L",
+      "warehouse": "Central Warehouse",
+      "unit": "DRM",
+      "on_hand_qty": 240,
+      "reserved_qty": 30,
+      "available_qty": 210,
+      "last_transaction_at": "2024-03-10T10:15:00Z"
+    },
+    {
+      "id": "soh-002",
+      "sku_code": "SKU-002",
+      "sku_name": "Drill Bit 8 1/2\"",
+      "warehouse": "SBS Warehouse",
+      "unit": "PCS",
+      "on_hand_qty": 45,
+      "reserved_qty": 10,
+      "available_qty": 35,
+      "last_transaction_at": "2024-03-09T14:20:00Z"
+    },
+    {
+      "id": "soh-003",
+      "sku_code": "SKU-003",
+      "sku_name": "Casing Pipe 9 5/8\"",
+      "warehouse": "Surabaya Facility",
+      "unit": "JOINT",
+      "on_hand_qty": 120,
+      "reserved_qty": 40,
+      "available_qty": 80,
+      "last_transaction_at": "2024-03-08T09:45:00Z"
+    },
+    {
+      "id": "soh-004",
+      "sku_code": "SKU-004",
+      "sku_name": "Mud Chemical - Barite",
+      "warehouse": "Bandung Depot",
+      "unit": "SACK",
+      "on_hand_qty": 560,
+      "reserved_qty": 80,
+      "available_qty": 480,
+      "last_transaction_at": "2024-03-07T16:30:00Z"
+    },
+    {
+      "id": "soh-005",
+      "sku_code": "SKU-005",
+      "sku_name": "Grease EP2 18kg",
+      "warehouse": "Jakarta Main Hub",
+      "unit": "DRM",
+      "on_hand_qty": 75,
+      "reserved_qty": 5,
+      "available_qty": 70,
+      "last_transaction_at": "2024-03-06T11:05:00Z"
     }
   ]
 }

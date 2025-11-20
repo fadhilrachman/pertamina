@@ -79,7 +79,7 @@ function onClickClear() {
 
 const classContainer = computed(() => {
   const baseClass =
-    "w-full rounded-lg overflow-hidden stroke-gray-500 border-2 flex h-10";
+    "w-full rounded-lg overflow-hidden stroke-gray-500 border-2 flex h-11";
   const border = props.invalid
     ? "border-error-500"
     : isFocused.value

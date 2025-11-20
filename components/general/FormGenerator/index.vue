@@ -1,15 +1,23 @@
 <script setup lang="ts">
-import { computed, watch, type PropType } from "vue";
+import { watch, type PropType } from "vue";
 import {
   Field,
   ErrorMessage,
-  useForm,
   type FieldSlotProps,
+  type FormContext,
 } from "vee-validate";
 import type { AnyObjectSchema } from "yup";
 import GeneralTextInput from "~/components/general/TextInput/index.vue";
+import GeneralDropdownSearch from "~/components/general/DropdownSearch/index.vue";
 
-type FieldType = "text" | "email" | "date" | "textarea" | "select" | "file";
+type FieldType =
+  | "text"
+  | "email"
+  | "date"
+  | "textarea"
+  | "select"
+  | "file"
+  | "search-select";
 
 interface SelectOption {
   id: string | number;
@@ -70,9 +78,9 @@ const props = defineProps({
     type: Object as PropType<Record<string, any>>,
     default: () => ({}),
   },
-  initialValues: {
-    type: Object as PropType<Record<string, any>>,
-    default: () => ({}),
+  formContext: {
+    type: Object as PropType<FormContext<any>>,
+    required: true,
   },
 });
 
@@ -81,36 +89,13 @@ const emit = defineEmits<{
   (e: "submit", payload: Record<string, any>): void;
 }>();
 
-const fallbackInitials = computed(() => {
-  const base: Record<string, any> = {};
-  props.fields.forEach((field) => {
-    base[field.name] =
-      props.modelValue[field.name] ??
-      props.initialValues[field.name] ??
-      field.defaultValue ??
-      (field.type === "file" ? null : "");
-  });
-  return base;
-});
-
-const { handleSubmit, values, setValues } = useForm({
-  validationSchema: props.validationSchema,
-  initialValues: fallbackInitials.value,
-});
-
-watch(
-  fallbackInitials,
-  (next) => {
-    setValues({ ...next }, false);
-  },
-  { immediate: true, deep: true }
-);
+const { handleSubmit, values, setValues } = props.formContext;
 
 watch(
   () => props.modelValue,
   (next) => {
     if (!next) return;
-    setValues({ ...fallbackInitials.value, ...next }, false);
+    setValues({ ...values.value, ...next }, false);
   },
   { deep: true }
 );
@@ -200,11 +185,11 @@ function fileInputClasses(invalid: boolean, disabled?: boolean) {
   >
     <template v-for="field in fields" :key="field.name">
       <Field :name="field.name" v-slot="{ field: fieldBinding, meta }">
-        <div :class="['flex flex-col space-y-1', getColSpanClass(field)]">
+        <div :class="['flex flex-col  space-y-1', getColSpanClass(field)]">
           <label
             v-if="field.label"
             :for="`${id}-${field.name}`"
-            class="text-sm text-gray-700 flex items-center gap-1"
+            class="text-sm font-medium text-gray-700 flex items-center gap-1"
           >
             <span>{{ field.label }}</span>
             <span v-if="field.requiredMark" class="text-error-500">*</span>
@@ -265,6 +250,19 @@ function fileInputClasses(invalid: boolean, disabled?: boolean) {
               :placeholder="field.placeholder || 'Select option'"
               :disabled="field.disabled"
               :required="field.requiredMark"
+              :invalid="meta.touched && !meta.valid"
+              :multiple="field.multiple"
+              @update:model-value="fieldBinding.onChange"
+            />
+          </template>
+
+          <template v-else-if="field.type === 'search-select'">
+            <GeneralDropdownSearch
+              :id="`${id}-${field.name}`"
+              :model-value="fieldBinding.value"
+              :options="field.options || []"
+              :placeholder="field.placeholder || 'Search option'"
+              :disabled="field.disabled"
               :invalid="meta.touched && !meta.valid"
               :multiple="field.multiple"
               @update:model-value="fieldBinding.onChange"

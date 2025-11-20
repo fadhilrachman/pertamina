@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onBeforeMount, onMounted, ref } from "vue";
-import ModalAddSku from "~/components/features/master-data/sku/ModalAddSku.vue";
+import ModalAddSku from "~/components/features/master-data/sku/ModalFormSku.vue";
 import ModalAddVehicles from "~/components/features/master-data/vehicles/ModalAddVehicles.vue";
 import type { TableColumn } from "~/components/general/Table/index.vue";
 import { useVehiclesStore } from "~/store/master-data/vehicles-store";

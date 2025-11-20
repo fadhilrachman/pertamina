@@ -22,7 +22,7 @@ export const useAuthStore = defineStore("auth", {
             email: this.email,
             password: this.password,
           },
-          { callbackUrl: `/` }
+          { callbackUrl: `/dashboard` }
         );
 
         // Check if companies data exists and set the company ID

@@ -1,26 +1,24 @@
 import { useIsUnauthorized } from "~/composables/is-unauthorized";
 
 export const api = {
-  provider: (
+  provider: <Body = unknown>(
     url: string,
-    queryParams?: Record<string, string> | undefined,
-    body?:
-      | Record<
-          string,
-          boolean | string | "" | string[] | undefined | null | object[]
-        >
-      | FormData
-      | undefined,
+    queryParams?: Record<any, any> | undefined,
+    body?: Body | FormData,
     headers?: Record<string, string> | undefined,
     isByte?: boolean
   ): { newUrl: string; newHeaders: Record<string, string> } => {
     const { token } = useAuth();
     const baseUrl = useRuntimeConfig().public.baseAPI;
 
-    if (token) {
+    const tokenValue = token?.value;
+    if (tokenValue) {
+      const bearerToken = tokenValue.startsWith("Bearer ")
+        ? tokenValue
+        : `Bearer ${tokenValue}`;
       headers = {
         ...headers,
-        Authorization: `${token.value}`,
+        Authorization: bearerToken,
       };
     }
 
@@ -50,7 +48,7 @@ export const api = {
   afterResponse: async <T>(response: Response, isByte: boolean) => {
     const data = isByte ? await response.blob() : await response.json();
 
-    if (response.status >= 500) navigateTo("/server-error");
+    // if (response.status >= 500) navigateTo("/server-error");
 
     if (response.status === 401 && !response.url.includes("syncfms")) {
       useIsUnauthorized().value = true;
@@ -67,7 +65,7 @@ export const api = {
   get: async (
     url: string,
     option?: {
-      queryParams?: Record<string, string>;
+      queryParams?: Record<any, any>;
       headers?: Record<string, string>;
       isByte?: boolean;
     }
@@ -75,7 +73,9 @@ export const api = {
     const { newUrl, newHeaders } = api.provider(
       url,
       option?.queryParams,
-      option?.headers
+      undefined,
+      option?.headers,
+      option?.isByte
     );
 
     const isByte = option?.isByte || false;
@@ -91,12 +91,7 @@ export const api = {
     url: string,
     option?: {
       queryParams?: Record<string, string>;
-      body?:
-        | Record<
-            string,
-            boolean | string | "" | string[] | undefined | null | object[]
-          >
-        | FormData;
+      body?: unknown | FormData;
       headers?: Record<string, string>;
       isByte?: boolean;
     }
@@ -135,7 +130,8 @@ export const api = {
       url,
       option?.queryParams,
       option?.body,
-      option?.headers
+      option?.headers,
+      option?.isByte
     );
 
     const isByte = option?.isByte || false;
@@ -164,7 +160,8 @@ export const api = {
       url,
       option?.queryParams,
       option?.body,
-      option?.headers
+      option?.headers,
+      option?.isByte
     );
 
     const isByte = option?.isByte || false;

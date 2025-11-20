@@ -108,3 +108,16 @@
 ::-ms-reveal {
   display: none;
 }
+
+/* Force invalid state styles for vue-select */
+.v-select--invalid .vs__dropdown-toggle,
+.vs__dropdown-toggle.vs__dropdown-toggle--invalid {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 1px #ef4444 !important;
+}
+
+.v-select--invalid .vs__dropdown-toggle:focus-within,
+.vs__dropdown-toggle.vs__dropdown-toggle--invalid:focus-within {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2) !important;
+}

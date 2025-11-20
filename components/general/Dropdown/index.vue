@@ -85,7 +85,7 @@ const variantColors = {
 
 const containerClasses = computed(() => {
   const baseClass =
-    "w-full rounded-lg overflow-hidden stroke-gray-500 border-2 flex h-10";
+    "w-full rounded-lg overflow-hidden stroke-gray-500 border-2 flex h-11";
   const border = props.invalid
     ? "border-error-500"
     : isFocused.value
@@ -97,10 +97,18 @@ const containerClasses = computed(() => {
 });
 
 const selectClasses = computed(() => {
+  const isPlaceholder = props.modelValue === "" || props.modelValue === null;
+
   const baseClass =
-    "block px-2.5 w-full placeholder-neutral-400 h-full border-none text-gray-900 bg-transparent focus:ring-0";
+    "block px-2.5 w-full h-full border-none bg-transparent focus:ring-0";
+
+  const stateClass = isPlaceholder
+    ? "text-sm font-normal text-neutral-500"
+    : "text-base text-gray-900";
+
   const cursor = props.disabled ? "cursor-not-allowed" : "";
-  return `${baseClass} ${cursor}`;
+
+  return `${baseClass} ${stateClass} ${cursor}`;
 });
 
 const handleChange = (event: Event) => {
@@ -150,9 +158,9 @@ const handleChange = (event: Event) => {
         >
           <option
             v-if="!props.multiple"
-            disabled
             :value="''"
             :selected="!props.modelValue"
+            class="text-sm font-normal text-neutral-400"
           >
             {{ props.placeholder }}
           </option>
