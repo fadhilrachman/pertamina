@@ -12,6 +12,7 @@ import GeneralDropdownSearch from "~/components/general/DropdownSearch/index.vue
 
 type FieldType =
   | "text"
+  | "number"
   | "email"
   | "date"
   | "textarea"
@@ -36,6 +37,8 @@ export interface FieldConfig {
   defaultValue?: any;
   options?: ReadonlyArray<SelectOption>;
   multiple?: boolean;
+  min?: number;
+  max?: number;
 }
 
 const listColSpan = {
@@ -195,7 +198,13 @@ function fileInputClasses(invalid: boolean, disabled?: boolean) {
             <span v-if="field.requiredMark" class="text-error-500">*</span>
           </label>
 
-          <template v-if="field.type === 'text' || field.type === 'email'">
+          <template
+            v-if="
+              field.type === 'text' ||
+              field.type === 'email' ||
+              field.type === 'number'
+            "
+          >
             <GeneralTextInput
               :id="`${id}-${field.name}`"
               :model-value="fieldBinding.value"
@@ -203,6 +212,8 @@ function fileInputClasses(invalid: boolean, disabled?: boolean) {
               :placeholder="field.placeholder"
               :disabled="field.disabled"
               :invalid="meta.touched && !meta.valid"
+              :min="field.min"
+              :max="field.max"
               @update:model-value="fieldBinding.onChange"
             />
           </template>

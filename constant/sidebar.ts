@@ -105,9 +105,9 @@ export const sidebarMenu: ISidebar[] = [
         icon: markRaw(IconsBuilding),
       },
       {
-        label: "Vehicles",
-        id: "menu__master-vehicles",
-        route: "/master-data/vehicles",
+        label: "Facilities SKU",
+        id: "menu__master-facilities-sku",
+        route: "/master-data/facilities-sku",
         icon: markRaw(IconsTruck),
       },
     ],

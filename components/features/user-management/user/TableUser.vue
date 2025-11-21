@@ -7,6 +7,7 @@ import type { ElementEvent } from "~/types/element";
 import { useUserStore } from "~/store/user-management/user-store";
 import type { UserType } from "~/types/user-type";
 import ModalFormRole from "../role/ModalFormRole.vue";
+import ModalFormUser from "./ModalFormUser.vue";
 
 const userStore = useUserStore();
 const { data, loadingWrite } = storeToRefs(userStore);
@@ -101,7 +102,7 @@ onMounted(() => {
       <div class="flex justify-between space-x-2">
         <GeneralButton
           color="primary"
-          label="Add User"
+          label="Invite User"
           @on-click="openAddRoleModal"
         >
           <template #prefix>
@@ -160,7 +161,7 @@ onMounted(() => {
         />
       </div>
     </section>
-    <ModalFormRole ref="modalAddRef" :mode="formModeRef" />
+    <ModalFormUser ref="modalAddRef" :mode="formModeRef" />
     <ModalDelete
       id="modal-delete-user"
       :target-label="selectedUser?.name || 'this user'"

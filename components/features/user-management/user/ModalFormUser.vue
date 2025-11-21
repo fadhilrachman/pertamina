@@ -5,11 +5,9 @@ import { useForm } from "vee-validate";
 import type { ElementEvent } from "~/types/element";
 import { object, string } from "yup";
 import type { FieldConfig } from "~/components/general/FormGenerator/index.vue";
-import type {
-  FacilitiesType,
-  PayloadFacilitiesType,
-} from "~/types/facilities-type";
-import { useFacilitiesStore } from "~/store/master-data/facilities-store";
+import { useSkuStore } from "~/store/master-data/sku-store";
+import type { RoleType } from "~/types/role-types";
+import { useRoleStore } from "~/store/user-management/role-store";
 
 const props = withDefaults(
   defineProps<{
@@ -25,72 +23,29 @@ const emit = defineEmits(["opened", "closed"]);
 
 const formFields: FieldConfig[] = [
   {
-    name: "code",
-    label: "Facility Code",
-    requiredMark: true,
-    type: "text",
-    placeholder: "e.g., WH-001",
-    grid: 6,
-  },
-  {
     name: "name",
-    label: "Facility Name",
+    label: "Email",
     requiredMark: true,
     type: "text",
-    placeholder: "e.g., Central Warehouse",
-    grid: 6,
-  },
-  {
-    name: "address",
-    label: "Address",
-    requiredMark: true,
-    type: "text",
-    placeholder: "Street address",
+    placeholder: "e.g., johndoe@gmail.com",
     grid: 12,
   },
-
-  // {
-  //   name: "capacity",
-  //   label: "Capacity",
-  //   requiredMark: true,
-  //   type: "text",
-  //   placeholder: "e.g., 120,000",
-  //   grid: 6,
-  // },
-  // {
-  //   name: "status",
-  //   label: "Status",
-  //   requiredMark: true,
-  //   type: "select",
-  //   placeholder: "Select status",
-  //   grid: 12,
-  //   options: [
-  //     { id: "active", label: "Active" },
-  //     { id: "inactive", label: "Inactive" },
-  //   ],
-  // },
 ];
-
 const modalInstance = ref<ElementEvent | null>(null);
 
-const facilitiesStore = useFacilitiesStore();
-const { loadingWrite, selectedData } = storeToRefs(facilitiesStore);
-const { createDataFacilities, updateDataFacilities, getDataFacilities } =
-  facilitiesStore;
+const roleStore = useRoleStore();
+const { loadingWrite, selectedData } = storeToRefs(roleStore);
+const { createDataRole, updateDataRole, getDataRole } = roleStore;
 
 const formSchema = object({
-  code: string().required("Facility Code is required"),
-  name: string().required("Facility Name is required"),
-  address: string().required("Address is required"),
-  // status: string().required("Status is required"),
+  name: string().required("Name is required"),
 });
 
-const createInitialValues = (): PayloadFacilitiesType => ({
-  code: "",
+const createInitialValues = (): RoleType => ({
   name: "",
-  address: "",
 });
-const form = useForm<FacilitiesType>({
+
+const form = useForm<RoleType>({
   validationSchema: formSchema,
   initialValues: createInitialValues(),
 });
@@ -102,7 +57,7 @@ watch(
   }),
   ({ mode, selectedData }) => {
     if (mode === "update" && selectedData) {
-      form.resetForm({ values: selectedData as FacilitiesType });
+      form.resetForm({ values: selectedData as RoleType });
     } else {
       form.resetForm({ values: createInitialValues() });
     }
@@ -127,10 +82,9 @@ const handleCancel = () => {
 
 async function handleFormSubmit(values: Record<string, any>) {
   try {
-    const action =
-      props.mode === "update" ? updateDataFacilities : createDataFacilities;
+    const action = props.mode === "update" ? updateDataRole : createDataRole;
     await action(values);
-    await getDataFacilities({ page: 1, limit: 10 });
+    await getDataRole({ page: 1, limit: 10 });
     handleCancel();
 
     return true;
@@ -150,17 +104,17 @@ defineExpose({
 
 <template>
   <GeneralModal
-    id="modal-add-sku"
-    :title="isUpdateMode ? 'Update Warehouse' : 'Add New Warehouse'"
+    id="modal-add-role"
+    :title="isUpdateMode ? 'Update Role' : 'Invite User'"
     :is-has-close="true"
-    class-modal="max-w-xl"
+    class-modal="max-w-sm"
     @mounted="handleModalMounted"
     @modal-opened="handleModalOpened"
     @modal-closed="handleModalClosed"
   >
-    <template #body>
+    <template #body class="">
       <GeneralFormGenerator
-        id="FormSKU"
+        id="FormROle"
         :form-context="form"
         :fields="formFields"
         :validation-schema="formSchema"
@@ -168,7 +122,7 @@ defineExpose({
         @submit="handleFormSubmit"
       />
 
-      <div class="flex justify-end gap-3 pt-2">
+      <div class="flex justify-end mt-4 gap-3 pt-2">
         <GeneralOutlinedButton
           label="Cancel"
           @on-click="handleCancel"
@@ -178,7 +132,7 @@ defineExpose({
           :disabled="loadingWrite"
           :loading="loadingWrite"
           type="submit"
-          form="FormSKU"
+          form="FormROle"
           color="primary"
           :label="isUpdateMode ? 'Update' : 'Create'"
         />

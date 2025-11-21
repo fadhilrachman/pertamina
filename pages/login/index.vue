@@ -6,7 +6,7 @@ import { useAuthStore } from "~/store/auth";
 definePageMeta({
   auth: {
     unauthenticatedOnly: true,
-    navigateAuthenticatedTo: "/",
+    navigateAuthenticatedTo: "/dashboard",
   },
   layout: "login",
   layoutTransition: {

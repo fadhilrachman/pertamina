@@ -6,11 +6,11 @@
       Inventory Management System
     </h3>
     <div class="flex items-center space-x-4">
-      <GeneralTextInput
+      <!-- <GeneralTextInput
         class="w-[400px] placeholder:text-neutral-400"
         :clearable="true"
         placeholder="Search SKU, Warehouse, or Transaction..."
-      />
+      /> -->
       <div class="flex items-center space-x-4">
         <IconsBell size="18" class="stroke-neutral-600" />
         <div

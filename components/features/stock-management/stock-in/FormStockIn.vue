@@ -1,94 +1,135 @@
 <script setup lang="ts">
+import { computed, onMounted } from "vue";
+import { storeToRefs } from "pinia";
 import { useForm } from "vee-validate";
 import { object, string } from "yup";
 import type { FieldConfig } from "~/components/general/FormGenerator/index.vue";
 import type { PayloadSKUType } from "~/types/sku-type";
+import { useSkuStore } from "~/store/master-data/sku-store";
+import { useFacilitiesStore } from "~/store/master-data/facilities-store";
+import { useStockTransaction } from "~/store/stock-management/stock-transaction-store";
 
-const formFields: FieldConfig[] = [
+const stockTransactionStore = useStockTransaction();
+const { loadingWrite } = storeToRefs(stockTransactionStore);
+const skuStore = useSkuStore();
+const facilitiesStore = useFacilitiesStore();
+const { data: skuData } = storeToRefs(skuStore);
+const { data: facilitiesData } = storeToRefs(facilitiesStore);
+
+const skuOptions = computed(
+  () =>
+    skuData.value?.data?.data?.map((item) => ({
+      id: item.id,
+      label: `${item.sku_code} - ${item.name}`,
+    })) || []
+);
+
+const facilitiesOptions = computed(
+  () =>
+    facilitiesData.value?.data?.data?.map((item) => ({
+      id: item.id,
+      label: item.name,
+    })) || []
+);
+
+const formFields = computed<FieldConfig[]>(() => [
   {
-    name: "sku_code",
+    name: "sku_id",
     label: "Sku Name",
-    type: "select",
+    type: "search-select",
     placeholder: "Select SKU",
     grid: 6,
     requiredMark: true,
-    options: [
-      { id: "active", label: "Active" },
-      { id: "inactive", label: "Inactive" },
-    ],
+    options: skuOptions.value,
   },
   {
-    name: "name",
-    label: "Quantity",
-    requiredMark: true,
-    type: "text",
-    placeholder: "Enter received quantity",
-    grid: 6,
-  },
-  {
-    name: "status",
+    name: "facility_id",
     label: "Receiving Warehouse ",
-    type: "select",
+    type: "search-select",
     placeholder: "Select Warehouse",
     grid: 6,
     requiredMark: true,
-    options: [
-      { id: "active", label: "Active" },
-      { id: "inactive", label: "Inactive" },
-    ],
+    options: facilitiesOptions.value,
   },
   {
-    name: "unit",
+    label: "Quantity",
+    name: "qty",
+    requiredMark: true,
+    type: "text",
+    placeholder: "e.g., 150",
+    grid: 6,
+  },
+
+  {
+    name: "uom",
+    label: "UOM.",
+    requiredMark: true,
+    type: "text",
+    placeholder: "e.g., Unit, Liter, Kg",
+
+    grid: 6,
+  },
+  {
+    name: "reference_no",
     label: "Reference No.",
     requiredMark: true,
     type: "text",
-    placeholder: "Enter inbound reference number",
+    placeholder: "e.g., PO-12345",
     grid: 6,
   },
   {
-    name: "max",
-    label: "Date Received",
+    name: "reference_type",
+    label: "Reference Type",
+    requiredMark: true,
+    type: "text",
+    placeholder: "e.g., Purchase Order",
+    grid: 6,
+  },
+  {
+    name: "date",
+    label: "Date ",
     requiredMark: true,
     type: "date",
-    placeholder: "Select date received",
+    placeholder: "e.g., 2024-05-30",
     grid: 6,
   },
 
-  // {
-  //   name: "min",
-  //   label: "Minimum Stock Level",
-  //   requiredMark: true,
-  //   type: "text",
-  //   placeholder: "e.g., 50",
-  //   grid: 12,
-  // },
-
   {
-    name: "description",
+    name: "note",
     label: "Notes",
     type: "textarea",
-    placeholder: "Add a Description",
+    placeholder: "e.g., Incoming from vendor ABC",
     grid: 12,
   },
-];
+]);
+
 const formSchema = object({
-  sku_code: string().required("SKU Code is required"),
-  name: string().required("Name is required"),
-  status: string().required("Status is required"),
-  unit: string().required("Unit of Measure is required"),
-  description: string(),
+  sku_id: string().required("SKU Name is required"),
+  facility_id: string().required("Facility Name is required"),
+  qty: string().required("QTY is required"),
+  uom: string().required("Unit of Measure is required"),
+  reference_no: string().required("Reference No. is required"),
+  reference_type: string().required("Reference Type is required"),
+  date: string().required("Date is required"),
 });
-const createInitialValues = (): PayloadSKUType => ({
-  sku_code: "",
-  name: "",
-  unit: "",
+const createInitialValues = (): any => ({
+  sku_id: "",
+  facility_id: "",
+  uom: "",
+  qty: "",
   description: "",
-  status: "",
+  reference_type: "",
+  date: "",
 });
 
-const form = useForm<PayloadSKUType>({
+const form = useForm<any>({
   validationSchema: formSchema,
   initialValues: createInitialValues(),
+});
+
+onMounted(() => {
+  skuStore.getDataSku({ page: 1, limit: 1000 });
+  facilitiesStore.getDataFacilities({ page: 1, limit: 1000 });
 });
 </script>
 
@@ -103,19 +144,41 @@ const form = useForm<PayloadSKUType>({
     <section class="max-w-[700px]">
       <div class="bg-white rounded-lg p-6">
         <GeneralFormGenerator
-          id="FormSKU"
+          id="FormStockIn"
           :form-context="form"
           :fields="formFields"
           :validation-schema="formSchema"
           class-name=""
-          @submit="() => {}"
+          @submit="
+            async (val) => {
+              await stockTransactionStore.createDataStockTransaction({
+                lines: [
+                  {
+                    facility_id: val.facility_id,
+                    qty: val.qty,
+                    sku_id: val.sku_id,
+                    uom: val.uom,
+                  },
+                ],
+                note: val.note,
+                reference_no: val.reference_no,
+                reference_type: val.reference_type,
+                trx_date: val.date,
+                trx_type: 'IN',
+              });
+              createInitialValues();
+              console.log({ val });
+            }
+          "
         />
       </div>
       <div class="flex justify-end mt-4 gap-3 pt-2">
         <GeneralOutlinedButton label="Cancel" type="button" />
         <GeneralButton
+          :loading="loadingWrite"
+          :disabled="loadingWrite"
           type="submit"
-          form="FormROle"
+          form="FormStockIn"
           color="primary"
           label="Submit"
         />

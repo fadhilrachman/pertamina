@@ -76,26 +76,61 @@ const model = computed({
 <style scoped>
 /* basic alignment to match other inputs */
 :deep(.vs__dropdown-toggle) {
-  min-height: 40px;
+  min-height: 44px;
+  border: 2px solid #e5e7eb;
   border-radius: 8px;
-  border-color: #e5e7eb;
   padding-left: 0.75rem;
   padding-right: 0.75rem;
+  font-size: 0.875rem;
+  height: 44px;
+  background-color: #ffffff;
+  box-shadow: none;
+  align-items: center;
 }
 
 :deep(.vs__dropdown-toggle:focus-within) {
+  border-color: #3b82f6 !important;
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
 :deep(.v-select--invalid .vs__dropdown-toggle),
 :deep(.vs__dropdown-toggle.vs__dropdown-toggle--invalid) {
   border-color: #ef4444 !important;
-  box-shadow: 0 0 0 1px #ef4444 !important;
+  box-shadow: none !important;
 }
 
 :deep(.v-select--invalid .vs__dropdown-toggle:focus-within),
 :deep(.vs__dropdown-toggle.vs__dropdown-toggle--invalid:focus-within) {
   border-color: #ef4444 !important;
-  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2) !important;
+  box-shadow: none !important;
+}
+
+:deep(.vs__placeholder),
+:deep(.vs__selected-options input::placeholder) {
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-weight: 400;
+  opacity: 1;
+}
+
+:deep(.vs__search input) {
+  font-size: 1rem;
+  color: #111827;
+}
+
+:deep(.vs__selected) {
+  color: #111827;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+:deep(.vs__selected-options) {
+  padding: 0;
+  margin: 0;
+}
+
+:deep(.vs__actions),
+:deep(.vs__open-indicator) {
+  color: #4b5563;
 }
 </style>

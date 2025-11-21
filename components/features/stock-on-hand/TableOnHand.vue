@@ -1,55 +1,51 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+import { onBeforeMount, onMounted, reactive, ref, watch } from "vue";
+import { storeToRefs } from "pinia";
+import ModalFormSku from "~/components/features/master-data/sku/ModalFormSku.vue";
 import ModalDelete from "~/components/general/ModalDelete/index.vue";
 import type { TableColumn } from "~/components/general/Table/index.vue";
 import type { ElementEvent } from "~/types/element";
-import type { StockOnHandType } from "~/types/stock-on-hand-type";
-import { DATA_STOCK_ON_HAND } from "~/dummy.json";
+import { useSkuStore } from "~/store/master-data/sku-store";
+import { usePageStore } from "~/store/page";
+import type { SKUType } from "~/types/sku-type";
+import { useStockOnHand } from "~/store/stock-on-hand/stock-on-hand-store";
+
+const $page = usePageStore();
+const stockOnHandStore = useStockOnHand();
+const { data, loadingWrite, loadingList } = storeToRefs(stockOnHandStore);
+const formModeRef = ref(<"add" | "update">"add");
+const deleteModalRef = ref<ElementEvent | null>(null);
+const selectedSku = ref<Record<string, any> | null>(null);
 
 const params = reactive({
   search: "",
   page: 1,
   limit: 10,
+  status: "",
 });
-
 const tableColumns: TableColumn[] = [
   { key: "sku_code", label: "SKU Code" },
-  { key: "sku_name", label: "Product Name", headerClass: "min-w-[220px]" },
-  { key: "warehouse", label: "Warehouse", headerClass: "min-w-[180px]" },
-  { key: "unit", label: "UoM" },
-  { key: "on_hand_qty", label: "On Hand Qty" },
-  { key: "reserved_qty", label: "Reserved Qty" },
-  { key: "available_qty", label: "Available Qty" },
-  { key: "last_transaction_at", label: "Last Movement" },
+  { key: "name", label: "Name", headerClass: "min-w-[200px]" },
+  { key: "unit", label: "Unit" },
+  { key: "status", label: "Status" },
+  { key: "description", label: "Description" },
+  { key: "created_at", label: "Created At" },
   { key: "actions", label: "Actions", align: "right" as const },
 ];
 
-const allData = ref<StockOnHandType[]>([...DATA_STOCK_ON_HAND]);
-const selectedStock = ref<StockOnHandType | null>(null);
-const deleteModalRef = ref<ElementEvent | null>(null);
-const isDeleting = ref(false);
+const statusOptions = [
+  { id: "", label: "All Status" },
+  { id: "active", label: "Active" },
+  { id: "inactive", label: "Inactive" },
+];
 
-const filteredData = computed(() => {
-  const keyword = params.search.trim().toLowerCase();
-  if (!keyword) return allData.value;
-
-  return allData.value.filter((item) => {
-    const haystack = `${item.sku_code} ${item.sku_name} ${item.warehouse}`;
-    return haystack.toLowerCase().includes(keyword);
-  });
-});
-
-const totalRows = computed(() => filteredData.value.length);
-
-const pagedData = computed(() => {
-  const start = (params.page - 1) * params.limit;
-  const end = start + params.limit;
-  return filteredData.value.slice(start, end);
-});
+const openDeleteSkuModal = (row: Record<string, any>) => {
+  selectedSku.value = row;
+  deleteModalRef.value?.show();
+};
 
 const handleSearchChange = (value: string) => {
   params.search = value;
-  params.page = 1;
 };
 
 const handlePageChange = (page: number) => {
@@ -61,43 +57,40 @@ const handlePageSizeChange = (pageSize: number) => {
   params.page = 1;
 };
 
-const handleDeleteModalMounted = (instance: ElementEvent) => {
-  deleteModalRef.value = instance;
+const handleStatusChange = (value: string | number) => {
+  params.status = String(value);
+  params.page = 1;
 };
 
-const openDeleteStockModal = (row: Record<string, any>) => {
-  selectedStock.value = row as StockOnHandType;
-  deleteModalRef.value?.show();
-};
+watch(
+  () => ({ ...params }),
+  () => {
+    console.log({ params });
 
-const closeDeleteStockModal = () => deleteModalRef.value?.hide();
-
-const handleConfirmDelete = async () => {
-  if (!selectedStock.value) return;
-
-  try {
-    isDeleting.value = true;
-    allData.value = allData.value.filter(
-      (item) => item.id !== selectedStock.value?.id
-    );
-    closeDeleteStockModal();
-  } finally {
-    isDeleting.value = false;
+    stockOnHandStore.getDataStockOnHand({ ...params });
   }
-};
+);
+
+onMounted(() => {
+  stockOnHandStore.getDataStockOnHand({
+    ...params,
+  });
+});
+
+onBeforeMount(() => {
+  $page.setTitle("On Hand Stock");
+});
 </script>
 
 <template>
-  <section class="space-y-8">
+  <main class="space-y-8">
     <header class="flex justify-between items-end">
       <div>
         <h1 class="text-2xl font-semibold text-gray-900">Stock On Hand</h1>
-        <p class="text-gray-500">
-          Current stock per SKU and warehouse
-        </p>
+        <p class="text-gray-500">Current stock per SKU and warehouse</p>
       </div>
       <div class="flex justify-between space-x-2">
-        <GeneralButton color="success" label="Download Data">
+        <GeneralButton color="primary" label="Download Template">
           <template #prefix>
             <IconsDownload size="18" class="text-white" />
           </template>
@@ -112,22 +105,38 @@ const handleConfirmDelete = async () => {
         :debounce="1000"
         @change="handleSearchChange"
       />
+
+      <GeneralDropdown
+        v-model="params.status"
+        variant="field"
+        :options="statusOptions"
+        label="Status"
+        placeholder="All Status"
+        class="w-max"
+        @change="handleStatusChange"
+      />
     </section>
     <section class="space-y-4">
       <div class="bg-white p-6 rounded-xl space-y-4">
         <GeneralTable
           :columns="tableColumns"
-          :data="pagedData"
+          :data="data?.data?.data"
+          :loading="loadingList"
           row-key="id"
           striped
         >
           <template #cell-actions="{ row }">
             <div class="flex justify-end gap-2">
+              <GeneralIconButton class="h-9 w-9" color="default">
+                <template #icon>
+                  <IconsEdit size="18" class="text-gray-700" />
+                </template>
+              </GeneralIconButton>
               <GeneralIconButton
                 class="h-9 w-9 bg-white"
                 color="default"
                 :bordered="false"
-                @on-click="openDeleteStockModal(row)"
+                @on-click="openDeleteSkuModal(row)"
               >
                 <template #icon>
                   <IconsDelete size="18" class="text-red-500" />
@@ -139,20 +148,11 @@ const handleConfirmDelete = async () => {
         <GeneralPagination
           :page="params.page"
           :page-size="params.limit"
-          :total="totalRows"
+          :total="data?.data?.total || 0"
           @update:page="handlePageChange"
           @update:page-size="handlePageSizeChange"
         />
       </div>
     </section>
-    <ModalDelete
-      id="modal-delete-sku"
-      :target-label="selectedStock?.sku_name || 'this stock record'"
-      :is-loading="isDeleting"
-      confirm-label="Delete"
-      @mounted="handleDeleteModalMounted"
-      @cancel="closeDeleteStockModal"
-      @confirm="handleConfirmDelete"
-    />
-  </section>
+  </main>
 </template>

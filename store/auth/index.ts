@@ -11,6 +11,8 @@ export const useAuthStore = defineStore("auth", {
   }),
   actions: {
     async login() {
+      // const router = useRouter();
+
       this.isLoading = true;
       // TODO: NEXT CHECT COMPANY
       // let selectedCompany = useSelectedCompany();
@@ -22,7 +24,9 @@ export const useAuthStore = defineStore("auth", {
             email: this.email,
             password: this.password,
           },
-          { callbackUrl: `/dashboard` }
+          {
+            redirect: false,
+          }
         );
 
         // Check if companies data exists and set the company ID
@@ -39,6 +43,9 @@ export const useAuthStore = defineStore("auth", {
 
         useIsUnauthorized().value = false;
         setupCookies();
+        // const router = useRouter();
+        // router.push("/dashboard");
+        window.location.href = "/dashboard";
 
         return true;
       } catch (error: unknown) {

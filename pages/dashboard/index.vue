@@ -16,7 +16,7 @@ import {
 import { usePageStore } from "~/store/page";
 
 definePageMeta({
-  auth: false,
+  auth: true,
 });
 
 ChartJS.register(
