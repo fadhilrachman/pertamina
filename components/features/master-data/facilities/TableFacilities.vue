@@ -16,7 +16,6 @@ const modalAddRef = ref<InstanceType<typeof ModalFormFacilities> | null>(null);
 const formModeRef = ref(<"add" | "update">"add");
 const deleteModalRef = ref<ElementEvent | null>(null);
 const selectedSku = ref<Record<string, any> | null>(null);
-console.log({ data });
 
 const params = reactive({
   search: "",

@@ -3,14 +3,26 @@ import type { QueryParams } from "~/types/common";
 import type { PayloadStockTransactionType } from "~/types/stock-transaction-type";
 
 export async function postStockTransactions(
-  payload: PayloadStockTransactionType
+  payload: PayloadStockTransactionType,
+  { uuid }: { uuid: string }
 ) {
-  return await api.post("/api/v1/stock/transactions", { body: payload });
+  return await api.post("/api/v1/stock/transactions", {
+    body: payload,
+    headers: {
+      "X-Idempotency-Key": uuid,
+    },
+  });
 }
 
-// export async function getTransactions(params: QueryParams) {
-//   return await api.get("/api/v1/transactions", { queryParams: params });
-// }
+export async function getTransactions(
+  params: QueryParams & {
+    facility_id?: string;
+    sku_id?: string;
+    trx_type?: string;
+  }
+) {
+  return await api.get("/api/v1/stock/transactions", { queryParams: params });
+}
 // export async function getTransactionsDetail(params: { id: string }) {
 //   return await api.get(`/api/v1/transactions/${params.id}`);
 // }

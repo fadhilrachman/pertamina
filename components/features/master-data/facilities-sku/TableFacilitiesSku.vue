@@ -12,6 +12,8 @@ import type { SKUType } from "~/types/sku-type";
 import { useFacilitiesStore } from "~/store/master-data/facilities-store";
 import ModalFormFacilitiesSku from "./ModalFormFacilitiesSku.vue";
 import { useFacilitiesSkuStore } from "~/store/master-data/facilities-sku-store";
+import type { FacilitiesSkuType } from "~/types/facilities-sku-type";
+import { formatTableDate } from "~/utils/functions";
 
 const $page = usePageStore();
 const skuStore = useFacilitiesSkuStore();
@@ -35,12 +37,13 @@ const params = reactive({
   page: 1,
   limit: 10,
   status: "",
-  facilities_id: parseFacilitiesQuery(route.query.facilities_id),
+  facility_id: parseFacilitiesQuery(route.query.facility_id),
 });
 const tableColumns: TableColumn[] = [
   { key: "sku_code", label: "SKU Code" },
-  { key: "name", label: "Name", headerClass: "min-w-[200px]" },
-  { key: "unit", label: "Unit" },
+  { key: "sku_name", label: "SKU Name", headerClass: "min-w-[200px]" },
+  { key: "low_stock_threshold", label: "Low Threshold" },
+  { key: "high_stock_threshold", label: "High Threshold" },
   { key: "status", label: "Status" },
   { key: "description", label: "Description" },
   { key: "created_at", label: "Created At" },
@@ -60,19 +63,28 @@ const facilitiesOptions = computed(
       label: item.name,
     })) || []
 );
-const tableData = computed(() =>
-  params.facilities_id ? data?.value?.data?.data || [] : []
+
+const tableData = computed(
+  () =>
+    data.value?.data?.data ||
+    (Array.isArray(data.value?.data) ? data.value?.data : [])
 );
+
+const tableTotal = computed(() => {
+  if (typeof data.value?.data?.total === "number") return data.value.data.total;
+  return tableData.value.length;
+});
+
 const tableEmptyText = computed(() =>
-  params.facilities_id ? "No records found." : "Select Facility First"
+  params.facility_id ? "No records found." : "Select Facility First"
 );
 const openAddSkuModal = () => {
   formModeRef.value = "add";
   modalAddRef.value?.open();
 };
 
-const openUpdateSkuModal = (row: SKUType) => {
-  // skuStore.setSelectedData(row);
+const openUpdateSkuModal = (row: FacilitiesSkuType) => {
+  skuStore.setSelectedData(row);
   formModeRef.value = "update";
   modalAddRef.value?.open();
 };
@@ -93,7 +105,7 @@ const handleConfirmDelete = async () => {
   try {
     await skuStore.deleteDataFacilitiesSku({
       id: String(selectedSku.value.id),
-      facilities_id: parseFacilitiesQuery(route.query.facilities_id),
+      facility_id: parseFacilitiesQuery(route.query.facility_id),
     });
     skuStore.getDataFacilitiesSku({ ...params });
     closeDeleteSkuModal();
@@ -123,7 +135,7 @@ const handleStatusChange = (value: string | number) => {
 const handleFacilitiesChange = (
   value: string | number | (string | number)[] | null
 ) => {
-  params.facilities_id = Array.isArray(value)
+  params.facility_id = Array.isArray(value)
     ? value[0]
       ? String(value[0])
       : ""
@@ -136,10 +148,10 @@ const handleFacilitiesChange = (
 
 const syncFacilitiesQuery = () => {
   const newQuery = { ...route.query };
-  if (params.facilities_id) {
-    newQuery.facilities_id = params.facilities_id;
+  if (params.facility_id) {
+    newQuery.facility_id = params.facility_id;
   } else {
-    delete (newQuery as Record<string, unknown>).facilities_id;
+    delete (newQuery as Record<string, unknown>).facility_id;
   }
   router.replace({ query: newQuery });
 };
@@ -147,18 +159,16 @@ const syncFacilitiesQuery = () => {
 watch(
   () => ({ ...params }),
   () => {
-    console.log({ params });
-
     skuStore.getDataFacilitiesSku({ ...params });
   }
 );
 
 watch(
-  () => route.query.facilities_id,
+  () => route.query.facility_id,
   (next) => {
     const parsed = parseFacilitiesQuery(next);
-    if (parsed !== params.facilities_id) {
-      params.facilities_id = parsed;
+    if (parsed !== params.facility_id) {
+      params.facility_id = parsed;
       params.page = 1;
     }
   }
@@ -170,6 +180,7 @@ onMounted(() => {
   });
 
   facilitiesStore.getDataFacilities({ page: 1, limit: 1000 });
+  console.log({ data });
 });
 
 onBeforeMount(() => {
@@ -218,9 +229,11 @@ onBeforeMount(() => {
       />
 
       <div class="min-w-[240px] space-y-1">
-        <label class="text-sm font-medium text-gray-700">Facilities</label>
+        <label class="mb-1.5 text-sm font-[600] text-gray-700"
+          >Facilities</label
+        >
         <GeneralDropdownSearch
-          v-model="params.facilities_id"
+          v-model="params.facility_id"
           :options="facilitiesOptions"
           placeholder="Search facilities"
           @change="handleFacilitiesChange"
@@ -247,12 +260,15 @@ onBeforeMount(() => {
           row-key="id"
           striped
         >
+          <template #cell-created_at="{ value }">
+            {{ formatTableDate(value as string) }}
+          </template>
           <template #cell-actions="{ row }">
             <div class="flex justify-end gap-2">
               <GeneralIconButton
                 class="h-9 w-9"
                 color="default"
-                @on-click="openUpdateSkuModal(row as SKUType)"
+                @on-click="openUpdateSkuModal(row as FacilitiesSkuType)"
               >
                 <template #icon>
                   <IconsEdit size="18" class="text-gray-700" />
@@ -274,7 +290,7 @@ onBeforeMount(() => {
         <GeneralPagination
           :page="params.page"
           :page-size="params.limit"
-          :total="data?.data?.total || 0"
+          :total="tableTotal"
           @update:page="handlePageChange"
           @update:page-size="handlePageSizeChange"
         />

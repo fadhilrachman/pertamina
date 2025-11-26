@@ -6,7 +6,7 @@ const props = defineProps({
   },
   class: {
     type: String,
-    default: "stroke-gray-400",
+    default: "text-gray-500",
   },
 });
 </script>
@@ -17,18 +17,14 @@ const props = defineProps({
     :width="props.size"
     :height="props.size"
     :class="props.class"
-    viewBox="0 0 24 24"
+    viewBox="0 0 56 56"
     fill="none"
   >
     <path
-      d="M6 5h12M6 12h12M6 19h12"
-      stroke-width="1.8"
-      stroke-linecap="round"
-    />
-    <path
-      d="M7 5v3M7 12v3M7 19v3"
-      stroke-width="1.8"
-      stroke-linecap="round"
+      fill="currentColor"
+      fill-rule="evenodd"
+      clip-rule="evenodd"
+      d="M10 36a3 3 0 1 1 0 6a3 3 0 0 1 0-6m35.998 1c1.106 0 2.002.888 2.002 2c0 1.105-.89 2-2.002 2H18.002A1.996 1.996 0 0 1 16 39c0-1.105.89-2 2.002-2zM10 26a3 3 0 1 1 0 6a3 3 0 0 1 0-6m35.998 1c1.106 0 2.002.888 2.002 2c0 1.105-.89 2-2.002 2H18.002A1.996 1.996 0 0 1 16 29c0-1.105.89-2 2.002-2zM10 16a3 3 0 1 1 0 6a3 3 0 0 1 0-6m35.998 1c1.106 0 2.002.888 2.002 2c0 1.105-.89 2-2.002 2H18.002A1.996 1.996 0 0 1 16 19c0-1.105.89-2 2.002-2z"
     />
   </svg>
 </template>

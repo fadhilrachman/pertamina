@@ -122,7 +122,7 @@ const close = () => {
 
 const handleCancel = () => {
   close();
-  // form.resetForm({ values: createInitialValues() });
+  form.resetForm({ values: createInitialValues() });
 };
 
 async function handleFormSubmit(values: Record<string, any>) {
@@ -130,7 +130,7 @@ async function handleFormSubmit(values: Record<string, any>) {
     const action =
       props.mode === "update" ? updateDataFacilities : createDataFacilities;
     await action(values);
-    await getDataFacilities({ page: 1, limit: 10 });
+    getDataFacilities({ page: 1, limit: 10 });
     handleCancel();
 
     return true;

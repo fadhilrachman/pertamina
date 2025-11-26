@@ -76,6 +76,13 @@ export const sidebarMenu: ISidebar[] = [
         id: "menu__stock-management-adjustment",
         icon: markRaw(IconsStockAdjustment),
       },
+
+      {
+        label: "Transactions",
+        route: "/stock-management/transactions",
+        id: "menu__stock-management-transactions",
+        icon: markRaw(IconsTransactions),
+      },
     ],
   },
 
@@ -103,6 +110,12 @@ export const sidebarMenu: ISidebar[] = [
         id: "menu__master-facilities",
         route: "/master-data/facilities",
         icon: markRaw(IconsBuilding),
+      },
+      {
+        label: "Vehicles",
+        id: "menu__master-vehicle",
+        route: "/master-data/vehicles",
+        icon: markRaw(IconsTruck),
       },
       {
         label: "Facilities SKU",

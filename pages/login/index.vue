@@ -125,10 +125,10 @@ onMounted(async () => {
             variant="primary"
             class="w-full h-12"
           />
-          <div class="flex justify-end text-sm space-x-1">
+          <!-- <div class="flex justify-end text-sm space-x-1">
             <p>Don't have an account?</p>
             <a href="/register" class="text-blue-500">Register</a>
-          </div>
+          </div> -->
         </div>
       </form>
     </div>

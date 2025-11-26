@@ -1,4 +1,5 @@
 import { format, parseISO } from "date-fns";
+import moment from "moment";
 
 export function roundToDecimal(value: any) {
   if (!value) {
@@ -10,6 +11,16 @@ export function roundToDecimal(value: any) {
 export function formatDate(value: any, outputFormat = "yyyy-MM-dd HH:mm:ss") {
   const date = parseISO(value);
   return format(date, outputFormat);
+}
+
+export function formatTableDate(
+  value: any,
+  outputFormat = "MMM DD, YYYY"
+): string {
+  if (!value) return "-";
+  const date = moment(value);
+  if (!date.isValid()) return "-";
+  return date.format(outputFormat);
 }
 
 export function changesToFiltersOptions(list: any) {

@@ -8,11 +8,13 @@ import type { ElementEvent } from "~/types/element";
 import { useSkuStore } from "~/store/master-data/sku-store";
 import { usePageStore } from "~/store/page";
 import type { SKUType } from "~/types/sku-type";
-import { formatTableDate } from "~/utils/functions";
+import ModalFormVehicle from "./ModalFormVehicle.vue";
+import { useVehiclesStore } from "~/store/master-data/vehicles-store";
+import type { VehicleType } from "~/types/vehicle-type";
 
 const $page = usePageStore();
-const skuStore = useSkuStore();
-const { data, loadingWrite, loadingList } = storeToRefs(skuStore);
+const vehiclesStore = useVehiclesStore();
+const { data, loadingWrite, loadingList } = storeToRefs(vehiclesStore);
 const modalAddRef = ref<InstanceType<typeof ModalFormSku> | null>(null);
 const formModeRef = ref(<"add" | "update">"add");
 const deleteModalRef = ref<ElementEvent | null>(null);
@@ -25,27 +27,33 @@ const params = reactive({
   status: "",
 });
 const tableColumns: TableColumn[] = [
-  { key: "sku_code", label: "SKU Code" },
-  { key: "name", label: "Name", headerClass: "min-w-[200px]" },
-  { key: "unit", label: "Unit" },
+  {
+    key: "license_plate",
+    label: "License Plate",
+    headerClass: "min-w-[150px]",
+  },
+  { key: "type", label: "Type" },
+  { key: "capacity", label: "Capacity" },
+  {
+    key: "facility_name",
+    label: "Facility Name",
+    headerClass: "min-w-[180px]",
+  },
   { key: "status", label: "Status" },
-  { key: "description", label: "Description" },
-  { key: "created_at", label: "Created At" },
   { key: "actions", label: "Actions", align: "right" as const },
 ];
-
 const statusOptions = [
   { id: "", label: "All Status" },
   { id: "active", label: "Active" },
   { id: "inactive", label: "Inactive" },
 ];
-const openAddSkuModal = () => {
+const openAddVehicleModal = () => {
   formModeRef.value = "add";
   modalAddRef.value?.open();
 };
 
-const openUpdateSkuModal = (row: SKUType) => {
-  skuStore.setSelectedData(row);
+const openUpdateVehicleModal = (row: VehicleType) => {
+  vehiclesStore.setSelectedData(row);
   formModeRef.value = "update";
   modalAddRef.value?.open();
 };
@@ -54,19 +62,21 @@ const handleDeleteModalMounted = (instance: ElementEvent) => {
   deleteModalRef.value = instance;
 };
 
-const openDeleteSkuModal = (row: Record<string, any>) => {
+const openDeleteVehicleModal = (row: Record<string, any>) => {
   selectedSku.value = row;
   deleteModalRef.value?.show();
 };
 
-const closeDeleteSkuModal = () => deleteModalRef.value?.hide();
+const closeDeleteVehicleModal = () => deleteModalRef.value?.hide();
 
 const handleConfirmDelete = async () => {
   if (!selectedSku.value) return;
   try {
-    await skuStore.deleteDataSku({ id: String(selectedSku.value.id) });
-    skuStore.getDataSku({ ...params });
-    closeDeleteSkuModal();
+    await vehiclesStore.deleteDataVehicles({
+      id: String(selectedSku.value.id),
+    });
+    vehiclesStore.getDataVehicles({ ...params });
+    closeDeleteVehicleModal();
   } catch (error) {
     throw error;
   }
@@ -95,18 +105,18 @@ watch(
   () => {
     console.log({ params });
 
-    skuStore.getDataSku({ ...params });
+    vehiclesStore.getDataVehicles({ ...params });
   }
 );
 
 onMounted(() => {
-  skuStore.getDataSku({
+  vehiclesStore.getDataVehicles({
     ...params,
   });
 });
 
 onBeforeMount(() => {
-  $page.setTitle("SKU Master");
+  $page.setTitle("Vehicle Master");
 });
 </script>
 
@@ -114,24 +124,14 @@ onBeforeMount(() => {
   <main class="space-y-8">
     <header class="flex justify-between items-end">
       <div>
-        <h1 class="text-2xl font-semibold text-gray-900">SKU Master</h1>
-        <p class="text-gray-500">Manage Stock Keeping Units</p>
+        <h1 class="text-2xl font-semibold text-gray-900">Vehicle Master</h1>
+        <p class="text-gray-500">Manage fleet vehicles</p>
       </div>
       <div class="flex justify-between space-x-2">
-        <GeneralButton color="success" label="Download Template">
-          <template #prefix>
-            <IconsDownload size="18" class="text-white" />
-          </template>
-        </GeneralButton>
-        <GeneralButton color="warning" label="Import">
-          <template #prefix>
-            <IconsUpload size="18" class="text-white" />
-          </template>
-        </GeneralButton>
         <GeneralButton
           color="primary"
-          label="Add SKU"
-          @on-click="openAddSkuModal"
+          label="Add Vehicle"
+          @on-click="openAddVehicleModal"
         >
           <template #prefix>
             <IconsPlus size="18" class="text-white" />
@@ -167,15 +167,12 @@ onBeforeMount(() => {
           row-key="id"
           striped
         >
-          <template #cell-created_at="{ value }">
-            {{ formatTableDate(value as string) }}
-          </template>
           <template #cell-actions="{ row }">
             <div class="flex justify-end gap-2">
               <GeneralIconButton
                 class="h-9 w-9"
                 color="default"
-                @on-click="openUpdateSkuModal(row as SKUType)"
+                @on-click="openUpdateVehicleModal(row as VehicleType)"
               >
                 <template #icon>
                   <IconsEdit size="18" class="text-gray-700" />
@@ -185,7 +182,7 @@ onBeforeMount(() => {
                 class="h-9 w-9 bg-white"
                 color="default"
                 :bordered="false"
-                @on-click="openDeleteSkuModal(row)"
+                @on-click="openDeleteVehicleModal(row)"
               >
                 <template #icon>
                   <IconsDelete size="18" class="text-red-500" />
@@ -203,14 +200,14 @@ onBeforeMount(() => {
         />
       </div>
     </section>
-    <ModalFormSku ref="modalAddRef" :mode="formModeRef" />
+    <ModalFormVehicle ref="modalAddRef" :mode="formModeRef" />
     <ModalDelete
       id="modal-delete-sku"
       :target-label="selectedSku?.name || 'this SKU'"
       :is-loading="loadingWrite"
       confirm-label="Delete"
       @mounted="handleDeleteModalMounted"
-      @cancel="closeDeleteSkuModal"
+      @cancel="closeDeleteVehicleModal"
       @confirm="handleConfirmDelete"
     />
   </main>

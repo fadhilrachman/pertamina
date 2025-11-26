@@ -9,25 +9,26 @@ import {
 import { toast } from "vue3-toastify";
 import { DATA_VEHICLES } from "../../dummy.json";
 import { defineStore } from "pinia";
+import type { PayloadVehicleType, VehicleType } from "~/types/vehicle-type";
 
 export const useVehiclesStore = defineStore("Vehicles", {
   state: () => ({
     loadingList: false,
     loadingWrite: false,
     loadingDetail: false,
-    data: {} as ResponseApi<any>,
+    data: {} as ResponseApi<VehicleType>,
     dataDetail: {},
+    selectedData: {} as VehicleType,
   }),
   actions: {
-    async getDataVehicles(params: QueryParams) {
+    setSelectedData(data: VehicleType) {
+      this.selectedData = data;
+    },
+    async getDataVehicles(params: QueryParams & { facility_id: string }) {
       this.loadingList = true;
       try {
-        // const { data } = await getVehicles(params);
-        this.data = {
-          count: 10,
-          result: DATA_VEHICLES,
-          total_pages: 1,
-        };
+        const respoonse = await getVehicles(params);
+        this.data = respoonse;
       } catch (error) {
         toast.error("Failed get data Vehicles", {
           toastClassName: "toastify-error",
@@ -39,23 +40,7 @@ export const useVehiclesStore = defineStore("Vehicles", {
       }
     },
 
-    async getDataDetailVehicles({ id }: { id: string }) {
-      this.loadingDetail = true;
-      try {
-        const { data } = await getVehiclesDetail({ id });
-        this.dataDetail = data;
-      } catch (error) {
-        toast.error("Failed get data Vehicles", {
-          toastClassName: "toastify-error",
-        });
-        throw error;
-      } finally {
-        // toast
-        this.loadingDetail = false;
-      }
-    },
-
-    async createDataVehicles(body: any) {
+    async createDataVehicles(body: PayloadVehicleType) {
       this.loadingWrite = true;
       try {
         await postVehicles(body);
@@ -71,7 +56,7 @@ export const useVehiclesStore = defineStore("Vehicles", {
       }
     },
 
-    async updateDataVehicles(body: any) {
+    async updateDataVehicles(body: PayloadVehicleType & { id: string }) {
       this.loadingWrite = true;
       try {
         await putVehicles(body);

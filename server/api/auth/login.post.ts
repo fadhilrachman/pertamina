@@ -120,6 +120,7 @@ export default defineEventHandler(async (event) => {
         },
       }
     );
+    console.log({ response });
 
     // If we get here, the login was successful
     // Set any necessary cookies based on the response

@@ -8,6 +8,7 @@ import { useUserStore } from "~/store/user-management/user-store";
 import type { UserType } from "~/types/user-type";
 import ModalFormRole from "../role/ModalFormRole.vue";
 import ModalFormUser from "./ModalFormUser.vue";
+import { formatTableDate } from "~/utils/functions";
 
 const userStore = useUserStore();
 const { data, loadingWrite } = storeToRefs(userStore);
@@ -128,6 +129,9 @@ onMounted(() => {
           row-key="id"
           striped
         >
+          <template #cell-created_at="{ value }">
+            {{ formatTableDate(value as string) }}
+          </template>
           <template #cell-actions="{ row }">
             <div class="flex justify-end gap-2">
               <GeneralIconButton

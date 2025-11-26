@@ -8,6 +8,7 @@ import type { ElementEvent } from "~/types/element";
 import { useSkuStore } from "~/store/master-data/sku-store";
 import type { SKUType } from "~/types/sku-type";
 import ModalFormRole from "./ModalFormRole.vue";
+import { formatTableDate } from "~/utils/functions";
 // import ModalFormRole from "./role/ModalFormRole.vue";
 
 const roleStore = useSkuStore();
@@ -131,6 +132,9 @@ onMounted(() => {
           row-key="id"
           striped
         >
+          <template #cell-created_at="{ value }">
+            {{ formatTableDate(value as string) }}
+          </template>
           <template #cell-actions="{ row }">
             <div class="flex justify-end gap-2">
               <GeneralIconButton

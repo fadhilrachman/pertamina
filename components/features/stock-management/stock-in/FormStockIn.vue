@@ -1,26 +1,35 @@
 <script setup lang="ts">
-import { computed, onMounted } from "vue";
+import { computed, onMounted, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useForm } from "vee-validate";
 import { object, string } from "yup";
 import type { FieldConfig } from "~/components/general/FormGenerator/index.vue";
-import type { PayloadSKUType } from "~/types/sku-type";
-import { useSkuStore } from "~/store/master-data/sku-store";
 import { useFacilitiesStore } from "~/store/master-data/facilities-store";
+import { useFacilitiesSkuStore } from "~/store/master-data/facilities-sku-store";
 import { useStockTransaction } from "~/store/stock-management/stock-transaction-store";
+import { v4 as uuidv4 } from "uuid";
 
+const idempotencyKey = uuidv4();
 const stockTransactionStore = useStockTransaction();
 const { loadingWrite } = storeToRefs(stockTransactionStore);
-const skuStore = useSkuStore();
 const facilitiesStore = useFacilitiesStore();
-const { data: skuData } = storeToRefs(skuStore);
+const facilitiesSkuStore = useFacilitiesSkuStore();
+const { data: facilitiesSkuData } = storeToRefs(facilitiesSkuStore);
 const { data: facilitiesData } = storeToRefs(facilitiesStore);
 
-const skuOptions = computed(
+const facilitiesSkuList = computed(
   () =>
-    skuData.value?.data?.data?.map((item) => ({
+    facilitiesSkuData.value?.data?.data ||
+    (Array.isArray(facilitiesSkuData.value?.data)
+      ? facilitiesSkuData.value?.data
+      : [])
+);
+
+const facilitiesSkuOptions = computed(
+  () =>
+    facilitiesSkuList.value.map((item) => ({
       id: item.id,
-      label: `${item.sku_code} - ${item.name}`,
+      label: `${item.sku_code} - ${item.sku_name}`,
     })) || []
 );
 
@@ -32,16 +41,31 @@ const facilitiesOptions = computed(
     })) || []
 );
 
+const formSchema = object({
+  sku_id: string().required("SKU Name is required"),
+  facility_id: string().required("Facility Name is required"),
+  qty: string().required("QTY is required"),
+  uom: string().required("Unit of Measure is required"),
+  reference_no: string().required("Reference No. is required"),
+  reference_type: string().required("Reference Type is required"),
+  date: string().required("Date is required"),
+});
+const createInitialValues = (): any => ({
+  sku_id: "",
+  facility_id: "",
+  uom: "",
+  qty: "",
+  description: "",
+  reference_type: "",
+  date: "",
+});
+
+const form = useForm<any>({
+  validationSchema: formSchema,
+  initialValues: createInitialValues(),
+});
+const { values } = form;
 const formFields = computed<FieldConfig[]>(() => [
-  {
-    name: "sku_id",
-    label: "Sku Name",
-    type: "search-select",
-    placeholder: "Select SKU",
-    grid: 6,
-    requiredMark: true,
-    options: skuOptions.value,
-  },
   {
     name: "facility_id",
     label: "Receiving Warehouse ",
@@ -51,6 +75,17 @@ const formFields = computed<FieldConfig[]>(() => [
     requiredMark: true,
     options: facilitiesOptions.value,
   },
+  {
+    name: "sku_id",
+    label: "Sku Name",
+    type: "search-select",
+    placeholder: "Select SKU",
+    grid: 6,
+    requiredMark: true,
+    options: facilitiesSkuOptions.value,
+    disabled: !values.facility_id,
+  },
+
   {
     label: "Quantity",
     name: "qty",
@@ -103,32 +138,25 @@ const formFields = computed<FieldConfig[]>(() => [
   },
 ]);
 
-const formSchema = object({
-  sku_id: string().required("SKU Name is required"),
-  facility_id: string().required("Facility Name is required"),
-  qty: string().required("QTY is required"),
-  uom: string().required("Unit of Measure is required"),
-  reference_no: string().required("Reference No. is required"),
-  reference_type: string().required("Reference Type is required"),
-  date: string().required("Date is required"),
-});
-const createInitialValues = (): any => ({
-  sku_id: "",
-  facility_id: "",
-  uom: "",
-  qty: "",
-  description: "",
-  reference_type: "",
-  date: "",
-});
-
-const form = useForm<any>({
-  validationSchema: formSchema,
-  initialValues: createInitialValues(),
-});
+// Hanya fetch data SKU fasilitas ketika facility_id berubah dan terisi
+watch(
+  () => values.facility_id,
+  (next, prev) => {
+    // Debug perubahan facility_id
+    console.log({ values });
+    form.setValues({
+      sku_id: "",
+    });
+    facilitiesSkuStore.getDataFacilitiesSku({
+      page: 1,
+      limit: 1000,
+      facility_id: next,
+    });
+  },
+  { immediate: true }
+);
 
 onMounted(() => {
-  skuStore.getDataSku({ page: 1, limit: 1000 });
   facilitiesStore.getDataFacilities({ page: 1, limit: 1000 });
 });
 </script>
@@ -151,29 +179,34 @@ onMounted(() => {
           class-name=""
           @submit="
             async (val) => {
-              await stockTransactionStore.createDataStockTransaction({
-                lines: [
-                  {
-                    facility_id: val.facility_id,
-                    qty: val.qty,
-                    sku_id: val.sku_id,
-                    uom: val.uom,
-                  },
-                ],
-                note: val.note,
-                reference_no: val.reference_no,
-                reference_type: val.reference_type,
-                trx_date: val.date,
-                trx_type: 'IN',
-              });
-              createInitialValues();
               console.log({ val });
+
+              await stockTransactionStore.createDataStockTransaction(
+                {
+                  lines: [
+                    {
+                      qty: Number(val.qty),
+                      facility_sku_id: val.sku_id,
+                      uom: val.uom,
+                    },
+                  ],
+                  note: val.note,
+                  reference_no: val.reference_no,
+                  reference_type: val.reference_type,
+                  trx_date: val.date,
+                  trx_type: 'IN',
+                },
+                {
+                  uuid: idempotencyKey,
+                }
+              );
+              createInitialValues();
             }
           "
         />
       </div>
       <div class="flex justify-end mt-4 gap-3 pt-2">
-        <GeneralOutlinedButton label="Cancel" type="button" />
+        <!-- <GeneralOutlinedButton label="Cancel" type="button" /> -->
         <GeneralButton
           :loading="loadingWrite"
           :disabled="loadingWrite"

@@ -3,17 +3,14 @@ import type {
   ResponseApi,
   ResponseApiDetail,
 } from "~/types/common";
-import {
-  deleteSku,
-  getSku,
-  getSkuDetail,
-  postSku,
-  putSku,
-} from "../../services/master-data/sku-services";
+
 import { toast } from "vue3-toastify";
 import { DATA_SKU } from "../../dummy.json";
 import { defineStore } from "pinia";
-import type { FacilitiesSkuType } from "~/types/facilities-sku-type";
+import type {
+  FacilitiesSkuType,
+  PayloadFacilitiesSkuType,
+} from "~/types/facilities-sku-type";
 import {
   deleteFacilitiesSku,
   getFacilitiesSku,
@@ -38,7 +35,7 @@ export const useFacilitiesSkuStore = defineStore("facilitiesSku", {
       params: QueryParams & {
         search?: string;
         status?: string;
-        facilities_id: string;
+        facility_id: string;
       }
     ) {
       this.loadingList = true;
@@ -60,7 +57,7 @@ export const useFacilitiesSkuStore = defineStore("facilitiesSku", {
         //   success: true,
         // };
       } catch (error) {
-        if (!params.facilities_id) return null;
+        if (!params.facility_id) return null;
         toast.error("Failed get data SKU", {
           toastClassName: "toastify-error",
         });
@@ -87,7 +84,9 @@ export const useFacilitiesSkuStore = defineStore("facilitiesSku", {
       }
     },
 
-    async createDataFacilitiesSku(body: any) {
+    async createDataFacilitiesSku(
+      body: PayloadFacilitiesSkuType & { facility_id: string }
+    ) {
       this.loadingWrite = true;
       try {
         await postFacilitiesSku(body); // API_UNCOMMENT
@@ -103,7 +102,9 @@ export const useFacilitiesSkuStore = defineStore("facilitiesSku", {
       }
     },
 
-    async updateDataFacilitiesSku(body: any) {
+    async updateDataFacilitiesSku(
+      body: PayloadFacilitiesSkuType & { facility_id: string } & { id: string }
+    ) {
       this.loadingWrite = true;
       try {
         await putFacilitiesSku(body); // API_UNCOMMENT
@@ -121,14 +122,14 @@ export const useFacilitiesSkuStore = defineStore("facilitiesSku", {
 
     async deleteDataFacilitiesSku({
       id,
-      facilities_id,
+      facility_id,
     }: {
       id: string;
-      facilities_id: string;
+      facility_id: string;
     }) {
       this.loadingWrite = true;
       try {
-        await deleteFacilitiesSku({ id, facilities_id }); // API_UNCOMMENT
+        await deleteFacilitiesSku({ id, facility_id }); // API_UNCOMMENT
         toast.success("Success delete data SKU");
         return true;
       } catch (error) {

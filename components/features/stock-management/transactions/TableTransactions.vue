@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, onMounted, reactive, ref, watch } from "vue";
+import { computed, onBeforeMount, onMounted, reactive, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import ModalFormSku from "~/components/features/master-data/sku/ModalFormSku.vue";
 import ModalDelete from "~/components/general/ModalDelete/index.vue";
@@ -10,35 +10,29 @@ import { usePageStore } from "~/store/page";
 import type { SKUType } from "~/types/sku-type";
 import { useStockOnHand } from "~/store/stock-on-hand/stock-on-hand-store";
 import { useFacilitiesStore } from "~/store/master-data/facilities-store";
+import { useStockTransaction } from "~/store/stock-management/stock-transaction-store";
+import type { StockTransactionType } from "~/types/stock-transaction-type";
 import { formatTableDate } from "~/utils/functions";
+import ModalTransactionDetail from "./ModalTransactionDetail.vue";
 
-const statusBadgeClass = (status: string | undefined) => {
-  if (!status) return "bg-gray-100 text-gray-600 border border-gray-200";
+const trxTypeBadgeClass = (type: string | undefined) => {
+  if (!type) return "bg-gray-100 text-gray-600 border border-gray-200";
 
-  const normalized = status.toLowerCase();
+  const normalized = type.toUpperCase();
 
-  if (["available", "active"].includes(normalized)) {
+  if (normalized === "IN") {
     return "bg-emerald-50 text-emerald-700 border border-emerald-200";
   }
 
-  if (["low", "warning"].includes(normalized)) {
-    return "bg-amber-50 text-amber-700 border border-amber-200";
-  }
-
-  if (["out_of_stock", "inactive"].includes(normalized)) {
+  if (normalized === "OUT") {
     return "bg-rose-50 text-rose-700 border border-rose-200";
   }
 
   return "bg-gray-100 text-gray-600 border border-gray-200";
 };
 
-const formatStatusLabel = (status: string | undefined) => {
-  if (!status) return "-";
-  return status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-};
-
 const $page = usePageStore();
-const stockOnHandStore = useStockOnHand();
+const stockTransactionStore = useStockTransaction();
 const facilitiesStore = useFacilitiesStore();
 const skuStore = useSkuStore();
 const { data: dataFacilities } = storeToRefs(facilitiesStore);
@@ -59,36 +53,87 @@ const skuOptions = computed(
       label: item.name,
     })) || []
 );
-const { data, loadingWrite, loadingList } = storeToRefs(stockOnHandStore);
+const { data, loadingWrite, loadingList } = storeToRefs(stockTransactionStore);
 const deleteModalRef = ref<ElementEvent | null>(null);
 const selectedSku = ref<Record<string, any> | null>(null);
 
 const params = reactive({
   sku_id: "",
   facility_id: "",
+  trx_type: "",
   page: 1,
   limit: 10,
-  status: "",
 });
+
 const tableColumns: TableColumn[] = [
-  { key: "sku_code", label: "SKU Code" },
-  { key: "sku_name", label: "SKU Name" },
+  { key: "trx_no", label: "Transaction ID" },
+  { key: "trx_type", label: "Type" },
+  { key: "sku", label: "SKU" },
+  { key: "qty", label: "Quantity", align: "right" as const },
   { key: "warehouse", label: "Warehouse" },
-
-  { key: "unit_of_measure", label: "UOM" },
-
-  { key: "min_stock", label: "Min Stock" },
-  { key: "max_stock", label: "Max Stock" },
-  { key: "status", label: "Status" },
-  { key: "last_movement", label: "Last Movement" },
-
-  // { key: "actions", label: "Actions", align: "right" as const },
+  { key: "purpose", label: "Purpose" },
+  { key: "trx_date", label: "Date" },
+  { key: "actions", label: "Actions", align: "right" as const },
 ];
 
-const statusOptions = [
-  { id: "available", label: "Available" },
-  { id: "low", label: "Low" },
-  { id: "out_of_stock", label: "Out of Stock" },
+type TransactionTableRow = {
+  id: string;
+  trx_no: string;
+  trx_type: string;
+  sku: string;
+  qty: number;
+  warehouse: string;
+  purpose: string;
+  trx_date: string;
+  // extra metadata to support detail modal
+  transaction: StockTransactionType;
+  lineIndex: number;
+};
+
+const tableData = computed<TransactionTableRow[]>(() => {
+  const items = (data.value?.data?.data || []) as StockTransactionType[];
+
+  const rows: TransactionTableRow[] = [];
+
+  items.forEach((trx) => {
+    if (!trx.lines || trx.lines.length === 0) {
+      rows.push({
+        id: trx.id,
+        trx_no: trx.trx_no,
+        trx_type: trx.trx_type,
+        sku: "-",
+        qty: 0,
+        warehouse: "-",
+        purpose: trx.purpose,
+        trx_date: trx.trx_date,
+        transaction: trx,
+        lineIndex: 0,
+      } as any);
+      return;
+    }
+
+    trx.lines.forEach((line, index) => {
+      rows.push({
+        id: line.id || `${trx.id}-${line.sku_id}`,
+        trx_no: trx.trx_no,
+        trx_type: trx.trx_type,
+        sku: `${line.sku_code} - ${line.sku_name}`,
+        qty: line.qty,
+        warehouse: line.facility_name,
+        purpose: trx.purpose,
+        trx_date: trx.trx_date,
+        transaction: trx,
+        lineIndex: index,
+      } as any);
+    });
+  });
+
+  return rows as any;
+});
+
+const typeOptions = [
+  { id: "IN", label: "IN" },
+  { id: "OUT", label: "OUT" },
 ];
 
 const handleFacilitiesChange = (value: any) => {
@@ -107,22 +152,34 @@ const handlePageSizeChange = (pageSize: number) => {
   params.page = 1;
 };
 
-const handleStatusChange = (value: string | number) => {
-  params.status = String(value);
+const handleTypeChange = (value: string | number) => {
+  params.trx_type = String(value);
   params.page = 1;
+};
+
+const detailModalRef = ref<ElementEvent | null>(null);
+
+const handleDetailModalMounted = (instance: ElementEvent) => {
+  detailModalRef.value = instance;
+};
+
+const handleViewTransaction = (row: any) => {
+  stockTransactionStore.setSelectedData(
+    row.transaction as StockTransactionType
+  );
+  stockTransactionStore.setSelectedLineIndex(row.lineIndex ?? 0);
+  detailModalRef.value?.show();
 };
 
 watch(
   () => ({ ...params }),
   () => {
-    console.log({ params });
-
-    stockOnHandStore.getDataStockOnHand({ ...params });
+    stockTransactionStore.getDataTransactions({ ...params });
   }
 );
 
 onMounted(() => {
-  stockOnHandStore.getDataStockOnHand({
+  stockTransactionStore.getDataTransactions({
     ...params,
   });
   skuStore.getDataSku({ page: 1, limit: 1000 });
@@ -130,7 +187,7 @@ onMounted(() => {
 });
 
 onBeforeMount(() => {
-  $page.setTitle("On Hand Stock");
+  $page.setTitle("Stock Transactions");
 });
 </script>
 
@@ -138,16 +195,16 @@ onBeforeMount(() => {
   <main class="space-y-8">
     <header class="flex justify-between items-end">
       <div>
-        <h1 class="text-2xl font-semibold text-gray-900">Stock On Hand</h1>
-        <p class="text-gray-500">Current stock per SKU and warehouse</p>
+        <h1 class="text-2xl font-semibold text-gray-900">Transactions</h1>
+        <p class="text-gray-500">View and manage all stock movements</p>
       </div>
-      <div class="flex justify-between space-x-2">
+      <!-- <div class="flex justify-between space-x-2">
         <GeneralButton color="success" label="Export to Excel">
           <template #prefix>
             <IconsDownload size="18" class="text-white" />
           </template>
         </GeneralButton>
-      </div>
+      </div> -->
     </header>
     <section class="flex bg-white p-6 rounded-xl items-end space-x-2">
       <!-- <GeneralSearchInput
@@ -179,54 +236,49 @@ onBeforeMount(() => {
       </div>
 
       <GeneralDropdown
-        v-model="params.status"
+        v-model="params.trx_type"
         variant="field"
-        :options="statusOptions"
-        label="Status"
-        placeholder="All Status"
+        :options="typeOptions"
+        label="Type"
+        placeholder="All Type"
         class="w-max"
-        @change="handleStatusChange"
+        @change="handleTypeChange"
       />
     </section>
     <section class="space-y-4">
       <div class="bg-white p-6 rounded-xl space-y-4">
         <GeneralTable
           :columns="tableColumns"
-          :data="data?.data?.data || []"
+          :data="tableData"
           :loading="loadingList"
           row-key="id"
           striped
         >
-          <template #cell-status="{ value }">
-            <span
-              class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
-              :class="statusBadgeClass(value as string | undefined)"
-            >
-              {{ formatStatusLabel(value as string | undefined) }}
-            </span>
-          </template>
-          <template #cell-last_movement="{ value }">
+          <template #cell-trx_date="{ value }">
             {{ formatTableDate(value as string) }}
           </template>
-          <!-- <template #cell-actions="{ row }">
+          <template #cell-trx_type="{ value }">
+            <span
+              class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+              :class="trxTypeBadgeClass(value as string | undefined)"
+            >
+              {{ (value as string) || "-" }}
+            </span>
+          </template>
+          <template #cell-actions="{ row }">
             <div class="flex justify-end gap-2">
-              <GeneralIconButton class="h-9 w-9" color="default">
-                <template #icon>
-                  <IconsEdit size="18" class="text-gray-700" />
-                </template>
-              </GeneralIconButton>
               <GeneralIconButton
                 class="h-9 w-9 bg-white"
                 color="default"
                 :bordered="false"
-                @on-click="openDeleteSkuModal(row)"
+                @on-click="handleViewTransaction(row)"
               >
                 <template #icon>
-                  <IconsDelete size="18" class="text-red-500" />
+                  <IconsEye size="18" />
                 </template>
               </GeneralIconButton>
             </div>
-          </template> -->
+          </template>
         </GeneralTable>
         <GeneralPagination
           :page="params.page"
@@ -237,5 +289,10 @@ onBeforeMount(() => {
         />
       </div>
     </section>
+
+    <ModalTransactionDetail
+      id="modal-transaction-detail"
+      @mounted="handleDetailModalMounted"
+    />
   </main>
 </template>

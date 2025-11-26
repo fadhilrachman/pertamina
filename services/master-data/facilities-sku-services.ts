@@ -3,9 +3,9 @@ import type { QueryParams } from "~/types/common";
 import type { PayloadFacilitiesSkuType } from "~/types/facilities-sku-type";
 
 export async function postFacilitiesSku(
-  payload: PayloadFacilitiesSkuType & { facilities_id: string }
+  payload: PayloadFacilitiesSkuType & { facility_id: string }
 ) {
-  return await api.post(`/api/v1/facilities/${payload.facilities_id}/skus`, {
+  return await api.post(`/api/v1/facilities/${payload.facility_id}/skus`, {
     body: payload,
   });
 }
@@ -14,10 +14,10 @@ export async function getFacilitiesSku(
   params: QueryParams & {
     search?: string;
     status?: string;
-    facilities_id: string;
+    facility_id: string;
   }
 ) {
-  return await api.get(`/api/v1/facilities/${params.facilities_id}/skus`, {
+  return await api.get(`/api/v1/facilities/${params.facility_id}/skus`, {
     queryParams: params,
   });
 }
@@ -26,19 +26,19 @@ export async function getSkuDetail(params: { id: string }) {
 }
 
 export async function putFacilitiesSku(
-  payload: PayloadFacilitiesSkuType & { facilities_id: string } & { id: string }
+  payload: PayloadFacilitiesSkuType & { facility_id: string } & { id: string }
 ) {
   return await api.put(
-    `/api/v1/facilities/${payload.facilities_id}/skus/${payload.id}`,
+    `/api/v1/facilities/${payload.facility_id}/skus/${payload.id}`,
     { body: payload }
   );
 }
 
 export async function deleteFacilitiesSku(params: {
   id: string;
-  facilities_id: string;
+  facility_id: string;
 }) {
   return await api.delete(
-    `/api/v1/facilities/${params.facilities_id}/skus/${params.id}`
+    `/api/v1/facilities/${params.facility_id}/skus/${params.id}`
   );
 }

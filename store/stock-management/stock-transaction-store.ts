@@ -14,53 +14,53 @@ import { toast } from "vue3-toastify";
 import { DATA_SKU } from "../../dummy.json";
 import { defineStore } from "pinia";
 import type { SKUType } from "~/types/sku-type";
-import type { PayloadStockTransactionType } from "~/types/stock-transaction-type";
-import { postStockTransactions } from "~/services/stock-management/stock-transactions-services";
+import type {
+  PayloadStockTransactionType,
+  StockTransactionType,
+} from "~/types/stock-transaction-type";
+import {
+  getTransactions,
+  postStockTransactions,
+} from "~/services/stock-management/stock-transactions-services";
 
 export const useStockTransaction = defineStore("stockTransaction", {
   state: () => ({
     loadingList: false,
     loadingWrite: false,
     loadingDetail: false,
-    data: {} as ResponseApi<SKUType>,
-    dataDetail: {} as ResponseApiDetail<SKUType>,
-    selectedData: {} as SKUType,
+    data: {} as ResponseApi<StockTransactionType>,
+    dataDetail: {} as ResponseApiDetail<StockTransactionType>,
+    selectedData: {} as StockTransactionType,
+    selectedLineIndex: 0 as number,
   }),
   actions: {
-    // setSelectedData(data: SKUType) {
-    //   this.selectedData = data;
-    // },
-    // async getDataSku(
-    //   params: QueryParams & { search?: string; status?: string }
-    // ) {
-    //   this.loadingList = true;
-    //   try {
-    //     const data = await getSku(params); // API_UNCOMMENT
-    //     this.data = data; // API_UNCOMMENT
-    //     // this.data = {
-    //     //   // count: 10,
-    //     //   data: {
-    //     //     data: DATA_SKU,
-    //     //     limit: 10,
-    //     //     page: 1,
-    //     //     total: 200,
-    //     //     total_pages: 10,
-    //     //   },
-    //     //   code: 200,
-    //     //   error: "",
-    //     //   message: "Success",
-    //     //   success: true,
-    //     // };
-    //   } catch (error) {
-    //     toast.error("Failed get data SKU", {
-    //       toastClassName: "toastify-error",
-    //     });
-    //     throw error;
-    //   } finally {
-    //     // toast
-    //     this.loadingList = false;
-    //   }
-    // },
+    setSelectedData(data: StockTransactionType) {
+      this.selectedData = data;
+    },
+    setSelectedLineIndex(index: number) {
+      this.selectedLineIndex = index;
+    },
+    async getDataTransactions(
+      params: QueryParams & {
+        facility_id?: string;
+        sku_id?: string;
+        trx_type?: string;
+      }
+    ) {
+      this.loadingList = true;
+      try {
+        const data = await getTransactions(params); // API_UNCOMMENT
+        this.data = data;
+      } catch (error) {
+        toast.error("Failed get data Transaction", {
+          toastClassName: "toastify-error",
+        });
+        throw error;
+      } finally {
+        // toast
+        this.loadingList = false;
+      }
+    },
 
     // async getDataDetailSku({ id }: { id: string }) {
     //   this.loadingDetail = true;
@@ -78,10 +78,13 @@ export const useStockTransaction = defineStore("stockTransaction", {
     //   }
     // },
 
-    async createDataStockTransaction(body: PayloadStockTransactionType) {
+    async createDataStockTransaction(
+      body: PayloadStockTransactionType,
+      { uuid }: { uuid: string }
+    ) {
       this.loadingWrite = true;
       try {
-        await postStockTransactions(body); // API_UNCOMMENT
+        await postStockTransactions(body, { uuid }); // API_UNCOMMENT
         toast.success("Success create data Stock in");
         return true;
       } catch (error) {

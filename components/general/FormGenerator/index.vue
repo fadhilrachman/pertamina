@@ -236,16 +236,13 @@ function fileInputClasses(invalid: boolean, disabled?: boolean) {
           </template>
 
           <template v-else-if="field.type === 'date'">
-            <input
+            <GeneralTextInput
               :id="`${id}-${field.name}`"
               type="date"
               :value="fieldBinding.value"
               :placeholder="field.placeholder"
-              :required="field.requiredMark"
               :disabled="field.disabled"
-              :class="
-                dateInputClasses(meta.touched && !meta.valid, field.disabled)
-              "
+              :invalid="meta.touched && !meta.valid"
               @input="
                 fieldBinding.onChange(($event.target as HTMLInputElement).value)
               "
@@ -298,7 +295,10 @@ function fileInputClasses(invalid: boolean, disabled?: boolean) {
           </p> -->
 
           <ErrorMessage :name="field.name" v-slot="{ message }">
-            <p class="text-xs text-error-500">
+            <p
+              v-if="(meta.touched || meta.dirty || meta.submitCount > 0) && message"
+              class="text-xs text-error-500"
+            >
               {{ message }}
             </p>
           </ErrorMessage>
