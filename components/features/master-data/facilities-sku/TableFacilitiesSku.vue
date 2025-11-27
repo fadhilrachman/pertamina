@@ -41,6 +41,7 @@ const params = reactive({
 });
 const tableColumns: TableColumn[] = [
   { key: "sku_code", label: "SKU Code" },
+  { key: "warehouse", label: "Warehouse" },
   { key: "sku_name", label: "SKU Name", headerClass: "min-w-[200px]" },
   { key: "low_stock_threshold", label: "Low Threshold" },
   { key: "high_stock_threshold", label: "High Threshold" },

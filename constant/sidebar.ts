@@ -117,16 +117,17 @@ export const sidebarMenu: ISidebar[] = [
         route: "/master-data/facilities",
         icon: markRaw(IconsBuilding),
       },
-      {
-        label: "Vehicles",
-        id: "menu__master-vehicle",
-        route: "/master-data/vehicles",
-        icon: markRaw(IconsTruck),
-      },
+
       {
         label: "Facilities SKU",
         id: "menu__master-facilities-sku",
         route: "/master-data/facilities-sku",
+        icon: markRaw(IconsTruck),
+      },
+      {
+        label: "Vehicles",
+        id: "menu__master-vehicle",
+        route: "/master-data/vehicles",
         icon: markRaw(IconsTruck),
       },
     ],

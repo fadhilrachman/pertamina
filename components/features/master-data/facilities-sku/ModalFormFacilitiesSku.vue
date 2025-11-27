@@ -22,18 +22,28 @@ const props = withDefaults(
   }
 );
 const isUpdateMode = computed(() => props.mode === "update");
-const route = useRoute();
 
 const skuStore = useSkuStore();
 const { data: skuData } = storeToRefs(skuStore);
 const emit = defineEmits(["opened", "closed"]);
-const facilitiesStore = useFacilitiesSkuStore();
-const { loadingWrite, selectedData } = storeToRefs(facilitiesStore);
+const facilitiesSkuStore = useFacilitiesSkuStore();
+const { loadingWrite, selectedData } = storeToRefs(facilitiesSkuStore);
 const {
   createDataFacilitiesSku,
   updateDataFacilitiesSku,
   getDataFacilitiesSku,
-} = facilitiesStore;
+} = facilitiesSkuStore;
+
+const facilitiesStore = useFacilitiesStore();
+const { data: facilitiesData } = storeToRefs(facilitiesStore);
+
+const facilitiesOptions = computed(
+  () =>
+    facilitiesData.value?.data?.data?.map((item) => ({
+      id: item.id,
+      label: item.name,
+    })) || []
+);
 const skuOptions = computed(
   () =>
     skuData.value?.data?.data?.map((item) => ({
@@ -43,6 +53,15 @@ const skuOptions = computed(
 );
 
 const formFields = computed<FieldConfig[]>(() => [
+  {
+    name: "facility_id",
+    label: "Facility",
+    requiredMark: true,
+    type: "search-select",
+    placeholder: "Select Facility",
+    grid: 12,
+    options: facilitiesOptions.value,
+  },
   {
     name: "sku_id",
     label: "Sku Name",
@@ -83,6 +102,7 @@ const formFields = computed<FieldConfig[]>(() => [
 const modalInstance = ref<ElementEvent | null>(null);
 
 const formSchema = object({
+  facility_id: string().required("Facility is required"),
   sku_id: string().required("SKU is required"),
   low_stock_threshold: number()
     .typeError("Low stock threshold is required")
@@ -98,6 +118,7 @@ const createInitialValues = (): PayloadFacilitiesSkuType => ({
   low_stock_threshold: "",
   high_stock_threshold: "",
   sku_id: "",
+  facility_id: "",
   description: "",
 });
 const form = useForm<PayloadFacilitiesSkuType>({
@@ -112,6 +133,7 @@ onMounted(() => {
   if (!skuData.value?.data?.data?.length) {
     skuStore.getDataSku({ page: 1, limit: 1000 });
   }
+  facilitiesStore.getDataFacilities({ page: 1, limit: 1000 });
 });
 
 // watch(
@@ -131,6 +153,7 @@ const open = () => {
     const current = selectedData.value as FacilitiesSkuType;
     form.resetForm({
       values: {
+        facility_id: current.facility_id,
         sku_id: current.sku_id,
         low_stock_threshold: current.low_stock_threshold ?? "",
         high_stock_threshold: current.high_stock_threshold ?? 0,
@@ -158,7 +181,7 @@ async function handleFormSubmit(values: Record<string, any>) {
       high_stock_threshold: Number(values.high_stock_threshold ?? 0),
       sku_id: String(values.sku_id ?? ""),
       description: values.description,
-      facility_id: route.query.facility_id,
+      facility_id: String(values.facility_id ?? ""),
       status: "active",
     };
     const isUpdate = props.mode === "update";
@@ -177,7 +200,7 @@ async function handleFormSubmit(values: Record<string, any>) {
     getDataFacilitiesSku({
       page: 1,
       limit: 10,
-      facility_id: route.query.facility_id as string,
+      facility_id: String(values.facility_id ?? ""),
     });
 
     return true;

@@ -23,7 +23,7 @@ export const useFacilitiesSkuStore = defineStore("facilitiesSku", {
     loadingList: false,
     loadingWrite: false,
     loadingDetail: false,
-    data: {} as ResponseApi<FacilitiesSkuType>,
+    data: {} as ResponseApi<FacilitiesSkuType> | null,
     dataDetail: {} as ResponseApiDetail<FacilitiesSkuType>,
     selectedData: {} as FacilitiesSkuType,
   }),
@@ -57,6 +57,7 @@ export const useFacilitiesSkuStore = defineStore("facilitiesSku", {
         //   success: true,
         // };
       } catch (error) {
+        this.data = null;
         if (!params.facility_id) return null;
         toast.error("Failed get data SKU", {
           toastClassName: "toastify-error",

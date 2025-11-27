@@ -270,7 +270,10 @@ const handleFormSubmit = async (val: any) => {
       uuid: idempotencyKey,
     }
   );
-
+  await stockOnHandStore.getDataStockOnHand({
+    page: 1,
+    limit: 10,
+  });
   resetForm();
   close();
 };

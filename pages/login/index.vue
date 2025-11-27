@@ -24,13 +24,12 @@ const schema = object({
   email: string()
     .email("Please enter a valid email address")
     .required("Email is required"),
-  password: string()
-    .required("Password is required")
-    .min(8, "Password must be at least 8 characters")
-    .matches(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/,
-      "Password must contain upper, lower, number, and symbol"
-    ),
+  password: string().required("Password is required"),
+  // .min(8, "Password must be at least 8 characters")
+  // .matches(
+  //   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/,
+  //   "Password must contain upper, lower, number, and symbol"
+  // ),
 });
 
 const { handleSubmit, errors } = useForm({ validationSchema: schema });
