@@ -110,25 +110,36 @@ const form = useForm<PayloadSKUType>({
   initialValues: createInitialValues(),
 });
 
-watch(
-  () => ({
-    mode: props.mode,
-    selectedData: selectedData.value,
-  }),
-  ({ mode, selectedData }) => {
-    if (mode === "update" && selectedData) {
-      form.resetForm({ values: selectedData as PayloadSKUType });
-    } else {
-      form.resetForm({ values: createInitialValues() });
-    }
-  },
-  { immediate: true }
-);
+// watch(
+//   () => ({
+//     mode: props.mode,
+//     selectedData: selectedData.value,
+//   }),
+//   ({ mode, selectedData }) => {
+//     if (mode === "update" && selectedData) {
+//       form.resetForm({ values: selectedData as PayloadSKUType });
+//     } else {
+//       form.resetForm({ values: createInitialValues() });
+//     }
+//   },
+//   { immediate: true }
+// );
 const handleModalMounted = (instance: ElementEvent) => {
   modalInstance.value = instance;
 };
 
 const open = () => {
+  if (props.mode === "update") {
+    console.log("update");
+
+    form.resetForm({ values: selectedData.value as PayloadSKUType });
+  } else {
+    console.log("add");
+
+    form.resetForm({ values: createInitialValues() });
+  }
+  console.log(form.values);
+
   modalInstance.value?.show();
 };
 const close = () => {
@@ -144,7 +155,9 @@ async function handleFormSubmit(values: Record<string, any>) {
   try {
     const action = props.mode === "update" ? updateDataSku : createDataSku;
     await action(values);
-    await getDataSku({ page: 1, limit: 10 });
+    form.resetForm({ values: createInitialValues() });
+
+    getDataSku({ page: 1, limit: 10 });
     handleCancel();
 
     return true;

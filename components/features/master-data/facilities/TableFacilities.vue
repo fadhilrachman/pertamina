@@ -35,14 +35,18 @@ const statusOptions = [
   { id: "active", label: "Active" },
   { id: "inactive", label: "Inactive" },
 ];
-const openAddFacilities = () => {
+const openAddFacilities = async () => {
   formModeRef.value = "add";
+
+  await nextTick();
   modalAddRef.value?.open();
 };
 
-const openUpdateFacilities = (row: FacilitiesType) => {
+const openUpdateFacilities = async (row: FacilitiesType) => {
   facilitiesStore.setSelectedData(row);
   formModeRef.value = "update";
+
+  await nextTick();
   modalAddRef.value?.open();
 };
 

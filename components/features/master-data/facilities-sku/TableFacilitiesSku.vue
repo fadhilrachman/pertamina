@@ -78,14 +78,18 @@ const tableTotal = computed(() => {
 const tableEmptyText = computed(() =>
   params.facility_id ? "No records found." : "Select Facility First"
 );
-const openAddSkuModal = () => {
+const openAddSkuModal = async () => {
   formModeRef.value = "add";
+
+  await nextTick();
   modalAddRef.value?.open();
 };
 
-const openUpdateSkuModal = (row: FacilitiesSkuType) => {
+const openUpdateSkuModal = async (row: FacilitiesSkuType) => {
   skuStore.setSelectedData(row);
   formModeRef.value = "update";
+
+  await nextTick();
   modalAddRef.value?.open();
 };
 

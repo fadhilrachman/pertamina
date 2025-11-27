@@ -22,5 +22,5 @@ export async function putFacilities(
 }
 
 export async function deleteFacilities(params: { id: string }) {
-  return await api.put(`/api/v1/facilities/${params.id}`);
+  return await api.delete(`/api/v1/facilities/${params.id}`);
 }

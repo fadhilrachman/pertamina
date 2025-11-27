@@ -47,14 +47,18 @@ const statusOptions = [
   { id: "active", label: "Active" },
   { id: "inactive", label: "Inactive" },
 ];
-const openAddVehicleModal = () => {
+const openAddVehicleModal = async () => {
   formModeRef.value = "add";
+  await nextTick();
+
   modalAddRef.value?.open();
 };
 
-const openUpdateVehicleModal = (row: VehicleType) => {
+const openUpdateVehicleModal = async (row: VehicleType) => {
   vehiclesStore.setSelectedData(row);
   formModeRef.value = "update";
+
+  await nextTick();
   modalAddRef.value?.open();
 };
 

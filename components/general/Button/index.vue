@@ -28,7 +28,7 @@ const props = defineProps({
     default: "primary",
   },
   size: {
-    type: String as () => "sm" | "md" | "lg",
+    type: String as () => "sm" | "md" | "lg" | "xs",
     default: "md",
   },
   form: {
@@ -88,7 +88,8 @@ const bgButtonHover = computed(() => {
 });
 
 const sizeClass = computed(() => {
-  const sizes: Record<"sm" | "md" | "lg", string> = {
+  const sizes: Record<"sm" | "md" | "lg" | "xs", string> = {
+    xs: "py-1.5 px-2 text-xs",
     sm: "py-2 px-3 text-xs",
     md: "py-2.5 px-3.5 text-sm",
     lg: "py-3 px-4 text-base",

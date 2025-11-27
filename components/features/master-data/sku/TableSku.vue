@@ -39,14 +39,17 @@ const statusOptions = [
   { id: "active", label: "Active" },
   { id: "inactive", label: "Inactive" },
 ];
-const openAddSkuModal = () => {
+const openAddSkuModal = async () => {
   formModeRef.value = "add";
+  await nextTick();
+
   modalAddRef.value?.open();
 };
 
-const openUpdateSkuModal = (row: SKUType) => {
+const openUpdateSkuModal = async (row: SKUType) => {
   skuStore.setSelectedData(row);
   formModeRef.value = "update";
+  await nextTick();
   modalAddRef.value?.open();
 };
 

@@ -59,23 +59,29 @@ export const sidebarMenu: ISidebar[] = [
     isOpen: false,
     menu: [
       {
-        label: "Stock In",
-        id: "menu__stock-management-in",
-        route: "/stock-management/stock-in",
+        label: "Stock",
+        id: "menu__stock-management-stock",
+        route: "/stock-management/stock",
         icon: markRaw(IconsStockIn),
       },
-      {
-        label: "Stock Out",
-        route: "/stock-management/stock-out",
-        id: "menu__stock-management-out",
-        icon: markRaw(IconsStockOut),
-      },
-      {
-        label: "Stock Adjustment",
-        route: "/stock-management/stock-adjustment",
-        id: "menu__stock-management-adjustment",
-        icon: markRaw(IconsStockAdjustment),
-      },
+      // {
+      //   label: "Stock In",
+      //   id: "menu__stock-management-in",
+      //   route: "/stock-management/stock-in",
+      //   icon: markRaw(IconsStockIn),
+      // },
+      // {
+      //   label: "Stock Out",
+      //   route: "/stock-management/stock-out",
+      //   id: "menu__stock-management-out",
+      //   icon: markRaw(IconsStockOut),
+      // },
+      // {
+      //   label: "Stock Adjustment",
+      //   route: "/stock-management/stock-adjustment",
+      //   id: "menu__stock-management-adjustment",
+      //   icon: markRaw(IconsStockAdjustment),
+      // },
 
       {
         label: "Transactions",

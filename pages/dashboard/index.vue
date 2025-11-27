@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { onBeforeMount } from "vue";
-import { Bar, Line, Doughnut } from "vue-chartjs";
+import { computed, onBeforeMount, onMounted } from "vue";
+import { storeToRefs } from "pinia";
+import { Bar, Doughnut } from "vue-chartjs";
 import {
   Chart as ChartJS,
   Title,
@@ -14,6 +15,14 @@ import {
   ArcElement,
 } from "chart.js";
 import { usePageStore } from "~/store/page";
+import { useDashboardStore } from "~/store/dashboard/dashboard-store";
+import { useFacilitiesStore } from "~/store/master-data/facilities-store";
+import {
+  IconsCube,
+  IconsDatabase,
+  IconsWarehouse,
+  IconsInfo,
+} from "#components";
 
 definePageMeta({
   auth: true,
@@ -36,25 +45,65 @@ onBeforeMount(() => {
   $page.setTitle("Dashboard");
 });
 
-const stockInOutData = {
-  labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-  datasets: [
-    {
-      label: "Stock In",
-      backgroundColor: "#3b82f6",
-      borderColor: "#3b82f6",
-      borderWidth: 1,
-      data: [120, 90, 140, 110, 160, 130, 100],
-    },
-    {
-      label: "Stock Out",
-      backgroundColor: "#f97316",
-      borderColor: "#f97316",
-      borderWidth: 1,
-      data: [80, 100, 120, 90, 130, 140, 110],
-    },
-  ],
-};
+const dashboardStore = useDashboardStore();
+const facilitiesStore = useFacilitiesStore();
+const { dataOverview, dataStockDistribution, dataTopMovingSku } =
+  storeToRefs(dashboardStore);
+const { data: dataFacilities } = storeToRefs(facilitiesStore);
+
+const selectedFacilityId = ref<string | "">("");
+
+onMounted(() => {
+  facilitiesStore.getDataFacilities({ page: 1, limit: 1000 });
+  const facility_id = selectedFacilityId.value || undefined;
+  dashboardStore.getDataDashboardOverview({ facility_id });
+  dashboardStore.getDataDashboardStockDistribution({ facility_id });
+  dashboardStore.getDataDashboardTopMovingSku({ facility_id });
+});
+
+// watch(
+//   () => selectedFacilityId.value,
+//   (next) => {
+//     const facility_id = next || undefined;
+//     dashboardStore.getDataDashboardOverview({ facility_id });
+//     dashboardStore.getDataDashboardStockDistribution({ facility_id });
+//     dashboardStore.getDataDashboardTopMovingSku({ facility_id });
+//   }
+// );
+
+const facilitiesOptions = computed(
+  () =>
+    dataFacilities.value?.data?.data?.map((item) => ({
+      id: item.id,
+      label: item.name,
+    })) || []
+);
+
+const stockInOutData = computed(() => {
+  const throughput = dataOverview.value?.data?.throughput_overview;
+  const inbound = throughput?.inbound_qty ?? 0;
+  const outbound = throughput?.outbound_qty ?? 0;
+
+  return {
+    labels: ["Total"],
+    datasets: [
+      {
+        label: "Stock In",
+        backgroundColor: "#22c55e",
+        borderColor: "#16a34a",
+        borderWidth: 1,
+        data: [inbound],
+      },
+      {
+        label: "Stock Out",
+        backgroundColor: "#ef4444",
+        borderColor: "#b91c1c",
+        borderWidth: 1,
+        data: [outbound],
+      },
+    ],
+  };
+});
 
 const stockInOutOptions = {
   responsive: true,
@@ -74,17 +123,31 @@ const stockInOutOptions = {
   },
 };
 
-const stockBalanceData = {
-  labels: ["Raw Material", "Finished Goods", "Spare Parts", "Others"],
-  datasets: [
-    {
-      label: "Stock Balance",
-      data: [3500, 2800, 1200, 600],
-      backgroundColor: ["#6366f1", "#22c55e", "#f97316", "#a855f7"],
-      borderWidth: 1,
-    },
-  ],
-};
+const stockBalanceData = computed(() => {
+  const distribution = dataStockDistribution.value;
+  const labels =
+    distribution?.data?.warehouses?.map((item) => item.facility_name) || [];
+  const quantities =
+    distribution?.data?.warehouses?.map((item) => item.total_qty || 0) || [];
+
+  const palette = ["#2563eb", "#22c55e", "#facc15", "#f97316", "#a855f7"];
+  const colors =
+    labels.length > 0
+      ? labels.map((_, idx) => palette[idx % palette.length])
+      : palette;
+
+  return {
+    labels: labels.length ? labels : ["No data"],
+    datasets: [
+      {
+        label: "On-hand Quantity",
+        data: labels.length ? quantities : [1],
+        backgroundColor: colors.slice(0, labels.length || 1),
+        borderWidth: 1,
+      },
+    ],
+  };
+});
 
 const stockBalanceOptions = {
   responsive: true,
@@ -96,133 +159,178 @@ const stockBalanceOptions = {
   },
 };
 
-const dailyTransactionData = {
-  labels: ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6", "Day 7"],
-  datasets: [
+const summaryCards = computed(() => {
+  const overview = dataOverview.value.data;
+
+  return [
     {
-      label: "Transactions",
-      data: [45, 60, 52, 70, 65, 80, 75],
-      borderColor: "#10b981",
-      backgroundColor: "rgba(16, 185, 129, 0.15)",
-      tension: 0.3,
-      fill: true,
-      pointRadius: 4,
-      pointBackgroundColor: "#10b981",
+      title: "Total SKU",
+      value: overview ? String(overview.total_skus ?? 0) : "-",
+      icon: IconsCube,
+      iconBgClass: "bg-blue-50",
+      iconClass: "stroke-blue-600",
     },
-  ],
-};
-
-const dailyTransactionOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      display: false,
-    },
-  },
-  scales: {
-    x: {
-      grid: { display: false },
-    },
-    y: {
-      beginAtZero: true,
-    },
-  },
-};
-
-const topProductData = {
-  labels: ["Diesel Oil", "Drill Bit", "Mud Chemical", "Casing Pipe", "Grease"],
-  datasets: [
     {
-      label: "Qty Moved",
-      data: [520, 480, 450, 430, 390],
-      backgroundColor: "#0ea5e9",
-      borderColor: "#0284c7",
-      borderWidth: 1,
+      title: "Total On-hand Quantity",
+      value: overview ? String(overview.total_on_hand_quantity ?? 0) : "-",
+      icon: IconsDatabase,
+      iconBgClass: "bg-emerald-50",
+      iconClass: "stroke-emerald-600",
     },
-  ],
-};
+    {
+      title: "Active Warehouses",
+      value: overview ? String(overview.active_warehouses ?? 0) : "-",
+      icon: IconsWarehouse,
+      iconBgClass: "bg-amber-50",
+      iconClass: "stroke-amber-600",
+    },
+    {
+      title: "Low-stock Alerts",
+      value: overview ? String(overview.low_stock_alerts ?? 0) : "-",
+      icon: IconsInfo,
+      iconBgClass: "bg-rose-50",
+      iconClass: "stroke-rose-600",
+    },
+  ];
+});
 
-const topProductOptions = {
-  indexAxis: "y" as const,
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      display: false,
-    },
-  },
-  scales: {
-    x: {
-      beginAtZero: true,
-    },
-    y: {
-      grid: { display: false },
-    },
-  },
-};
+// const topMovingSkus = computed(() => {
+//   const list = dataTopMovingSku.value.data || [];
+//   const sorted = [...list].sort(
+//     (a, b) => (b.net_movement ?? 0) - (a.net_movement ?? 0)
+//   );
+
+//   return sorted.slice(0, 5).map((item) => ({
+//     name: `${item.sku_code} - ${item.sku_name}`,
+//     qty: item.net_movement ?? 0,
+//   }));
+// });
+
+// const maxTopSkuQty = computed(() => {
+//   const items = topMovingSkus.value;
+//   if (!items.length) return 1;
+//   return Math.max(...items.map((item) => item.qty || 0)) || 1;
+// });
 </script>
 
 <template>
   <main class="space-y-6">
-    <header class="flex justify-between items-end">
-      <div>
+    <header class="flex items-end justify-between">
+      <div class="space-y-1">
         <h1 class="text-2xl font-semibold text-gray-900">Dashboard</h1>
-        <p class="text-gray-500">
-          Warehouse performance overview and key stock metrics
-        </p>
+        <p class="text-gray-500">Overview of your inventory operations</p>
+      </div>
+      <div class="min-w-[240px] space-y-1">
+        <label class="mb-1.5 text-sm font-[600] text-gray-700">
+          Facilities
+        </label>
+        <GeneralDropdownSearch
+          v-model="selectedFacilityId"
+          :options="facilitiesOptions"
+          placeholder="All Facilities"
+        />
       </div>
     </header>
 
-    <section class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-      <div class="bg-white rounded-xl p-5 shadow-sm h-80">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-base font-semibold text-gray-900">
-            Stock Transaction In-Out
-          </h2>
-          <span class="text-xs text-gray-400">Last 7 days</span>
-        </div>
-        <div class="h-64">
-          <Bar :data="stockInOutData" :options="stockInOutOptions" />
-        </div>
-      </div>
-
-      <div class="bg-white rounded-xl p-5 shadow-sm h-80">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-base font-semibold text-gray-900">Stock Balance</h2>
-          <span class="text-xs text-gray-400">By category</span>
-        </div>
-        <div class="h-64">
-          <Doughnut :data="stockBalanceData" :options="stockBalanceOptions" />
-        </div>
-      </div>
-
-      <div class="bg-white rounded-xl p-5 shadow-sm h-80">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-base font-semibold text-gray-900">
-            Daily Transaction
-          </h2>
-          <span class="text-xs text-gray-400">Last 7 days</span>
-        </div>
-        <div class="h-64">
-          <Line
-            :data="dailyTransactionData"
-            :options="dailyTransactionOptions"
-          />
-        </div>
-      </div>
-
-      <div class="bg-white rounded-xl p-5 shadow-sm h-80">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-base font-semibold text-gray-900">
-            Top 5 Product Fast Moving
-          </h2>
-          <span class="text-xs text-gray-400">By quantity moved</span>
-        </div>
-        <div class="h-64">
-          <Bar :data="topProductData" :options="topProductOptions" />
+    <!-- Summary cards -->
+    <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div
+        v-for="card in summaryCards"
+        :key="card.title"
+        class="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+      >
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <p class="text-xs font-medium text-gray-500">
+              {{ card.title }}
+            </p>
+            <p class="mt-2 text-2xl font-semibold text-gray-900">
+              {{ card.value }}
+            </p>
+          </div>
+          <div
+            class="h-10 w-10 rounded-xl flex items-center justify-center"
+            :class="card.iconBgClass"
+          >
+            <component :is="card.icon" size="20" :class="card.iconClass" />
+          </div>
         </div>
       </div>
     </section>
+
+    <!-- Charts row -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="bg-white rounded-xl p-5 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-base font-semibold text-gray-900">
+            Throughput Overview
+          </h2>
+          <span class="text-xs text-gray-400">Last 3 days</span>
+        </div>
+        <div class="h-72">
+          <Bar :data="stockInOutData" :options="stockInOutOptions" />
+        </div>
+        <div class="mt-4 flex items-center justify-center gap-6 text-xs">
+          <div class="flex items-center gap-2">
+            <span class="h-2 w-2 rounded-full bg-emerald-500" />
+            <span class="text-gray-600">Stock In</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="h-2 w-2 rounded-full bg-rose-500" />
+            <span class="text-gray-600">Stock Out</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl p-5 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-base font-semibold text-gray-900">
+            Stock Distribution per Warehouse
+          </h2>
+          <span class="text-xs text-gray-400">Current allocation</span>
+        </div>
+        <div class="h-72 flex items-center justify-center">
+          <Doughnut :data="stockBalanceData" :options="stockBalanceOptions" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Top moving SKUs -->
+    <!-- <section class="bg-white rounded-xl p-5 shadow-sm space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-base font-semibold text-gray-900">Top Moving SKUs</h2>
+        <span class="text-xs text-gray-400">Last 7 days</span>
+      </div>
+
+      <div class="space-y-3">
+        <div
+          v-for="(item, index) in topMovingSkus"
+          :key="item.name"
+          class="flex items-center gap-4"
+        >
+          <div
+            class="flex items-center justify-center h-7 w-7 rounded-full bg-blue-50 text-xs font-semibold text-blue-700"
+          >
+            {{ index + 1 }}
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center justify-between text-sm">
+              <p class="font-semibold text-gray-900 truncate">
+                {{ item.name }}
+              </p>
+              <p class="text-xs text-gray-500">{{ item.qty }} units</p>
+            </div>
+            <div
+              class="mt-2 h-1.5 w-full bg-gray-100 rounded-full overflow-hidden"
+            >
+              <div
+                class="h-full rounded-full bg-blue-500"
+                :style="{ width: `${(item.qty / maxTopSkuQty) * 100}%` }"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section> -->
   </main>
 </template>

@@ -107,25 +107,16 @@ const form = useForm<PayloadVehicleType>({
   initialValues: createInitialValues(),
 });
 
-watch(
-  () => ({
-    mode: props.mode,
-    selectedData: selectedData.value,
-  }),
-  ({ mode, selectedData }) => {
-    if (mode === "update" && selectedData) {
-      form.resetForm({ values: selectedData as PayloadVehicleType });
-    } else {
-      form.resetForm({ values: createInitialValues() });
-    }
-  },
-  { immediate: true }
-);
 const handleModalMounted = (instance: ElementEvent) => {
   modalInstance.value = instance;
 };
 
 const open = () => {
+  if (props.mode === "update" && selectedData) {
+    form.resetForm({ values: selectedData.value as PayloadVehicleType });
+  } else {
+    form.resetForm({ values: createInitialValues() });
+  }
   modalInstance.value?.show();
 };
 const close = () => {
@@ -134,7 +125,6 @@ const close = () => {
 
 const handleCancel = () => {
   close();
-  form.resetForm({ values: createInitialValues() });
 };
 
 async function handleFormSubmit(values: any) {
@@ -150,6 +140,8 @@ async function handleFormSubmit(values: any) {
           }
         : { ...values, capacity: Number(values.capacity) };
     await action(payload);
+    form.resetForm({ values: createInitialValues() });
+
     getDataVehicles({ page: 1, limit: 10 });
     handleCancel();
 

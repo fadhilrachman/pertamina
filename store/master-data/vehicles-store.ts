@@ -24,7 +24,7 @@ export const useVehiclesStore = defineStore("Vehicles", {
     setSelectedData(data: VehicleType) {
       this.selectedData = data;
     },
-    async getDataVehicles(params: QueryParams & { facility_id: string }) {
+    async getDataVehicles(params: QueryParams & { facility_id?: string }) {
       this.loadingList = true;
       try {
         const respoonse = await getVehicles(params);

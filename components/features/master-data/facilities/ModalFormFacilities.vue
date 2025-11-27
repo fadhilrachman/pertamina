@@ -95,25 +95,26 @@ const form = useForm<FacilitiesType>({
   initialValues: createInitialValues(),
 });
 
-watch(
-  () => ({
-    mode: props.mode,
-    selectedData: selectedData.value,
-  }),
-  ({ mode, selectedData }) => {
-    if (mode === "update" && selectedData) {
-      form.resetForm({ values: selectedData as FacilitiesType });
-    } else {
-      form.resetForm({ values: createInitialValues() });
-    }
-  },
-  { immediate: true }
-);
+// watch(
+//   () => ({
+//     mode: props.mode,
+//     selectedData: selectedData.value,
+//   }),
+//   ({ mode, selectedData }) => {
+
+//   },
+//   { immediate: true }
+// );
 const handleModalMounted = (instance: ElementEvent) => {
   modalInstance.value = instance;
 };
 
 const open = () => {
+  if (props.mode === "update") {
+    form.resetForm({ values: selectedData.value as FacilitiesType });
+  } else {
+    form.resetForm({ values: createInitialValues() });
+  }
   modalInstance.value?.show();
 };
 const close = () => {
@@ -122,7 +123,6 @@ const close = () => {
 
 const handleCancel = () => {
   close();
-  form.resetForm({ values: createInitialValues() });
 };
 
 async function handleFormSubmit(values: Record<string, any>) {
@@ -130,6 +130,8 @@ async function handleFormSubmit(values: Record<string, any>) {
     const action =
       props.mode === "update" ? updateDataFacilities : createDataFacilities;
     await action(values);
+    form.resetForm({ values: createInitialValues() });
+
     getDataFacilities({ page: 1, limit: 10 });
     handleCancel();
 

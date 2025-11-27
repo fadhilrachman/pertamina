@@ -104,21 +104,6 @@ const form = useForm<PayloadFacilitiesSkuType>({
   validationSchema: formSchema,
   initialValues: createInitialValues(),
 });
-
-watch(
-  () => ({
-    mode: props.mode,
-    selectedData: selectedData.value,
-  }),
-  ({ mode, selectedData }) => {
-    if (mode === "update" && selectedData) {
-      form.resetForm({ values: selectedData as FacilitiesSkuType });
-    } else {
-      form.resetForm({ values: createInitialValues() });
-    }
-  },
-  { immediate: true }
-);
 const handleModalMounted = (instance: ElementEvent) => {
   modalInstance.value = instance;
 };
@@ -129,7 +114,32 @@ onMounted(() => {
   }
 });
 
+// watch(
+//   () => ({
+//     mode: props.mode,
+//   }),
+//   ({ mode }) => {
+//     console.log("uhuyyyyyyyyyy");
+//     console.log({ selectedData });
+
+//   },
+//   { immediate: true }
+// );
+
 const open = () => {
+  if (props.mode === "update") {
+    const current = selectedData.value as FacilitiesSkuType;
+    form.resetForm({
+      values: {
+        sku_id: current.sku_id,
+        low_stock_threshold: current.low_stock_threshold ?? "",
+        high_stock_threshold: current.high_stock_threshold ?? 0,
+        description: current.description ?? "",
+      },
+    });
+  } else {
+    form.resetForm({ values: createInitialValues() });
+  }
   modalInstance.value?.show();
 };
 const close = () => {
@@ -137,7 +147,7 @@ const close = () => {
 };
 
 const handleCancel = () => {
-  form.resetForm({ values: createInitialValues() });
+  // form.resetForm({ values: createInitialValues() });
   close();
 };
 
@@ -149,11 +159,18 @@ async function handleFormSubmit(values: Record<string, any>) {
       sku_id: String(values.sku_id ?? ""),
       description: values.description,
       facility_id: route.query.facility_id,
+      status: "active",
     };
-    const action =
-      props.mode === "update"
-        ? updateDataFacilitiesSku
-        : createDataFacilitiesSku;
+    const isUpdate = props.mode === "update";
+    const action = isUpdate ? updateDataFacilitiesSku : createDataFacilitiesSku;
+
+    if (isUpdate) {
+      payload = {
+        ...(payload as any),
+        id: (selectedData.value as FacilitiesSkuType | undefined)?.id,
+      } as any;
+    }
+
     await action(payload as any);
 
     await handleCancel();

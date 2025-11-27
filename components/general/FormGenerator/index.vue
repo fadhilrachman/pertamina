@@ -290,13 +290,15 @@ function fileInputClasses(invalid: boolean, disabled?: boolean) {
             />
           </template>
 
-          <!-- <p v-if="field.helperText" class="text-xs text-gray-500">
+          <p v-if="field.helperText" class="text-xs text-gray-500">
             {{ field.helperText }}
-          </p> -->
+          </p>
 
           <ErrorMessage :name="field.name" v-slot="{ message }">
             <p
-              v-if="(meta.touched || meta.dirty || meta.submitCount > 0) && message"
+              v-if="
+                (meta.touched || meta.dirty || meta.submitCount > 0) && message
+              "
               class="text-xs text-error-500"
             >
               {{ message }}
