@@ -221,7 +221,7 @@ defineExpose({
 <template>
   <GeneralModal
     id="modal-add-sku"
-    :title="isUpdateMode ? 'Update SKU' : 'Add SKU'"
+    :title="isUpdateMode ? 'Update Facility SKU' : 'Add Facility SKU'"
     :is-has-close="true"
     class-modal="max-w-xl"
     @mounted="handleModalMounted"

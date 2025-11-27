@@ -215,7 +215,7 @@ onBeforeMount(() => {
         </GeneralButton>
         <GeneralButton
           color="primary"
-          label="Add SKU"
+          label="Add  Facilities SKU"
           @on-click="openAddSkuModal"
         >
           <template #prefix>
