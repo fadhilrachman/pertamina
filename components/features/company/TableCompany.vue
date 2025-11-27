@@ -9,6 +9,7 @@ import type { SKUType } from "~/types/sku-type";
 import ModalFormRole from "../user-management/role/ModalFormRole.vue";
 import { useCompanyStore } from "~/store/company/company-store";
 import { formatTableDate } from "~/utils/functions";
+import ModalFormCompany from "./ModalFormCompany.vue";
 
 const companyStore = useCompanyStore();
 const { data, loadingWrite } = storeToRefs(companyStore);
@@ -169,7 +170,7 @@ onMounted(() => {
         />
       </div>
     </section>
-    <ModalFormRole ref="modalAddRef" :mode="formModeRef" />
+    <ModalFormCompany ref="modalAddRef" :mode="formModeRef" />
     <ModalDelete
       id="modal-delete-company"
       :target-label="selectedSku?.name || 'this SKU'"
