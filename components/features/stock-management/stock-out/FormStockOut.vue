@@ -76,6 +76,7 @@ const createInitialValues = (): any => ({
   date: "",
   vehicle_id: "",
   purpose: "",
+  destination: "",
 });
 
 const form = useForm<any>({
@@ -131,6 +132,13 @@ const formFields = computed<FieldConfig[]>(() => [
     grid: 6,
     requiredMark: true,
     options: purposeOptions,
+  },
+  {
+    name: "destination",
+    label: "Destination",
+    type: "text",
+    placeholder: "Enter destination",
+    grid: 6,
   },
 
   // {
@@ -216,6 +224,7 @@ onMounted(() => {
                   ],
                   note: val.note,
                   purpose: val.purpose,
+                  destination: val.destination,
                   trx_date: val.date,
                   vehicle_id: val.vehicle_id,
                   trx_type: 'OUT',

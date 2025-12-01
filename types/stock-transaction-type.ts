@@ -3,7 +3,8 @@ export interface PayloadStockTransactionType {
   note?: string;
   reference_no?: string;
   reference_type?: string;
-   purpose?: string;
+  purpose?: string;
+  destination?: string;
   trx_date?: string;
   trx_type?: string;
   vehicle_id?: string;
