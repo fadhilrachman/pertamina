@@ -27,10 +27,13 @@ const params = reactive({
 const tableColumns: TableColumn[] = [
   { key: "sku_code", label: "SKU Code" },
   { key: "name", label: "Name", headerClass: "min-w-[200px]" },
-  { key: "unit", label: "Unit" },
-  { key: "status", label: "Status" },
+  { key: "category", label: "Category" },
+  { key: "unit", label: "UOM" },
+  { key: "max_stock", label: "Max Stock" },
+  { key: "min_stock", label: "Min Stock" },
+  // { key: "status", label: "Status" },
   { key: "description", label: "Description" },
-  { key: "created_at", label: "Created At" },
+  // { key: "created_at", label: "Created At" },
   { key: "actions", label: "Actions", align: "right" as const },
 ];
 
@@ -170,18 +173,19 @@ onBeforeMount(() => {
           row-key="id"
           striped
         >
-          <template #cell-created_at="{ value }">
+          <!-- <template #cell-created_at="{ value }">
             {{ formatTableDate(value as string) }}
-          </template>
+          </template> -->
           <template #cell-actions="{ row }">
             <div class="flex justify-end gap-2">
               <GeneralIconButton
                 class="h-9 w-9"
                 color="default"
+                :ghost="true"
                 @on-click="openUpdateSkuModal(row as SKUType)"
               >
                 <template #icon>
-                  <IconsEdit size="18" class="text-gray-700" />
+                  <IconsEdit size="16" class="text-gray-700" />
                 </template>
               </GeneralIconButton>
               <GeneralIconButton

@@ -67,15 +67,6 @@ const form = useForm<any>({
 const { values } = form;
 const formFields = computed<FieldConfig[]>(() => [
   {
-    name: "facility_id",
-    label: "Receiving Warehouse ",
-    type: "search-select",
-    placeholder: "Select Warehouse",
-    grid: 6,
-    requiredMark: true,
-    options: facilitiesOptions.value,
-  },
-  {
     name: "sku_id",
     label: "Sku Name",
     type: "search-select",
@@ -83,7 +74,7 @@ const formFields = computed<FieldConfig[]>(() => [
     grid: 6,
     requiredMark: true,
     options: facilitiesSkuOptions.value,
-    disabled: !values.facility_id,
+    // disabled: !values.facility_id,
   },
 
   {
@@ -94,16 +85,24 @@ const formFields = computed<FieldConfig[]>(() => [
     placeholder: "e.g., 150",
     grid: 6,
   },
-
   {
-    name: "uom",
-    label: "UOM.",
-    requiredMark: true,
-    type: "text",
-    placeholder: "e.g., Unit, Liter, Kg",
-
+    name: "facility_id",
+    label: "Receiving Warehouse ",
+    type: "search-select",
+    placeholder: "Select Warehouse",
     grid: 6,
+    requiredMark: true,
+    options: facilitiesOptions.value,
   },
+  // {
+  //   name: "uom",
+  //   label: "UOM.",
+  //   requiredMark: true,
+  //   type: "text",
+  //   placeholder: "e.g., Unit, Liter, Kg",
+
+  //   grid: 6,
+  // },
   {
     name: "reference_no",
     label: "Reference No.",
@@ -112,17 +111,17 @@ const formFields = computed<FieldConfig[]>(() => [
     placeholder: "e.g., PO-12345",
     grid: 6,
   },
-  {
-    name: "reference_type",
-    label: "Reference Type",
-    requiredMark: true,
-    type: "text",
-    placeholder: "e.g., Purchase Order",
-    grid: 6,
-  },
+  // {
+  //   name: "reference_type",
+  //   label: "Reference Type",
+  //   requiredMark: true,
+  //   type: "text",
+  //   placeholder: "e.g., Purchase Order",
+  //   grid: 6,
+  // },
   {
     name: "date",
-    label: "Date ",
+    label: "Date Received  ",
     requiredMark: true,
     type: "date",
     placeholder: "e.g., 2024-05-30",
@@ -204,17 +203,17 @@ onMounted(() => {
             }
           "
         />
-      </div>
-      <div class="flex justify-end mt-4 gap-3 pt-2">
-        <!-- <GeneralOutlinedButton label="Cancel" type="button" /> -->
-        <GeneralButton
-          :loading="loadingWrite"
-          :disabled="loadingWrite"
-          type="submit"
-          form="FormStockIn"
-          color="primary"
-          label="Submit"
-        />
+        <div class="flex justify-end mt-4 gap-3 pt-2">
+          <GeneralOutlinedButton label="Cancel" type="button" />
+          <GeneralButton
+            :loading="loadingWrite"
+            :disabled="loadingWrite"
+            type="submit"
+            form="FormStockIn"
+            color="primary"
+            label="Submit"
+          />
+        </div>
       </div>
     </section>
   </main>

@@ -16,4 +16,11 @@ export interface PayloadSKUType {
   unit: string;
   status: string;
   description: string;
+  category?: string;
+  max_stock?: string;
+  min_stock?: string;
+  beginning_inventory_by_warehouse?: {
+    facility_id: string;
+    beginning_inventory: string | number;
+  }[];
 }

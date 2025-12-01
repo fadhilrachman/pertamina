@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, ref, watch, onMounted } from "vue";
 import { storeToRefs } from "pinia";
 import { useForm } from "vee-validate";
 import type { ElementEvent } from "~/types/element";
@@ -7,6 +7,7 @@ import { object, string } from "yup";
 import type { FieldConfig } from "~/components/general/FormGenerator/index.vue";
 import { useSkuStore } from "~/store/master-data/sku-store";
 import type { PayloadSKUType } from "~/types/sku-type";
+import { useFacilitiesStore } from "~/store/master-data/facilities-store";
 
 const props = withDefaults(
   defineProps<{
@@ -20,7 +21,24 @@ const isUpdateMode = computed(() => props.mode === "update");
 
 const emit = defineEmits(["opened", "closed"]);
 
-const formFields: FieldConfig[] = [
+const modalInstance = ref<ElementEvent | null>(null);
+
+const skuStore = useSkuStore();
+const { loadingWrite, selectedData } = storeToRefs(skuStore);
+const { createDataSku, updateDataSku, getDataSku } = skuStore;
+
+const facilitiesStore = useFacilitiesStore();
+const { data: facilitiesData } = storeToRefs(facilitiesStore);
+
+const facilitiesOptions = computed(
+  () =>
+    facilitiesData.value?.data?.data?.map((item) => ({
+      id: item.id,
+      label: item.name,
+    })) || []
+);
+
+const formFields = computed<FieldConfig[]>(() => [
   {
     name: "sku_code",
     label: "SKU Code",
@@ -38,43 +56,37 @@ const formFields: FieldConfig[] = [
     grid: 6,
   },
   {
-    name: "status",
-    label: "Status",
-    type: "select",
-    placeholder: "Select status",
-    grid: 6,
+    name: "category",
+    label: "Category",
     requiredMark: true,
-    options: [
-      { id: "active", label: "Active" },
-      { id: "inactive", label: "Inactive" },
-    ],
+    type: "text",
+    placeholder: "e.g., Raw Material, Finished Good",
+    grid: 6,
   },
   {
     name: "unit",
-    label: "Unit of Measure",
+    label: "UOM",
     requiredMark: true,
     type: "text",
-    placeholder: "e.g., Unit, Liter, Kg",
+    placeholder: "e.g., Units, Liters, Kg",
     grid: 6,
   },
-  // {
-  //   name: "max",
-  //   label: "Maximum Stock Level",
-  //   requiredMark: true,
-  //   type: "text",
-  //   placeholder: "e.g., 500",
-  //   grid: 6,
-  // },
-
-  // {
-  //   name: "min",
-  //   label: "Minimum Stock Level",
-  //   requiredMark: true,
-  //   type: "text",
-  //   placeholder: "e.g., 50",
-  //   grid: 12,
-  // },
-
+  {
+    name: "max_stock",
+    label: "Maximum Stock Level",
+    requiredMark: true,
+    type: "number",
+    placeholder: "0",
+    grid: 6,
+  },
+  {
+    name: "min_stock",
+    label: "Minimum Stock",
+    requiredMark: true,
+    type: "number",
+    placeholder: "0",
+    grid: 6,
+  },
   {
     name: "description",
     label: "Description",
@@ -82,18 +94,43 @@ const formFields: FieldConfig[] = [
     placeholder: "Add a SKU description",
     grid: 12,
   },
-];
-const modalInstance = ref<ElementEvent | null>(null);
-
-const skuStore = useSkuStore();
-const { loadingWrite, selectedData } = storeToRefs(skuStore);
-const { createDataSku, updateDataSku, getDataSku } = skuStore;
+  {
+    name: "beginning_inventory_by_warehouse",
+    label: "Beginning Inventory by Warehouse",
+    type: "array",
+    grid: 12,
+    addButtonLabel: "Add Warehouse",
+    fields: [
+      {
+        name: "facility_id",
+        label: "Warehouse",
+        type: "search-select",
+        placeholder: "Select Warehouse",
+        grid: 6,
+        requiredMark: true,
+        options: facilitiesOptions.value,
+      },
+      {
+        name: "beginning_inventory",
+        label: "Beginning Inventory",
+        type: "number",
+        placeholder: "0",
+        grid: 6,
+        requiredMark: true,
+        defaultValue: 0,
+        min: 0,
+      },
+    ],
+  },
+]);
 
 const formSchema = object({
   sku_code: string().required("SKU Code is required"),
   name: string().required("Name is required"),
-  status: string().required("Status is required"),
-  unit: string().required("Unit of Measure is required"),
+  category: string().required("Category is required"),
+  unit: string().required("UOM is required"),
+  max_stock: string().required("Maximum Stock Level is required"),
+  min_stock: string().required("Minimum Stock is required"),
   description: string(),
 });
 
@@ -102,12 +139,20 @@ const createInitialValues = (): PayloadSKUType => ({
   name: "",
   unit: "",
   description: "",
-  status: "",
+  status: "active",
+  category: "",
+  max_stock: "0",
+  min_stock: "0",
+  beginning_inventory_by_warehouse: [],
 });
 
 const form = useForm<PayloadSKUType>({
   validationSchema: formSchema,
   initialValues: createInitialValues(),
+});
+
+onMounted(() => {
+  facilitiesStore.getDataFacilities({ page: 1, limit: 1000 });
 });
 
 // watch(

@@ -23,15 +23,47 @@ const emit = defineEmits(["opened", "closed"]);
 const formFields: FieldConfig[] = [
   {
     name: "name",
-    label: "Name",
+    label: "Company Name",
     requiredMark: true,
     type: "text",
-    placeholder: "e.g., Cardboard Box 30x30",
+    placeholder: "e.g., PT Contoh Sejahtera",
+    grid: 6,
+  },
+  {
+    name: "pic_name",
+    label: "PIC Name",
+    requiredMark: true,
+    type: "text",
+    placeholder: "e.g., John Doe",
+    grid: 6,
+  },
+  {
+    name: "address",
+    label: "Address",
+    requiredMark: true,
+    type: "textarea",
+    placeholder: "Company address",
     grid: 12,
   },
   {
+    name: "email",
+    label: "Email",
+    requiredMark: true,
+    type: "email",
+    placeholder: "e.g., admin@company.com",
+    grid: 6,
+  },
+  {
+    name: "password",
+    label: "Password",
+    requiredMark: true,
+    type: "password",
+    placeholder: "Set account password",
+    grid: 6,
+  },
+  {
     name: "logo",
-    label: "Logo",
+    label: "Upload Logo Image",
     requiredMark: false,
     type: "file",
     placeholder: "Upload company logo",
@@ -46,12 +78,20 @@ const { loadingWrite, selectedData } = storeToRefs(companyStore);
 const { createDataCompany, updateDataCompany, getDataCompany } = companyStore;
 
 const formSchema = object({
-  name: string().required("Name is required"),
+  name: string().required("Company Name is required"),
+  pic_name: string().required("PIC Name is required"),
+  address: string().required("Address is required"),
+  email: string().email().required("Email is required"),
+  password: string().required("Password is required"),
   logo: mixed().nullable(),
 });
 
 const createInitialValues = (): CompanyType => ({
   name: "",
+  pic_name: "",
+  address: "",
+  email: "",
+  password: "",
   logo: null,
 });
 

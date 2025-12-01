@@ -14,11 +14,13 @@ type FieldType =
   | "text"
   | "number"
   | "email"
+  | "password"
   | "date"
   | "textarea"
   | "select"
   | "file"
-  | "search-select";
+  | "search-select"
+  | "array";
 
 interface SelectOption {
   id: string | number;
@@ -39,6 +41,11 @@ export interface FieldConfig {
   multiple?: boolean;
   min?: number;
   max?: number;
+  // array-type specific config
+  fields?: ReadonlyArray<FieldConfig>;
+  addButtonLabel?: string;
+  minItems?: number;
+  maxItems?: number;
 }
 
 const listColSpan = {
@@ -143,6 +150,64 @@ function handleFileChange(
   control.onChange(parsed);
 }
 
+function ensureArray<T>(value: T[] | null | undefined | T): T[] {
+  if (Array.isArray(value)) return value;
+  return [];
+}
+
+function createArrayItem(field: FieldConfig) {
+  const item: Record<string, any> = {};
+  (field.fields || []).forEach((child) => {
+    if (child.defaultValue !== undefined) {
+      item[child.name] = child.defaultValue;
+    } else if (child.type === "file") {
+      item[child.name] = null;
+    } else {
+      item[child.name] = "";
+    }
+  });
+  return item;
+}
+
+function addArrayItem(field: FieldConfig, control: FieldSlotProps["field"]) {
+  const current = ensureArray(control.value as any);
+  const nextLength = current.length + 1;
+  if (typeof field.maxItems === "number" && nextLength > field.maxItems) {
+    return;
+  }
+  const updated = [...current, createArrayItem(field)];
+  control.onChange(updated);
+}
+
+function removeArrayItem(
+  field: FieldConfig,
+  control: FieldSlotProps["field"],
+  index: number
+) {
+  const current = ensureArray(control.value as any);
+  if (current.length <= (field.minItems ?? 0)) return;
+  const updated = [...current];
+  updated.splice(index, 1);
+  control.onChange(updated);
+}
+
+function updateArrayItem(
+  field: FieldConfig,
+  control: FieldSlotProps["field"],
+  index: number,
+  key: string,
+  value: unknown
+) {
+  const current = ensureArray(control.value as any);
+  const updated = [...current];
+  const existing = (updated[index] || {}) as Record<string, any>;
+  updated[index] = {
+    ...existing,
+    [key]: value,
+  };
+  control.onChange(updated);
+}
+
 function baseInputClasses(disabled?: boolean) {
   const cursor = disabled ? "cursor-not-allowed" : "cursor-text";
   const background = disabled
@@ -192,15 +257,32 @@ function fileInputClasses(invalid: boolean, disabled?: boolean) {
           <label
             v-if="field.label"
             :for="`${id}-${field.name}`"
-            class="text-sm font-medium text-gray-700 flex items-center gap-1"
+            class="text-sm font-medium text-gray-700 flex items-center justify-between gap-2"
           >
-            <span>{{ field.label }}</span>
-            <span v-if="field.requiredMark" class="text-error-500">*</span>
+            <div class="flex items-center gap-1">
+              <span>{{ field.label }}</span>
+              <span v-if="field.requiredMark" class="text-error-500">*</span>
+            </div>
+
+            <GeneralButton
+              v-if="field.type === 'array'"
+              type="button"
+              color="primary"
+              size="xs"
+              class="!h-8"
+              :label="field.addButtonLabel || 'Add'"
+              @on-click="addArrayItem(field, fieldBinding)"
+            >
+              <template #prefix>
+                <IconsPlus size="16" class="text-white" />
+              </template>
+            </GeneralButton>
           </label>
 
           <template
             v-if="
               field.type === 'text' ||
+              field.type === 'password' ||
               field.type === 'email' ||
               field.type === 'number'
             "
@@ -262,6 +344,172 @@ function fileInputClasses(invalid: boolean, disabled?: boolean) {
               :multiple="field.multiple"
               @update:model-value="fieldBinding.onChange"
             />
+          </template>
+
+          <template v-else-if="field.type === 'array'">
+            <div
+              class="mt-1 space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-4"
+            >
+              <div
+                v-if="
+                  !Array.isArray(fieldBinding.value) ||
+                  fieldBinding.value.length === 0
+                "
+                class="text-xs text-gray-400"
+              >
+                No items. Click "Add" to start.
+              </div>
+
+              <div
+                v-for="(item, index) in ensureArray(fieldBinding.value as any)"
+                :key="index"
+                class="flex items-start gap-3"
+              >
+                <div class="grid flex-1 grid-cols-12 gap-3">
+                  <template
+                    v-for="child in field.fields || []"
+                    :key="child.name"
+                  >
+                    <div
+                      :class="[
+                        'flex flex-col space-y-1',
+                        getColSpanClass(child),
+                      ]"
+                    >
+                      <label
+                        v-if="child.label"
+                        :for="`${id}-${field.name}-${child.name}-${index}`"
+                        class="text-xs font-medium text-gray-600"
+                      >
+                        {{ child.label }}
+                      </label>
+
+                      <GeneralTextInput
+                        v-if="
+                          child.type === 'text' ||
+                          child.type === 'email' ||
+                          child.type === 'number'
+                        "
+                        :id="`${id}-${field.name}-${child.name}-${index}`"
+                        :model-value="(item as any)?.[child.name]"
+                        :type="child.type"
+                        :placeholder="child.placeholder"
+                        :disabled="child.disabled"
+                        :invalid="false"
+                        :min="child.min"
+                        :max="child.max"
+                        @update:model-value="
+                          (val) =>
+                            updateArrayItem(
+                              field,
+                              fieldBinding,
+                              index,
+                              child.name,
+                              val
+                            )
+                        "
+                      />
+
+                      <textarea
+                        v-else-if="child.type === 'textarea'"
+                        :id="`${id}-${field.name}-${child.name}-${index}`"
+                        :value="(item as any)?.[child.name]"
+                        :placeholder="child.placeholder"
+                        :disabled="child.disabled"
+                        :class="textareaClasses(false, child.disabled)"
+                        @input="
+                          updateArrayItem(
+                            field,
+                            fieldBinding,
+                            index,
+                            child.name,
+                            ($event.target as HTMLTextAreaElement).value
+                          )
+                        "
+                      />
+
+                      <GeneralTextInput
+                        v-else-if="child.type === 'date'"
+                        :id="`${id}-${field.name}-${child.name}-${index}`"
+                        type="date"
+                        :value="(item as any)?.[child.name]"
+                        :placeholder="child.placeholder"
+                        :disabled="child.disabled"
+                        :invalid="false"
+                        @input="
+                          updateArrayItem(
+                            field,
+                            fieldBinding,
+                            index,
+                            child.name,
+                            ($event.target as HTMLInputElement).value
+                          )
+                        "
+                      />
+
+                      <GeneralDropdown
+                        v-else-if="child.type === 'select'"
+                        :id="`${id}-${field.name}-${child.name}-${index}`"
+                        variant="field"
+                        :model-value="(item as any)?.[child.name]"
+                        :options="child.options || []"
+                        :placeholder="child.placeholder || 'Select option'"
+                        :disabled="child.disabled"
+                        :required="child.requiredMark"
+                        :invalid="false"
+                        :multiple="child.multiple"
+                        @update:model-value="
+                          (val) =>
+                            updateArrayItem(
+                              field,
+                              fieldBinding,
+                              index,
+                              child.name,
+                              val
+                            )
+                        "
+                      />
+
+                      <GeneralDropdownSearch
+                        v-else-if="child.type === 'search-select'"
+                        :id="`${id}-${field.name}-${child.name}-${index}`"
+                        :model-value="(item as any)?.[child.name]"
+                        :options="child.options || []"
+                        :placeholder="child.placeholder || 'Search option'"
+                        :disabled="child.disabled"
+                        :invalid="false"
+                        :multiple="child.multiple"
+                        @update:model-value="
+                          (val) =>
+                            updateArrayItem(
+                              field,
+                              fieldBinding,
+                              index,
+                              child.name,
+                              val
+                            )
+                        "
+                      />
+                    </div>
+                  </template>
+                </div>
+
+                <GeneralIconButton
+                  v-if="
+                    ensureArray(fieldBinding.value as any).length >
+                    (field.minItems ?? 0)
+                  "
+                  class="mt-6 h-8 w-8 bg-red-50"
+                  color="default"
+                  :bordered="false"
+                  @on-click="removeArrayItem(field, fieldBinding, index)"
+                >
+                  <template #icon>
+                    <IconsDelete size="16" class="text-red-500" />
+                  </template>
+                </GeneralIconButton>
+              </div>
+            </div>
           </template>
 
           <template v-else-if="field.type === 'search-select'">

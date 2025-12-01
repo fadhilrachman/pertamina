@@ -166,10 +166,11 @@ onBeforeMount(() => {
               <GeneralIconButton
                 class="h-9 w-9"
                 color="default"
+                :ghost="true"
                 @on-click="openUpdateSkuModal(row as SKUType)"
               >
                 <template #icon>
-                  <IconsEdit size="18" class="text-gray-700" />
+                  <IconsEdit size="16" class="text-gray-700" />
                 </template>
               </GeneralIconButton>
               <GeneralIconButton

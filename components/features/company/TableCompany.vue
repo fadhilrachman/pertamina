@@ -24,8 +24,9 @@ const params = reactive({
   limit: 10,
 });
 const tableColumns: TableColumn[] = [
-  { key: "name", label: "Name", headerClass: "min-w-[200px]" },
-  { key: "created_at", label: "Created At" },
+  { key: "name", label: "Company Name", headerClass: "min-w-[200px]" },
+  { key: "pic_name", label: "PIC Name", headerClass: "min-w-[160px]" },
+  { key: "email", label: "Email", headerClass: "min-w-[220px]" },
   { key: "actions", label: "Actions", align: "right" as const },
 ];
 
@@ -142,10 +143,11 @@ onMounted(() => {
               <GeneralIconButton
                 class="h-9 w-9"
                 color="default"
+                :ghost="true"
                 @on-click="openUpdateCompanyModal(row as SKUType)"
               >
                 <template #icon>
-                  <IconsEdit size="18" class="text-gray-700" />
+                  <IconsEdit size="16" class="text-gray-700" />
                 </template>
               </GeneralIconButton>
               <GeneralIconButton

@@ -51,25 +51,31 @@ const facilitiesOptions = computed(
     })) || []
 );
 
+const purposeOptions = [
+  { id: "Sparepart", label: "Sparepart" },
+  { id: "Transfer", label: "Transfer" },
+  { id: "Consumption", label: "Consumption" },
+  { id: "Other", label: "Other" },
+] as const;
+
 const formSchema = object({
   sku_id: string().required("SKU Name is required"),
   facility_id: string().required("Facility Name is required"),
   vehicle_id: string().required("Vehicle is required"),
+  purpose: string().required("Purpose is required"),
   qty: string().required("QTY is required"),
-  uom: string().required("Unit of Measure is required"),
-  reference_no: string().required("Reference No. is required"),
-  reference_type: string().required("Reference Type is required"),
+  // uom: string().required("Unit of Measure is required"),
   date: string().required("Date is required"),
 });
 const createInitialValues = (): any => ({
   sku_id: "",
   facility_id: "",
-  uom: "",
+  // uom: "",
   qty: "",
   description: "",
-  reference_type: "",
   date: "",
   vehicle_id: "",
+  purpose: "",
 });
 
 const form = useForm<any>({
@@ -79,15 +85,6 @@ const form = useForm<any>({
 const { values } = form;
 const formFields = computed<FieldConfig[]>(() => [
   {
-    name: "facility_id",
-    label: "Receiving Warehouse ",
-    type: "search-select",
-    placeholder: "Select Warehouse",
-    grid: 6,
-    requiredMark: true,
-    options: facilitiesOptions.value,
-  },
-  {
     name: "sku_id",
     label: "Sku Name",
     type: "search-select",
@@ -95,19 +92,8 @@ const formFields = computed<FieldConfig[]>(() => [
     grid: 6,
     requiredMark: true,
     options: facilitiesSkuOptions.value,
-    disabled: !values.facility_id,
+    // disabled: !values.facility_id,
   },
-  {
-    name: "vehicle_id",
-    label: "Vehicle",
-    type: "search-select",
-    placeholder: "Select Vehicle",
-    grid: 6,
-    requiredMark: true,
-    options: vehicleOptions.value,
-    disabled: !values.facility_id,
-  },
-
   {
     label: "Quantity",
     name: "qty",
@@ -116,34 +102,49 @@ const formFields = computed<FieldConfig[]>(() => [
     placeholder: "e.g., 150",
     grid: 6,
   },
+  {
+    name: "facility_id",
+    label: "Receiving Warehouse ",
+    type: "search-select",
+    placeholder: "Select Warehouse",
+    grid: 6,
+    requiredMark: true,
+    options: facilitiesOptions.value,
+  },
 
   {
-    name: "uom",
-    label: "UOM.",
-    requiredMark: true,
-    type: "text",
-    placeholder: "e.g., Unit, Liter, Kg",
+    name: "vehicle_id",
+    label: "Vehicle",
+    type: "search-select",
+    placeholder: "Select Vehicle",
     grid: 6,
+    requiredMark: true,
+    options: vehicleOptions.value,
+    // disabled: !values.facility_id,
   },
+
   {
-    name: "reference_no",
-    label: "Reference No.",
-    requiredMark: true,
-    type: "text",
-    placeholder: "e.g., PO-12345",
+    name: "purpose",
+    label: "Purpose",
+    type: "select",
+    placeholder: "Select Purpose",
     grid: 6,
-  },
-  {
-    name: "reference_type",
-    label: "Reference Type",
     requiredMark: true,
-    type: "text",
-    placeholder: "e.g., Purchase Order",
-    grid: 6,
+    options: purposeOptions,
   },
+
+  // {
+  //   name: "uom",
+  //   label: "UOM.",
+  //   requiredMark: true,
+  //   type: "text",
+  //   placeholder: "e.g., Unit, Liter, Kg",
+  //   grid: 6,
+  // },
+
   {
     name: "date",
-    label: "Date ",
+    label: "Date Out",
     requiredMark: true,
     type: "date",
     placeholder: "e.g., 2024-05-30",
@@ -214,8 +215,7 @@ onMounted(() => {
                     },
                   ],
                   note: val.note,
-                  reference_no: val.reference_no,
-                  reference_type: val.reference_type,
+                  purpose: val.purpose,
                   trx_date: val.date,
                   vehicle_id: val.vehicle_id,
                   trx_type: 'OUT',
@@ -228,17 +228,17 @@ onMounted(() => {
             }
           "
         />
-      </div>
-      <div class="flex justify-end mt-4 gap-3 pt-2">
-        <!-- <GeneralOutlinedButton label="Cancel" type="button" /> -->
-        <GeneralButton
-          :loading="loadingWrite"
-          :disabled="loadingWrite"
-          type="submit"
-          form="FormStockOut"
-          color="primary"
-          label="Submit"
-        />
+        <div class="flex justify-end mt-4 gap-3 pt-2">
+          <!-- <GeneralOutlinedButton label="Cancel" type="button" /> -->
+          <GeneralButton
+            :loading="loadingWrite"
+            :disabled="loadingWrite"
+            type="submit"
+            form="FormStockOut"
+            color="primary"
+            label="Submit"
+          />
+        </div>
       </div>
     </section>
   </main>

@@ -15,6 +15,10 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  ghost: {
+    type: Boolean,
+    default: false,
+  },
   disabled: {
     type: Boolean,
     default: false,
@@ -78,13 +82,15 @@ const buttonIconColor = computed(() => {
 
 const buttonClass = computed(() => {
   const rounded = `rounded-${props.rounded}`;
-  const bordered = props.bordered
+  const style = props.ghost
+    ? `border border-transparent bg-transparent ${buttonIconColor.value.hover}`
+    : props.bordered
     ? `border ${buttonIconColor.value.border} ${buttonIconColor.value.hover}`
     : `${buttonIconColor.value.fill} ${buttonIconColor.value.fillHover}`;
   const disabled = props.disabled
     ? "!bg-gray-100 cursor-not-allowed"
     : "cursor-pointer";
-  return `h-12 flex items-center justify-center aspect-square ${buttonIconColor.value.stroke} transition ${rounded} ${bordered} ${disabled}`;
+  return `h-12 flex items-center justify-center aspect-square ${buttonIconColor.value.stroke} transition ${rounded} ${style} ${disabled}`;
 });
 </script>
 

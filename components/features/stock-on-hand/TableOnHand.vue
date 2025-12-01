@@ -73,7 +73,9 @@ const params = reactive({
 const tableColumns: TableColumn[] = [
   { key: "sku_code", label: "SKU Code" },
   { key: "sku_name", label: "SKU Name" },
+  { key: "category", label: "Category" },
   { key: "warehouse", label: "Warehouse" },
+  { key: "on_hand_qty", label: "On-hand Quantity" },
 
   { key: "unit_of_measure", label: "UOM" },
 
@@ -210,9 +212,9 @@ onBeforeMount(() => {
           </template>
           <!-- <template #cell-actions="{ row }">
             <div class="flex justify-end gap-2">
-              <GeneralIconButton class="h-9 w-9" color="default">
+              <GeneralIconButton class="h-9 w-9" color="default" :ghost="true">
                 <template #icon>
-                  <IconsEdit size="18" class="text-gray-700" />
+                  <IconsEdit size="16" class="text-gray-700" />
                 </template>
               </GeneralIconButton>
               <GeneralIconButton
