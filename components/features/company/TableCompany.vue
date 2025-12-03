@@ -6,10 +6,12 @@ import ModalDelete from "~/components/general/ModalDelete/index.vue";
 import type { TableColumn } from "~/components/general/Table/index.vue";
 import type { ElementEvent } from "~/types/element";
 import type { SKUType } from "~/types/sku-type";
+import type { CompanyType } from "~/types/company-type";
 import ModalFormRole from "../user-management/role/ModalFormRole.vue";
 import { useCompanyStore } from "~/store/company/company-store";
 import { formatTableDate } from "~/utils/functions";
 import ModalFormCompany from "./ModalFormCompany.vue";
+import ModalDetailCompany from "./ModalDetailCompany.vue";
 
 const companyStore = useCompanyStore();
 const { data, loadingWrite } = storeToRefs(companyStore);
@@ -17,6 +19,7 @@ const modalAddRef = ref<InstanceType<typeof ModalFormSku> | null>(null);
 const formModeRef = ref(<"add" | "update">"add");
 const deleteModalRef = ref<ElementEvent | null>(null);
 const selectedSku = ref<Record<string, any> | null>(null);
+const detailModalRef = ref<ElementEvent | null>(null);
 
 const params = reactive({
   search: "",
@@ -40,7 +43,7 @@ const openAddCompanyModal = () => {
   modalAddRef.value?.open();
 };
 
-const openUpdateCompanyModal = (row: SKUType) => {
+const openUpdateCompanyModal = (row: CompanyType) => {
   companyStore.setSelectedData(row);
   formModeRef.value = "update";
   modalAddRef.value?.open();
@@ -68,6 +71,15 @@ const handleConfirmDelete = async () => {
   } catch (error) {
     throw error;
   }
+};
+
+const handleDetailModalMounted = (instance: ElementEvent) => {
+  detailModalRef.value = instance;
+};
+
+const openDetailCompanyModal = (row: CompanyType) => {
+  companyStore.setSelectedData(row);
+  detailModalRef.value?.show();
 };
 
 const handleSearchChange = (value: string) => {
@@ -102,10 +114,10 @@ onMounted(() => {
 <template>
   <section class="space-y-8">
     <header class="flex justify-between items-end">
-      <div>
-        <h1 class="text-2xl font-semibold text-gray-900">Company</h1>
-        <p class="text-gray-500">Manage Stock Keeping Units</p>
-      </div>
+      <GeneralTitle
+        title="Company"
+        subtitle="Manage Stock Keeping Units"
+      />
       <div class="flex justify-between space-x-2">
         <GeneralButton
           color="primary"
@@ -144,7 +156,17 @@ onMounted(() => {
                 class="h-9 w-9"
                 color="default"
                 :ghost="true"
-                @on-click="openUpdateCompanyModal(row as SKUType)"
+                @on-click="openDetailCompanyModal(row as CompanyType)"
+              >
+                <template #icon>
+                  <IconsEye size="16" class="text-gray-700" />
+                </template>
+              </GeneralIconButton>
+              <GeneralIconButton
+                class="h-9 w-9"
+                color="default"
+                :ghost="true"
+                @on-click="openUpdateCompanyModal(row as CompanyType)"
               >
                 <template #icon>
                   <IconsEdit size="16" class="text-gray-700" />
@@ -173,6 +195,10 @@ onMounted(() => {
       </div>
     </section>
     <ModalFormCompany ref="modalAddRef" :mode="formModeRef" />
+    <ModalDetailCompany
+      id="modal-detail-company"
+      @mounted="handleDetailModalMounted"
+    />
     <ModalDelete
       id="modal-delete-company"
       :target-label="selectedSku?.name || 'this SKU'"

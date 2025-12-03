@@ -34,7 +34,7 @@ const formFields: FieldConfig[] = [
   },
   {
     name: "name",
-    label: "Facility Name",
+    label: "Name",
     requiredMark: true,
     type: "text",
     placeholder: "e.g., Central Warehouse",
@@ -48,27 +48,34 @@ const formFields: FieldConfig[] = [
     placeholder: "Street address",
     grid: 12,
   },
-
-  // {
-  //   name: "capacity",
-  //   label: "Capacity",
-  //   requiredMark: true,
-  //   type: "text",
-  //   placeholder: "e.g., 120,000",
-  //   grid: 6,
-  // },
-  // {
-  //   name: "status",
-  //   label: "Status",
-  //   requiredMark: true,
-  //   type: "select",
-  //   placeholder: "Select status",
-  //   grid: 12,
-  //   options: [
-  //     { id: "active", label: "Active" },
-  //     { id: "inactive", label: "Inactive" },
-  //   ],
-  // },
+  {
+    name: "city",
+    label: "City",
+    requiredMark: true,
+    type: "text",
+    placeholder: "e.g., Jakarta",
+    grid: 6,
+  },
+  {
+    name: "capacity",
+    label: "Capacity",
+    requiredMark: true,
+    type: "text",
+    placeholder: "e.g., 120,000",
+    grid: 6,
+  },
+  {
+    name: "status",
+    label: "Status",
+    requiredMark: true,
+    type: "select",
+    placeholder: "Select status",
+    grid: 12,
+    options: [
+      { id: "active", label: "Active" },
+      { id: "inactive", label: "Inactive" },
+    ],
+  },
 ];
 
 const modalInstance = ref<ElementEvent | null>(null);
@@ -82,13 +89,18 @@ const formSchema = object({
   code: string().required("Facility Code is required"),
   name: string().required("Facility Name is required"),
   address: string().required("Address is required"),
-  // status: string().required("Status is required"),
+  city: string().required("City is required"),
+  capacity: string().required("Capacity is required"),
+  status: string().required("Status is required"),
 });
 
 const createInitialValues = (): PayloadFacilitiesType => ({
   code: "",
   name: "",
   address: "",
+  city: "",
+  capacity: "0",
+  status: "active",
 });
 const form = useForm<FacilitiesType>({
   validationSchema: formSchema,

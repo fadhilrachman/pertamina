@@ -124,12 +124,12 @@ export const sidebarMenu: ISidebar[] = [
       //   route: "/master-data/facilities-sku",
       //   icon: markRaw(IconsTruck),
       // },
-      {
-        label: "Vehicles",
-        id: "menu__master-vehicle",
-        route: "/master-data/vehicles",
-        icon: markRaw(IconsTruck),
-      },
+      // {
+      //   label: "Vehicles",
+      //   id: "menu__master-vehicle",
+      //   route: "/master-data/vehicles",
+      //   icon: markRaw(IconsTruck),
+      // },
     ],
   },
 ];

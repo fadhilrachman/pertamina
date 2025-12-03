@@ -5,6 +5,8 @@ export interface FacilitiesType {
   created_at: string;
   id: string;
   name: string;
+  city?: string;
+  capacity?: string;
   status: string;
 }
 
@@ -12,4 +14,7 @@ export interface PayloadFacilitiesType {
   address: string;
   code: string;
   name: string;
+  city?: string;
+  capacity?: string;
+  status: string;
 }

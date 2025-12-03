@@ -9,6 +9,7 @@ import { useSkuStore } from "~/store/master-data/sku-store";
 import { usePageStore } from "~/store/page";
 import type { SKUType } from "~/types/sku-type";
 import { formatTableDate } from "~/utils/functions";
+import ModalAdjustmentHistory from "./ModalAdjustmentHistory.vue";
 
 const $page = usePageStore();
 const skuStore = useSkuStore();
@@ -17,6 +18,7 @@ const modalAddRef = ref<InstanceType<typeof ModalFormSku> | null>(null);
 const formModeRef = ref(<"add" | "update">"add");
 const deleteModalRef = ref<ElementEvent | null>(null);
 const selectedSku = ref<Record<string, any> | null>(null);
+const historyModalRef = ref<ElementEvent | null>(null);
 
 const params = reactive({
   search: "",
@@ -72,6 +74,14 @@ const handleConfirmDelete = async () => {
   }
 };
 
+const handleHistoryModalMounted = (instance: ElementEvent) => {
+  historyModalRef.value = instance;
+};
+
+const openHistoryModal = () => {
+  historyModalRef.value?.show();
+};
+
 const handleSearchChange = (value: string) => {
   params.search = value;
 };
@@ -113,11 +123,16 @@ onBeforeMount(() => {
 <template>
   <main class="space-y-8">
     <header class="flex justify-between items-end">
-      <div>
-        <h1 class="text-2xl font-semibold text-gray-900">Stock Adjustment</h1>
-        <p class="text-gray-500">Manually Adjust Inventory Levels</p>
-      </div>
+      <GeneralTitle
+        title="Stock Adjustment"
+        subtitle="Manually Adjust Inventory Levels"
+      />
       <div class="flex justify-between space-x-2">
+        <GeneralOutlinedButton label="History" type="button" @on-click="openHistoryModal">
+          <template #prefix>
+            <IconsHistory size="18" class="text-gray-700" />
+          </template>
+        </GeneralOutlinedButton>
         <GeneralButton color="success" label="Download Template">
           <template #prefix>
             <IconsDownload size="18" class="text-white" />
@@ -196,6 +211,10 @@ onBeforeMount(() => {
       </div>
     </section>
     <ModalFormSku ref="modalAddRef" :mode="formModeRef" />
+    <ModalAdjustmentHistory
+      id="modal-adjustment-history"
+      @mounted="handleHistoryModalMounted"
+    />
     <ModalDelete
       id="modal-delete-sku"
       :target-label="selectedSku?.name || 'this SKU'"

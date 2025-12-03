@@ -111,21 +111,21 @@ onMounted(() => {
 <template>
   <main class="space-y-8">
     <header class="flex justify-between items-end">
-      <div>
-        <h1 class="text-2xl font-semibold text-gray-900">Warehouse Master</h1>
-        <p class="text-gray-500">Manage facilities and warehouses</p>
-      </div>
+      <GeneralTitle
+        title="Warehouse Master"
+        subtitle="Manage facilities and warehouses"
+      />
       <div class="flex justify-between space-x-2">
-        <GeneralButton color="success" label="Download Template">
+        <!-- <GeneralButton color="success" label="Download Template">
           <template #prefix>
             <IconsDownload size="18" class="text-white" />
           </template>
-        </GeneralButton>
+        </GeneralButton>//
         <GeneralButton color="warning" label="Import">
           <template #prefix>
             <IconsUpload size="18" class="text-white" />
           </template>
-        </GeneralButton>
+        </GeneralButton> -->
         <GeneralButton
           color="primary"
           label="Add Warehouse"

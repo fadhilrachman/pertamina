@@ -194,10 +194,10 @@ onBeforeMount(() => {
 <template>
   <main class="space-y-8">
     <header class="flex justify-between items-end">
-      <div>
-        <h1 class="text-2xl font-semibold text-gray-900">Transactions</h1>
-        <p class="text-gray-500">View and manage all stock movements</p>
-      </div>
+      <GeneralTitle
+        title="Transactions"
+        subtitle="View and manage all stock movements"
+      />
       <!-- <div class="flex justify-between space-x-2">
         <GeneralButton color="success" label="Export to Excel">
           <template #prefix>
@@ -247,6 +247,16 @@ onBeforeMount(() => {
     </section>
     <section class="space-y-4">
       <div class="bg-white p-6 rounded-xl space-y-4">
+        <div class="flex items-center space-x-6">
+          <div class="text-sm text-neutral-600">
+            <span> Total IN: </span>
+            <span class="text-green-500 font-medium"> 150,579 </span>
+          </div>
+          <div class="text-sm text-neutral-600">
+            <span> Total OUT: </span>
+            <span class="text-red-500 font-medium"> 150,579 </span>
+          </div>
+        </div>
         <GeneralTable
           :columns="tableColumns"
           :data="tableData"

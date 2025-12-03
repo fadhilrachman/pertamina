@@ -46,7 +46,7 @@ const formSchema = object({
   facility_id: string().required("Facility Name is required"),
   qty: string().required("QTY is required"),
   uom: string().required("Unit of Measure is required"),
-  reference_no: string().required("Reference No. is required"),
+  // reference_no: string().required("Reference No. is required"),
   reference_type: string().required("Reference Type is required"),
   date: string().required("Date is required"),
 });
@@ -68,7 +68,7 @@ const { values } = form;
 const formFields = computed<FieldConfig[]>(() => [
   {
     name: "sku_id",
-    label: "Sku Name",
+    label: "SKU Name",
     type: "search-select",
     placeholder: "Select SKU",
     grid: 6,
@@ -106,7 +106,7 @@ const formFields = computed<FieldConfig[]>(() => [
   {
     name: "reference_no",
     label: "Reference No.",
-    requiredMark: true,
+    // requiredMark: true,
     type: "text",
     placeholder: "e.g., PO-12345",
     grid: 6,
@@ -163,10 +163,10 @@ onMounted(() => {
 <template>
   <main class="space-y-6">
     <header class="flex justify-between items-end">
-      <div>
-        <h1 class="text-2xl font-semibold text-gray-900">Stock In</h1>
-        <p class="text-gray-500">Add New Stock to Warehouse Inventory</p>
-      </div>
+      <GeneralTitle
+        title="Stock In"
+        subtitle="Add New Stock to Warehouse Inventory"
+      />
     </header>
     <section class="max-w-[700px]">
       <div class="bg-white rounded-lg p-6">

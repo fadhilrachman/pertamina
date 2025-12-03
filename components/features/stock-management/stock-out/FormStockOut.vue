@@ -87,7 +87,7 @@ const { values } = form;
 const formFields = computed<FieldConfig[]>(() => [
   {
     name: "sku_id",
-    label: "Sku Name",
+    label: "SKU Name",
     type: "search-select",
     placeholder: "Select SKU",
     grid: 6,
@@ -105,7 +105,7 @@ const formFields = computed<FieldConfig[]>(() => [
   },
   {
     name: "facility_id",
-    label: "Receiving Warehouse ",
+    label: "Warehouse",
     type: "search-select",
     placeholder: "Select Warehouse",
     grid: 6,
@@ -114,19 +114,8 @@ const formFields = computed<FieldConfig[]>(() => [
   },
 
   {
-    name: "vehicle_id",
-    label: "Vehicle",
-    type: "search-select",
-    placeholder: "Select Vehicle",
-    grid: 6,
-    requiredMark: true,
-    options: vehicleOptions.value,
-    // disabled: !values.facility_id,
-  },
-
-  {
     name: "purpose",
-    label: "Purpose",
+    label: "Purpose out Outflow",
     type: "select",
     placeholder: "Select Purpose",
     grid: 6,
@@ -137,7 +126,7 @@ const formFields = computed<FieldConfig[]>(() => [
     name: "destination",
     label: "Destination",
     type: "text",
-    placeholder: "Enter destination",
+    placeholder: "e.g., Bandung",
     grid: 6,
   },
 
@@ -157,6 +146,16 @@ const formFields = computed<FieldConfig[]>(() => [
     type: "date",
     placeholder: "e.g., 2024-05-30",
     grid: 6,
+  },
+  {
+    name: "vehicle_id",
+    label: "Vehicle",
+    type: "text",
+    placeholder: "e.g., BMW",
+    grid: 6,
+    // requiredMark: true,
+    // options: vehicleOptions.value,
+    // disabled: !values.facility_id,
   },
 
   {
@@ -196,10 +195,10 @@ onMounted(() => {
 <template>
   <main class="space-y-6">
     <header class="flex justify-between items-end">
-      <div>
-        <h1 class="text-2xl font-semibold text-gray-900">Stock Out</h1>
-        <p class="text-gray-500">Add New Stock to Warehouse Inventory</p>
-      </div>
+      <GeneralTitle
+        title="Stock Out"
+        subtitle="Add New Stock to Warehouse Inventory"
+      />
     </header>
     <section class="max-w-[700px]">
       <div class="bg-white rounded-lg p-6">

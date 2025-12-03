@@ -127,10 +127,10 @@ onBeforeMount(() => {
 <template>
   <main class="space-y-8">
     <header class="flex justify-between items-end">
-      <div>
-        <h1 class="text-2xl font-semibold text-gray-900">Vehicle Master</h1>
-        <p class="text-gray-500">Manage fleet vehicles</p>
-      </div>
+      <GeneralTitle
+        title="Vehicle Master"
+        subtitle="Manage fleet vehicles"
+      />
       <div class="flex justify-between space-x-2">
         <GeneralButton
           color="primary"

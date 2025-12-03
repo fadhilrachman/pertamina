@@ -139,10 +139,10 @@ onBeforeMount(() => {
 <template>
   <main class="space-y-8">
     <header class="flex justify-between items-end">
-      <div>
-        <h1 class="text-2xl font-semibold text-gray-900">Stock On Hand</h1>
-        <p class="text-gray-500">Current stock per SKU and warehouse</p>
-      </div>
+      <GeneralTitle
+        title="Stock On Hand"
+        subtitle="Current stock per SKU and warehouse"
+      />
       <div class="flex justify-between space-x-2">
         <GeneralButton color="success" label="Export to Excel">
           <template #prefix>
@@ -192,6 +192,10 @@ onBeforeMount(() => {
     </section>
     <section class="space-y-4">
       <div class="bg-white p-6 rounded-xl space-y-4">
+        <div class="text-sm text-neutral-600">
+          <span> Total On-Hand Quantity: </span>
+          <span class="text-blue-500 font-medium"> 150,579 </span>
+        </div>
         <GeneralTable
           :columns="tableColumns"
           :data="data?.data?.data || []"

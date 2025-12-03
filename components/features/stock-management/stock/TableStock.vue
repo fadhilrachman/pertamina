@@ -14,6 +14,7 @@ import { formatTableDate } from "~/utils/functions";
 import ModalFormStockIn from "./ModalFormStockIn.vue";
 import ModalFormStockOut from "./ModalFormStockOut.vue";
 import ModalFormStockAdjusment from "./ModalFormStockAdjusment.vue";
+import ModalAdjustmentHistory from "../stock-adjustment/ModalAdjustmentHistory.vue";
 import type { StockOnHandType } from "~/types/stock-on-hand-type";
 
 const $page = usePageStore();
@@ -51,6 +52,7 @@ const stockOutModalRef = ref<InstanceType<typeof ModalFormStockOut> | null>(
 const stockAdjustmentModalRef = ref<InstanceType<
   typeof ModalFormStockAdjusment
 > | null>(null);
+const historyModalRef = ref<ElementEvent | null>(null);
 
 const params = reactive({
   sku_id: "",
@@ -150,6 +152,14 @@ const handleImportFileChange = (event: Event) => {
   // reset so same file can be chosen again
   if (target) target.value = "";
 };
+
+const handleHistoryModalMounted = (instance: ElementEvent) => {
+  historyModalRef.value = instance;
+};
+
+const openHistoryModal = () => {
+  historyModalRef.value?.show();
+};
 watch(
   () => ({ ...params }),
   () => {
@@ -175,12 +185,13 @@ onBeforeMount(() => {
 <template>
   <main class="space-y-8">
     <header class="flex justify-between items-end">
-      <div>
-        <h1 class="text-2xl font-semibold text-gray-900">Stock</h1>
-        <p class="text-gray-500">Manage your stock</p>
-      </div>
+      <GeneralTitle title="Stock" subtitle="Manage your stock" />
       <div class="flex justify-between space-x-2 items-center">
-        <GeneralOutlinedButton label="History" type="button">
+        <GeneralOutlinedButton
+          label="History"
+          type="button"
+          @on-click="openHistoryModal"
+        >
           <template #prefix>
             <IconsHistory size="18" class="text-gray-700" />
           </template>
@@ -305,5 +316,9 @@ onBeforeMount(() => {
     <ModalFormStockIn ref="stockInModalRef" :mode="formModeRef" />
     <ModalFormStockOut ref="stockOutModalRef" :mode="formModeRef" />
     <ModalFormStockAdjusment ref="stockAdjustmentModalRef" />
+    <ModalAdjustmentHistory
+      id="modal-stock-history"
+      @mounted="handleHistoryModalMounted"
+    />
   </main>
 </template>

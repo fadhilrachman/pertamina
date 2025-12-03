@@ -216,10 +216,11 @@ const summaryCards = computed(() => {
 <template>
   <main class="space-y-6">
     <header class="flex items-end justify-between">
-      <div class="space-y-1">
-        <h1 class="text-2xl font-semibold text-gray-900">Dashboard</h1>
-        <p class="text-gray-500">Overview of your inventory operations</p>
-      </div>
+      <GeneralTitle
+        class="space-y-1"
+        title="Dashboard"
+        subtitle="Overview of your inventory operations"
+      />
       <div class="min-w-[240px] space-y-1">
         <label class="mb-1.5 text-sm font-[600] text-gray-700">
           Facilities

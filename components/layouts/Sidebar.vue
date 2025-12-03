@@ -2,7 +2,7 @@
 import { useActiveRoute } from "@/composables/useActiveRoute";
 import { sidebarMenu } from "@/constant/sidebar";
 import type { IChildSidebar, ISidebar } from "@/types/sidebar";
-
+import Logo from "~/assets/image/logo-pertamina-drilling.png";
 const { data } = useAuth();
 const route = useRoute();
 const { isActive } = useActiveRoute();
@@ -91,11 +91,12 @@ watchEffect(() => {
           class="w-14"
         /> -->
         <div class="leading-tight">
-          <p
+          <!-- <p
             class="text-sm font-semibold uppercase tracking-wide text-gray-900"
           >
             LOGO
-          </p>
+          </p> -->
+          <img :src="Logo" alt="Logo" class="max-h-[30px]" />
           <!-- <p class="text-[11px] uppercase tracking-[0.2em] text-gray-500">
             Lorem, ipsum dolor.
           </p> -->
