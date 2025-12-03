@@ -22,10 +22,10 @@ const router = useRouter();
 const linkClass = computed((): string => {
   const active = isActive(props.destination || "");
   const base =
-    "py-2 px-3 gap-3 flex w-full items-center rounded-lg text-sm font-medium transition-colors";
+    "py-2 px-3 gap-3 flex w-full items-center rounded-lg text-sm font-medium text-gray-700 transition-colors";
   const state = active
-    ? "bg-primary-50 text-primary-700"
-    : "text-gray-500 hover:bg-gray-100 hover:text-gray-900";
+    ? "bg-primary-50 text-primary-600"
+    : "hover:bg-gray-100 hover:text-gray-900";
   return `${base} ${state}`;
 });
 

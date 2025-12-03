@@ -20,21 +20,21 @@ const isParentRouteActive = (destination: string) => {
 
 const getMenuActiveClass = (destination: string) => {
   const base =
-    "w-full flex whitespace-nowrap items-center justify-between rounded-xl px-3 py-2 text-sm  transition-colors";
+    "w-full flex whitespace-nowrap items-center justify-between rounded-xl px-3 py-2 text-sm font-medium text-gray-700 transition-colors";
   const state = isParentRouteActive(destination)
-    ? "bg-primary-50 text-primary-700"
+    ? "bg-primary-50 text-primary-600"
     : "hover:bg-gray-100 hover:text-gray-900";
   return `${base} ${state}`;
 };
 
 const getIconMenuActive = (destination: string) => {
   return isParentRouteActive(destination)
-    ? "stroke-primary-700"
-    : "stroke-gray-500";
+    ? "stroke-primary-600"
+    : "stroke-gray-700";
 };
 
 const getActiveClass = (route: string) => {
-  return isActive(route) ? "stroke-primary-700" : "stroke-gray-500";
+  return isActive(route) ? "stroke-primary-600" : "stroke-gray-700";
 };
 
 const toggleMenu = (index: number) => {
