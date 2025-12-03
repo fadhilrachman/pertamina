@@ -22,6 +22,7 @@ type AdjustmentHistoryItem = {
   after: number;
   adjustment: number;
   user: string;
+  date: string;
 };
 
 const historyItems: AdjustmentHistoryItem[] = [
@@ -33,6 +34,7 @@ const historyItems: AdjustmentHistoryItem[] = [
     after: 8,
     adjustment: 8,
     user: "admin@pdsi.com",
+    date: "Nov 10, 2025\n14:27",
   },
   {
     id: "ADJ-23499EFC",
@@ -42,6 +44,7 @@ const historyItems: AdjustmentHistoryItem[] = [
     after: 3,
     adjustment: 3,
     user: "admin@pdsi.com",
+    date: "Nov 07, 2025\n09:17",
   },
 ];
 
@@ -71,6 +74,7 @@ const formatAdjustment = (value: number) => {
               <th class="px-6 py-3 text-right">BEFORE</th>
               <th class="px-6 py-3 text-right">AFTER</th>
               <th class="px-6 py-3 text-right">ADJUSTMENT</th>
+              <th class="px-6 py-3 text-right">DATE</th>
               <th class="px-6 py-3 text-left">USER</th>
             </tr>
           </thead>
@@ -107,6 +111,11 @@ const formatAdjustment = (value: number) => {
               >
                 {{ formatAdjustment(item.adjustment) }}
               </td>
+              <td
+                class="px-6 py-4 align-top text-right text-gray-900 whitespace-pre-line"
+              >
+                {{ item.date }}
+              </td>
               <td class="px-6 py-4 align-top text-gray-900">
                 {{ item.user }}
               </td>
@@ -119,4 +128,3 @@ const formatAdjustment = (value: number) => {
 </template>
 
 <style scoped></style>
-
