@@ -8,17 +8,19 @@ const props = defineProps<{
 
 <template>
   <section
-    class="rounded-xl border border-gray-100 bg-white p-4 shadow-sm space-y-3"
+    class="rounded-xl border border-gray-100 bg-white p-5 shadow-sm space-y-4"
   >
     <div class="flex items-start justify-between gap-3">
       <div class="space-y-1">
-        <p class="text-xs font-medium text-gray-500">Warehouse</p>
-        <h2 class="text-lg font-semibold text-gray-900">
+        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">
+          Warehouse
+        </p>
+        <h2 class="text-xl font-semibold text-gray-900">
           {{ warehouse?.name || "-" }}
         </h2>
-        <p class="text-xs text-gray-500">
-          Code:
-          <span class="font-medium text-gray-700">
+        <p class="text-xs text-gray-500 flex items-center gap-1">
+          <span>Code</span>
+          <span class="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-700">
             {{ warehouse?.code || "-" }}
           </span>
         </p>
@@ -37,30 +39,26 @@ const props = defineProps<{
       </span>
     </div>
 
-    <div class="grid grid-cols-1 gap-3 text-sm text-gray-700 sm:grid-cols-2">
-      <div>
+    <div class="grid grid-cols-1 gap-4 text-sm text-gray-700 sm:grid-cols-2">
+      <div class="space-y-1">
         <p class="text-xs font-medium text-gray-500">Address</p>
-        <p class="mt-0.5">
+        <p class="mt-0.5 leading-snug">
           {{ warehouse?.address || "-" }}
         </p>
       </div>
-      <div>
-        <p class="text-xs font-medium text-gray-500">City</p>
-        <p class="mt-0.5">
-          {{ warehouse?.city || "-" }}
-        </p>
-      </div>
-      <div>
-        <p class="text-xs font-medium text-gray-500">Capacity</p>
-        <p class="mt-0.5">
-          {{ warehouse?.capacity || "-" }}
-        </p>
-      </div>
-      <div>
-        <p class="text-xs font-medium text-gray-500">ID</p>
-        <p class="mt-0.5">
-          {{ warehouse?.id || "-" }}
-        </p>
+      <div class="space-y-3">
+        <div>
+          <p class="text-xs font-medium text-gray-500">City</p>
+          <p class="mt-0.5">
+            {{ warehouse?.city || "-" }}
+          </p>
+        </div>
+        <div>
+          <p class="text-xs font-medium text-gray-500">Capacity</p>
+          <p class="mt-0.5">
+            {{ warehouse?.capacity || "-" }}
+          </p>
+        </div>
       </div>
     </div>
   </section>

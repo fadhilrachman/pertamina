@@ -42,8 +42,6 @@ const skuOptions = computed(
     })) || []
 );
 const { data, loadingWrite, loadingList } = storeToRefs(stockOnHandStore);
-const deleteModalRef = ref<ElementEvent | null>(null);
-const selectedSku = ref<Record<string, any> | null>(null);
 
 const stockInModalRef = ref<InstanceType<typeof ModalFormStockIn> | null>(null);
 const stockOutModalRef = ref<InstanceType<typeof ModalFormStockOut> | null>(
@@ -70,12 +68,6 @@ const tableColumns: TableColumn[] = [
   { key: "unit_of_measure", label: "UOM" },
 
   { key: "actions", label: "Actions", align: "right" as const },
-];
-
-const statusOptions = [
-  { id: "available", label: "Available" },
-  { id: "low", label: "Low" },
-  { id: "out_of_stock", label: "Out of Stock" },
 ];
 
 const handleFacilitiesChange = (value: any) => {
@@ -332,6 +324,7 @@ onBeforeMount(() => {
     <ModalFormStockAdjusment ref="stockAdjustmentModalRef" />
     <ModalAdjustmentHistory
       id="modal-stock-history"
+      :facility-id="params.facility_id"
       @mounted="handleHistoryModalMounted"
     />
   </main>
