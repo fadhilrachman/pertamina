@@ -46,6 +46,7 @@ export interface FieldConfig {
   addButtonLabel?: string;
   minItems?: number;
   maxItems?: number;
+  creatable?: boolean;
 }
 
 const listColSpan = {
@@ -520,6 +521,7 @@ function fileInputClasses(invalid: boolean, disabled?: boolean) {
               :placeholder="field.placeholder || 'Search option'"
               :disabled="field.disabled"
               :invalid="meta.touched && !meta.valid"
+               :creatable="field.creatable"
               :multiple="field.multiple"
               @update:model-value="fieldBinding.onChange"
             />

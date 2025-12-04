@@ -13,7 +13,7 @@ import {
 import { toast } from "vue3-toastify";
 import { DATA_SKU } from "../../dummy.json";
 import { defineStore } from "pinia";
-import type { SKUType } from "~/types/sku-type";
+import type { PayloadSKUType, SKUType } from "~/types/sku-type";
 
 export const useSkuStore = defineStore("sku", {
   state: () => ({
@@ -76,12 +76,12 @@ export const useSkuStore = defineStore("sku", {
       }
     },
 
-    async createDataSku(body: any) {
+    async createDataSku(body: PayloadSKUType) {
       this.loadingWrite = true;
       try {
-        await postSku(body); // API_UNCOMMENT
+        const result = await postSku(body); // API_UNCOMMENT
         toast.success("Success create data SKU");
-        return true;
+        return result;
       } catch (error) {
         toast.error("Failed create data SKU", {
           toastClassName: "toastify-error",
@@ -92,7 +92,7 @@ export const useSkuStore = defineStore("sku", {
       }
     },
 
-    async updateDataSku(body: any) {
+    async updateDataSku(body: PayloadSKUType & { id: string }) {
       this.loadingWrite = true;
       try {
         await putSku(body); // API_UNCOMMENT

@@ -18,4 +18,5 @@ export interface PayloadFacilitiesSkuType {
   sku_id: string;
   facility_id?: string;
   description?: string;
+  status?: string;
 }

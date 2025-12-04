@@ -61,7 +61,7 @@ const purposeOptions = [
 const formSchema = object({
   sku_id: string().required("SKU Name is required"),
   facility_id: string().required("Facility Name is required"),
-  vehicle_id: string().required("Vehicle is required"),
+  vehicle_text: string().required("Vehicle is required"),
   purpose: string().required("Purpose is required"),
   qty: string().required("QTY is required"),
   // uom: string().required("Unit of Measure is required"),
@@ -74,9 +74,9 @@ const createInitialValues = (): any => ({
   qty: "",
   description: "",
   date: "",
-  vehicle_id: "",
+  vehicle_text: "",
   purpose: "",
-  destination: "",
+  endpoint: "",
 });
 
 const form = useForm<any>({
@@ -86,6 +86,16 @@ const form = useForm<any>({
 const { values } = form;
 const formFields = computed<FieldConfig[]>(() => [
   {
+    name: "facility_id",
+    label: "Warehouse",
+    type: "search-select",
+    placeholder: "Select Warehouse",
+    grid: 6,
+    requiredMark: true,
+    options: facilitiesOptions.value,
+  },
+
+  {
     name: "sku_id",
     label: "SKU Name",
     type: "search-select",
@@ -93,7 +103,7 @@ const formFields = computed<FieldConfig[]>(() => [
     grid: 6,
     requiredMark: true,
     options: facilitiesSkuOptions.value,
-    // disabled: !values.facility_id,
+    disabled: !values.facility_id,
   },
   {
     label: "Quantity",
@@ -102,15 +112,6 @@ const formFields = computed<FieldConfig[]>(() => [
     type: "text",
     placeholder: "e.g., 150",
     grid: 6,
-  },
-  {
-    name: "facility_id",
-    label: "Warehouse",
-    type: "search-select",
-    placeholder: "Select Warehouse",
-    grid: 6,
-    requiredMark: true,
-    options: facilitiesOptions.value,
   },
 
   {
@@ -123,7 +124,7 @@ const formFields = computed<FieldConfig[]>(() => [
     options: purposeOptions,
   },
   {
-    name: "destination",
+    name: "endpoint",
     label: "Destination",
     type: "text",
     placeholder: "e.g., Bandung",
@@ -148,7 +149,7 @@ const formFields = computed<FieldConfig[]>(() => [
     grid: 6,
   },
   {
-    name: "vehicle_id",
+    name: "vehicle_text",
     label: "Vehicle",
     type: "text",
     placeholder: "e.g., BMW",
@@ -218,21 +219,21 @@ onMounted(() => {
                     {
                       qty: Number(val.qty),
                       facility_sku_id: val.sku_id,
-                      uom: val.uom,
+                      uom: 'kg',
                     },
                   ],
                   note: val.note,
                   purpose: val.purpose,
-                  destination: val.destination,
+                  endpoint: val.endpoint,
                   trx_date: val.date,
-                  vehicle_id: val.vehicle_id,
+                  vehicle_text: val.vehicle_text,
                   trx_type: 'OUT',
                 },
                 {
                   uuid: idempotencyKey,
                 }
               );
-              createInitialValues();
+              form.resetForm({ values: createInitialValues() });
             }
           "
         />

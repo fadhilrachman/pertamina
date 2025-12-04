@@ -250,11 +250,15 @@ onBeforeMount(() => {
         <div class="flex items-center space-x-6">
           <div class="text-sm text-neutral-600">
             <span> Total IN: </span>
-            <span class="text-green-500 font-medium"> 150,579 </span>
+            <span class="text-green-500 font-medium"
+              >{{ data?.data?.total_in }}
+            </span>
           </div>
           <div class="text-sm text-neutral-600">
             <span> Total OUT: </span>
-            <span class="text-red-500 font-medium"> 150,579 </span>
+            <span class="text-red-500 font-medium">
+              {{ data?.data?.total_out }}
+            </span>
           </div>
         </div>
         <GeneralTable

@@ -160,6 +160,15 @@ const handleHistoryModalMounted = (instance: ElementEvent) => {
 const openHistoryModal = () => {
   historyModalRef.value?.show();
 };
+
+const handleDownloadTemplate = () => {
+  const link = document.createElement("a");
+  link.href = "/assets/template/stock_adjustment.xlsx";
+  link.download = "stock_adjustment.xlsx";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
 watch(
   () => ({ ...params }),
   () => {
@@ -196,7 +205,12 @@ onBeforeMount(() => {
             <IconsHistory size="18" class="text-gray-700" />
           </template>
         </GeneralOutlinedButton>
-        <GeneralButton color="success" label="Download Template">
+        <GeneralButton
+          color="success"
+          label="Download Template"
+          type="button"
+          @on-click="handleDownloadTemplate"
+        >
           <template #prefix>
             <IconsDownload size="18" class="text-white" />
           </template>

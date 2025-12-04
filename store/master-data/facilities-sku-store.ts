@@ -90,11 +90,13 @@ export const useFacilitiesSkuStore = defineStore("facilitiesSku", {
     ) {
       this.loadingWrite = true;
       try {
-        await postFacilitiesSku(body); // API_UNCOMMENT
-        toast.success("Success assign data SKU to Facilities");
+        const data = await postFacilitiesSku(body); // API_UNCOMMENT
+        // toast.success("Success assign data SKU to Facilities");
+        return data;
         return true;
-      } catch (error) {
-        toast.error("Failed assign data SKU to Facilities", {
+      } catch (error: any) {
+        console.log({ error });
+        toast.error(error.message || "Failed assign data SKU to Facilities", {
           toastClassName: "toastify-error",
         });
         throw error;
@@ -111,8 +113,8 @@ export const useFacilitiesSkuStore = defineStore("facilitiesSku", {
         await putFacilitiesSku(body); // API_UNCOMMENT
         toast.success("Success update data SKU");
         return true;
-      } catch (error) {
-        toast.error("Failed update data SKU", {
+      } catch (error: any) {
+        toast.error(error.message || "Failed update data SKU", {
           toastClassName: "toastify-error",
         });
         throw error;
@@ -133,8 +135,8 @@ export const useFacilitiesSkuStore = defineStore("facilitiesSku", {
         await deleteFacilitiesSku({ id, facility_id }); // API_UNCOMMENT
         toast.success("Success delete data SKU");
         return true;
-      } catch (error) {
-        toast.error("Failed delete data SKU", {
+      } catch (error: any) {
+        toast.error(error.message || "Failed delete data SKU", {
           toastClassName: "toastify-error",
         });
         throw error;

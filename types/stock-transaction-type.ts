@@ -1,6 +1,7 @@
 export interface PayloadStockTransactionType {
   lines?: Lines[];
   note?: string;
+  endpoint?: string;
   reference_no?: string;
   reference_type?: string;
   purpose?: string;
@@ -8,6 +9,9 @@ export interface PayloadStockTransactionType {
   trx_date?: string;
   trx_type?: string;
   vehicle_id?: string;
+  vehicle_text?: string;
+
+  uom?: string; // TEMPORARY
 }
 
 interface Lines {

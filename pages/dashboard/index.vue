@@ -56,11 +56,22 @@ const selectedFacilityId = ref<string | "">("");
 onMounted(() => {
   facilitiesStore.getDataFacilities({ page: 1, limit: 1000 });
   const facility_id = selectedFacilityId.value || undefined;
-  dashboardStore.getDataDashboardOverview({ facility_id });
+  dashboardStore.getDataDashboardOverview({});
   dashboardStore.getDataDashboardStockDistribution({ facility_id });
   dashboardStore.getDataDashboardTopMovingSku({ facility_id });
 });
 
+watch(selectedFacilityId, (newVal) => {
+  const facility_id = newVal || undefined;
+  if (newVal == "") {
+    dashboardStore.getDataDashboardOverview({});
+  } else {
+    dashboardStore.getDataDashboardOverview({ facility_id });
+  }
+  console.log(facility_id);
+  dashboardStore.getDataDashboardStockDistribution({ facility_id });
+  dashboardStore.getDataDashboardTopMovingSku({ facility_id });
+});
 // watch(
 //   () => selectedFacilityId.value,
 //   (next) => {
@@ -194,23 +205,23 @@ const summaryCards = computed(() => {
   ];
 });
 
-// const topMovingSkus = computed(() => {
-//   const list = dataTopMovingSku.value.data || [];
-//   const sorted = [...list].sort(
-//     (a, b) => (b.net_movement ?? 0) - (a.net_movement ?? 0)
-//   );
+const topMovingSkus = computed(() => {
+  const list = dataTopMovingSku.value.data || [];
+  const sorted = [...list].sort(
+    (a, b) => (b.net_movement ?? 0) - (a.net_movement ?? 0)
+  );
 
-//   return sorted.slice(0, 5).map((item) => ({
-//     name: `${item.sku_code} - ${item.sku_name}`,
-//     qty: item.net_movement ?? 0,
-//   }));
-// });
+  return sorted.slice(0, 5).map((item) => ({
+    name: `${item.sku_code} - ${item.sku_name}`,
+    qty: item.net_movement ?? 0,
+  }));
+});
 
-// const maxTopSkuQty = computed(() => {
-//   const items = topMovingSkus.value;
-//   if (!items.length) return 1;
-//   return Math.max(...items.map((item) => item.qty || 0)) || 1;
-// });
+const maxTopSkuQty = computed(() => {
+  const items = topMovingSkus.value;
+  if (!items.length) return 1;
+  return Math.max(...items.map((item) => item.qty || 0)) || 1;
+});
 </script>
 
 <template>
@@ -297,10 +308,10 @@ const summaryCards = computed(() => {
     </section>
 
     <!-- Top moving SKUs -->
-    <!-- <section class="bg-white rounded-xl p-5 shadow-sm space-y-4">
-      <div class="flex items-center justify-between">
+    <section class="bg-white rounded-xl p-5 shadow-sm space-y-4">
+      <div class="flex items-center">
         <h2 class="text-base font-semibold text-gray-900">Top Moving SKUs</h2>
-        <span class="text-xs text-gray-400">Last 7 days</span>
+        <!-- <span class="text-xs text-gray-400">Last 7 days</span> -->
       </div>
 
       <div class="space-y-3">
@@ -332,6 +343,6 @@ const summaryCards = computed(() => {
           </div>
         </div>
       </div>
-    </section> -->
+    </section>
   </main>
 </template>

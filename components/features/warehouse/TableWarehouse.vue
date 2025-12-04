@@ -1,43 +1,55 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch } from "vue";
+import { onBeforeMount, onMounted, reactive, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import ModalDelete from "~/components/general/ModalDelete/index.vue";
 import type { TableColumn } from "~/components/general/Table/index.vue";
 import type { ElementEvent } from "~/types/element";
-import { useUserStore } from "~/store/user-management/user-store";
-import type { UserType } from "~/types/user-type";
-import ModalFormUser from "./ModalFormUser.vue";
-import { formatTableDate } from "~/utils/functions";
+import { usePageStore } from "~/store/page";
+import { useFacilitiesStore } from "~/store/master-data/facilities-store";
+import type { FacilitiesType } from "~/types/facilities-type";
+import ModalFormFacilities from "./ModalFormWarehouse.vue";
+import ModalFormWarehouse from "./ModalFormWarehouse.vue";
 
-const userStore = useUserStore();
-const { data, loadingWrite } = storeToRefs(userStore);
-const modalAddRef = ref<InstanceType<typeof ModalFormUser> | null>(null);
+const $page = usePageStore();
+const router = useRouter();
+const facilitiesStore = useFacilitiesStore();
+const { data, loadingWrite, loadingList } = storeToRefs(facilitiesStore);
+const modalAddRef = ref<InstanceType<typeof ModalFormFacilities> | null>(null);
 const formModeRef = ref(<"add" | "update">"add");
 const deleteModalRef = ref<ElementEvent | null>(null);
-const selectedUser = ref<UserType | null>(null);
+const selectedSku = ref<Record<string, any> | null>(null);
 
 const params = reactive({
   search: "",
   page: 1,
   limit: 10,
+  status: "",
 });
 const tableColumns: TableColumn[] = [
-  { key: "name", label: "Name", headerClass: "min-w-[180px]" },
-  { key: "email", label: "Email", headerClass: "min-w-[220px]" },
-  { key: "role", label: "Role" },
+  { key: "code", label: "Code" },
+  { key: "name", label: "Facility Name", headerClass: "min-w-[200px]" },
+  { key: "address", label: "Address" },
+  { key: "capacity", label: "Capacity" },
   { key: "status", label: "Status" },
-  { key: "created_at", label: "Created At" },
   { key: "actions", label: "Actions", align: "right" as const },
 ];
 
-const openAddRoleModal = () => {
+const statusOptions = [
+  { id: "active", label: "Active" },
+  { id: "inactive", label: "Inactive" },
+];
+const openAddFacilities = async () => {
   formModeRef.value = "add";
+
+  await nextTick();
   modalAddRef.value?.open();
 };
 
-const openUpdateRoleModal = (row: UserType) => {
-  userStore.setSelectedData(row);
+const openUpdateFacilities = async (row: FacilitiesType) => {
+  facilitiesStore.setSelectedData(row);
   formModeRef.value = "update";
+
+  await nextTick();
   modalAddRef.value?.open();
 };
 
@@ -45,19 +57,21 @@ const handleDeleteModalMounted = (instance: ElementEvent) => {
   deleteModalRef.value = instance;
 };
 
-const openDeleteRoleModal = (row: Record<string, any>) => {
-  selectedUser.value = row as UserType;
+const openDeleteFacilities = (row: Record<string, any>) => {
+  selectedSku.value = row;
   deleteModalRef.value?.show();
 };
 
-const closeDeleteRoleModal = () => deleteModalRef.value?.hide();
+const closeDeleteFacilities = () => deleteModalRef.value?.hide();
 
 const handleConfirmDelete = async () => {
-  if (!selectedUser.value) return;
+  if (!selectedSku.value) return;
   try {
-    await userStore.deleteDataUser({ id: String(selectedUser.value.id) });
-    userStore.getDataUser({ ...params });
-    closeDeleteRoleModal();
+    await facilitiesStore.deleteDataFacilities({
+      id: String(selectedSku.value.id),
+    });
+    facilitiesStore.getDataFacilities({ ...params });
+    closeDeleteFacilities();
   } catch (error) {
     throw error;
   }
@@ -76,34 +90,49 @@ const handlePageSizeChange = (pageSize: number) => {
   params.page = 1;
 };
 
+const handleStatusChange = (value: string | number) => {
+  params.status = String(value);
+  params.page = 1;
+};
+
 watch(
   () => ({ ...params }),
   () => {
     console.log({ params });
 
-    userStore.getDataUser({ ...params });
+    facilitiesStore.getDataFacilities({ ...params });
   }
 );
 
 onMounted(() => {
-  userStore.getDataUser({
+  facilitiesStore.getDataFacilities({
     ...params,
   });
 });
 </script>
 
 <template>
-  <section class="space-y-8">
+  <main class="space-y-8">
     <header class="flex justify-between items-end">
       <GeneralTitle
-        title="User Management"
-        subtitle="Manage users and access"
+        title="Warehouse Master"
+        subtitle="Manage facilities and warehouses"
       />
       <div class="flex justify-between space-x-2">
+        <!-- <GeneralButton color="success" label="Download Template">
+          <template #prefix>
+            <IconsDownload size="18" class="text-white" />
+          </template>
+        </GeneralButton>//
+        <GeneralButton color="warning" label="Import">
+          <template #prefix>
+            <IconsUpload size="18" class="text-white" />
+          </template>
+        </GeneralButton> -->
         <GeneralButton
           color="primary"
-          label="Add User"
-          @on-click="openAddRoleModal"
+          label="Add Warehouse"
+          @on-click="openAddFacilities"
         >
           <template #prefix>
             <IconsPlus size="18" class="text-white" />
@@ -119,25 +148,47 @@ onMounted(() => {
         :debounce="1000"
         @change="handleSearchChange"
       />
+
+      <GeneralDropdown
+        v-model="params.status"
+        variant="field"
+        :options="statusOptions"
+        label="Status"
+        placeholder="All Status"
+        class="w-max"
+        @change="handleStatusChange"
+      />
     </section>
     <section class="space-y-4">
       <div class="bg-white p-6 rounded-xl space-y-4">
         <GeneralTable
+          :loading="loadingList"
           :columns="tableColumns"
           :data="data?.data?.data"
           row-key="id"
           striped
         >
-          <template #cell-created_at="{ value }">
-            {{ formatTableDate(value as string) }}
-          </template>
           <template #cell-actions="{ row }">
             <div class="flex justify-end gap-2">
               <GeneralIconButton
                 class="h-9 w-9"
                 color="default"
                 :ghost="true"
-                @on-click="openUpdateRoleModal(row as UserType)"
+                @on-click="
+                  () => {
+                    router.push(`/warehouse/${row.id}/sku`);
+                  }
+                "
+              >
+                <template #icon>
+                  <IconsEye size="16" class="text-gray-700" />
+                </template>
+              </GeneralIconButton>
+              <GeneralIconButton
+                class="h-9 w-9"
+                color="default"
+                :ghost="true"
+                @on-click="openUpdateFacilities(row as FacilitiesType)"
               >
                 <template #icon>
                   <IconsEdit size="16" class="text-gray-700" />
@@ -147,7 +198,7 @@ onMounted(() => {
                 class="h-9 w-9 bg-white"
                 color="default"
                 :bordered="false"
-                @on-click="openDeleteRoleModal(row)"
+                @on-click="openDeleteFacilities(row)"
               >
                 <template #icon>
                   <IconsDelete size="18" class="text-red-500" />
@@ -165,15 +216,15 @@ onMounted(() => {
         />
       </div>
     </section>
-    <ModalFormUser ref="modalAddRef" :mode="formModeRef" />
+    <ModalFormWarehouse ref="modalAddRef" :mode="formModeRef" />
     <ModalDelete
-      id="modal-delete-user"
-      :target-label="selectedUser?.name || 'this user'"
+      id="modal-delete-sku"
+      :target-label="selectedSku?.name || 'this SKU'"
       :is-loading="loadingWrite"
       confirm-label="Delete"
       @mounted="handleDeleteModalMounted"
-      @cancel="closeDeleteRoleModal"
+      @cancel="closeDeleteFacilities"
       @confirm="handleConfirmDelete"
     />
-  </section>
+  </main>
 </template>

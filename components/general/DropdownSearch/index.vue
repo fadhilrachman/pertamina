@@ -6,6 +6,8 @@ import "vue-select/dist/vue-select.css";
 interface SelectOption {
   id: string | number;
   label: string;
+  // Penanda internal opsional untuk opsi yang baru dibuat (creatable)
+  isNew?: boolean;
 }
 
 type OptionValue = string | number | Array<string | number> | null;
@@ -31,6 +33,10 @@ const props = defineProps({
     type: Array as PropType<ReadonlyArray<SelectOption>>,
     default: () => [],
   },
+  creatable: {
+    type: Boolean,
+    default: false,
+  },
   modelValue: {
     type: [String, Number, Array, null] as PropType<OptionValue>,
     default: "",
@@ -51,15 +57,14 @@ const normalizedOptions = computed(() => {
 
   // Untuk single select, tambahkan opsi placeholder dengan value ""
   // mirip dengan GeneralDropdown, kecuali jika sudah ada option dengan id kosong.
-  if (!props.multiple) {
+  // Jika creatable, biarkan vue-select menampilkan state "no options" agar
+  // slot #no-options (Create ...) bisa muncul.
+  if (!props.multiple && !props.creatable) {
     const hasEmpty =
       base && base.some((option) => option.id === "" || option.id === null);
 
     if (!hasEmpty) {
-      return [
-        { id: "", label: props.placeholder },
-        ...base,
-      ];
+      return [{ id: "", label: props.placeholder }, ...base];
     }
   }
 
@@ -73,6 +78,11 @@ const model = computed({
     emit("change", val);
   },
 });
+
+function createOption(label: string): SelectOption {
+  // Simpan value asli di `id`, label polos untuk ditampilkan di input.
+  return { id: label, label, isNew: true };
+}
 </script>
 
 <template>
@@ -88,19 +98,38 @@ const model = computed({
     :clearable="!props.multiple"
     :class="['w-full', { 'v-select--invalid': props.invalid }]"
     :aria-invalid="props.invalid"
+    :taggable="props.creatable"
+    :create-option="createOption"
   >
-    <!-- Samakan gaya teks option dengan Dropdown (placeholder abu-abu) -->
-    <template #option="{ label }">
+    <!-- Option di dropdown -->
+    <template #option="{ label, option, search }">
       <span
         :class="[
           'text-sm font-normal',
           label === props.placeholder ? 'text-neutral-400' : 'text-gray-900',
         ]"
       >
-        {{ label }}
+        <template
+          v-if="
+            props.creatable &&
+            search &&
+            String(label).toLowerCase() === String(search).toLowerCase() &&
+            !(props.options || []).some(
+              (base) =>
+                String(base.label).toLowerCase() ===
+                String(search).toLowerCase()
+            )
+          "
+        >
+          Create "<span class="font-semibold">{{ search }}</span>"
+        </template>
+        <template v-else>
+          {{ label }}
+        </template>
       </span>
     </template>
 
+    <!-- Value yang terpilih di input -->
     <template #selected-option="{ label }">
       <span
         :class="[
@@ -151,6 +180,15 @@ const model = computed({
   font-weight: 400;
 }
 
+/* Hilangkan pill di value terpilih supaya flat seperti input biasa */
+:deep(.vs__selected) {
+  background-color: transparent;
+  border-color: transparent;
+  padding-left: 0;
+  padding-right: 0;
+  margin: 0;
+}
+
 :deep(.vs__selected-options) {
   /* Hilangkan padding/margin default supaya sejajar dengan Dropdown */
   padding: 0;
@@ -168,8 +206,7 @@ const model = computed({
 
 :deep(.vs__dropdown-menu) {
   border: 1px solid #e5e7eb;
-  box-shadow:
-    0 10px 15px -3px rgba(0, 0, 0, 0.07),
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07),
     0 4px 6px -2px rgba(0, 0, 0, 0.05);
   border-radius: 8px;
   padding: 0.25rem 0;
@@ -206,5 +243,22 @@ const model = computed({
 :deep(.vs__dropdown-toggle.vs__dropdown-toggle--invalid:focus-within) {
   border-color: #ef4444 !important;
   box-shadow: none !important;
+}
+
+/* Disabled state: samakan dengan GeneralDropdown */
+:deep(.vs--disabled .vs__dropdown-toggle) {
+  background-color: #f3f4f6; /* gray-100 */
+  border-color: #e5e7eb;
+}
+
+:deep(.vs--disabled .vs__selected),
+:deep(.vs--disabled .vs__search) {
+  background-color: transparent;
+}
+
+:deep(.vs--disabled .vs__selected),
+:deep(.vs--disabled .vs__placeholder),
+:deep(.vs--disabled .vs__search) {
+  color: #9ca3af; /* gray-400 */
 }
 </style>

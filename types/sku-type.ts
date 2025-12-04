@@ -11,16 +11,10 @@ export interface SKUType {
 }
 
 export interface PayloadSKUType {
-  sku_code: string;
+  sku_code?: string;
   name: string;
   unit: string;
-  status: string;
+  status?: string;
   description: string;
   category?: string;
-  max_stock?: string;
-  min_stock?: string;
-  beginning_inventory_by_warehouse?: {
-    facility_id: string;
-    beginning_inventory: string | number;
-  }[];
 }

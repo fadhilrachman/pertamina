@@ -29,7 +29,7 @@ export async function putFacilitiesSku(
   payload: PayloadFacilitiesSkuType & { facility_id: string } & { id: string }
 ) {
   return await api.put(
-    `/api/v1/facilities/${payload.facility_id}/skus/${payload.id}`,
+    `/api/v1/facilities/${payload.facility_id}/skus/${payload.sku_id}`,
     { body: payload }
   );
 }

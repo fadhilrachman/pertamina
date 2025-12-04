@@ -45,18 +45,18 @@ const formSchema = object({
   sku_id: string().required("SKU Name is required"),
   facility_id: string().required("Facility Name is required"),
   qty: string().required("QTY is required"),
-  uom: string().required("Unit of Measure is required"),
+  // uom: string().required("Unit of Measure is required"),
   // reference_no: string().required("Reference No. is required"),
-  reference_type: string().required("Reference Type is required"),
+  // reference_type: string().required("Reference Type is required"),
   date: string().required("Date is required"),
 });
 const createInitialValues = (): any => ({
   sku_id: "",
   facility_id: "",
-  uom: "",
+  // uom: "",
   qty: "",
   description: "",
-  reference_type: "",
+  // reference_type: "",
   date: "",
 });
 
@@ -67,6 +67,15 @@ const form = useForm<any>({
 const { values } = form;
 const formFields = computed<FieldConfig[]>(() => [
   {
+    name: "facility_id",
+    label: "Receiving Warehouse ",
+    type: "search-select",
+    placeholder: "Select Warehouse",
+    grid: 6,
+    requiredMark: true,
+    options: facilitiesOptions.value,
+  },
+  {
     name: "sku_id",
     label: "SKU Name",
     type: "search-select",
@@ -74,7 +83,7 @@ const formFields = computed<FieldConfig[]>(() => [
     grid: 6,
     requiredMark: true,
     options: facilitiesSkuOptions.value,
-    // disabled: !values.facility_id,
+    disabled: !values.facility_id,
   },
 
   {
@@ -85,15 +94,7 @@ const formFields = computed<FieldConfig[]>(() => [
     placeholder: "e.g., 150",
     grid: 6,
   },
-  {
-    name: "facility_id",
-    label: "Receiving Warehouse ",
-    type: "search-select",
-    placeholder: "Select Warehouse",
-    grid: 6,
-    requiredMark: true,
-    options: facilitiesOptions.value,
-  },
+
   // {
   //   name: "uom",
   //   label: "UOM.",
@@ -186,7 +187,7 @@ onMounted(() => {
                     {
                       qty: Number(val.qty),
                       facility_sku_id: val.sku_id,
-                      uom: val.uom,
+                      uom: 'kg', //TEMPORARY
                     },
                   ],
                   note: val.note,
@@ -199,7 +200,7 @@ onMounted(() => {
                   uuid: idempotencyKey,
                 }
               );
-              createInitialValues();
+              form.resetForm(createInitialValues());
             }
           "
         />

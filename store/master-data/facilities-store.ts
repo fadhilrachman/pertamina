@@ -10,6 +10,7 @@ import { defineStore } from "pinia";
 import type { FacilitiesType } from "~/types/facilities-type";
 import {
   deleteFacilities,
+  getDetailFacilities,
   getFacilities,
   postFacilities,
   putFacilities,
@@ -65,8 +66,8 @@ export const useFacilitiesStore = defineStore("facilities", {
     async getDataDetailFacilities({ id }: { id: string }) {
       this.loadingDetail = true;
       try {
-        // const { data } = await getSkuDetail({ id }); // API_UNCOMMENT
-        // this.dataDetail = data;
+        const response = await getDetailFacilities({ id: id }); // API_UNCOMMENT
+        this.dataDetail = response;
       } catch (error) {
         toast.error("Failed get data facilities", {
           toastClassName: "toastify-error",

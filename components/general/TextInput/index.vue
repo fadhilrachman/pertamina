@@ -32,7 +32,9 @@ const props = defineProps({
   },
   max: {
     type: Number,
-    default: 999,
+    // Gunakan batas sangat besar agar angka tidak ter-clamp ke 999
+    // kalau tidak ada max yang dispesifikkan.
+    default: Number.MAX_SAFE_INTEGER,
   },
   clearable: {
     type: Boolean,

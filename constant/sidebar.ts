@@ -43,12 +43,12 @@ export const sidebarMenu: ISidebar[] = [
         route: "/user-management/user",
         icon: markRaw(IconsUser),
       },
-      {
-        label: "Roles",
-        id: "menu__user-management",
-        route: "/user-management/roles",
-        icon: markRaw(IconsUserRole),
-      },
+      // {
+      //   label: "Roles",
+      //   id: "menu__user-management",
+      //   route: "/user-management/roles",
+      //   icon: markRaw(IconsUserRole),
+      // },
     ],
   },
   {
@@ -99,37 +99,43 @@ export const sidebarMenu: ISidebar[] = [
     icon: markRaw(IconsWarehouse),
   },
   {
-    label: "Master Data",
-    icon: markRaw(IconsDatabase),
-    id: "menu__master-data",
-    startWith: "/master-data",
-    isOpen: false,
-    menu: [
-      {
-        label: "SKU",
-        id: "menu__master-sku",
-        route: "/master-data/sku",
-        icon: markRaw(IconsSku),
-      },
-      {
-        label: "Facilities / Warehouses",
-        id: "menu__master-facilities",
-        route: "/master-data/facilities",
-        icon: markRaw(IconsBuilding),
-      },
-
-      // {
-      //   label: "Facilities SKU",
-      //   id: "menu__master-facilities-sku",
-      //   route: "/master-data/facilities-sku",
-      //   icon: markRaw(IconsTruck),
-      // },
-      // {
-      //   label: "Vehicles",
-      //   id: "menu__master-vehicle",
-      //   route: "/master-data/vehicles",
-      //   icon: markRaw(IconsTruck),
-      // },
-    ],
+    label: "Warehouses",
+    id: "menu__warehouses",
+    route: "/warehouse",
+    icon: markRaw(IconsBuilding),
   },
+  // {
+  //   label: "Master Data",
+  //   icon: markRaw(IconsDatabase),
+  //   id: "menu__master-data",
+  //   startWith: "/master-data",
+  //   isOpen: false,
+  //   menu: [
+  //     {
+  //       label: "SKU",
+  //       id: "menu__master-sku",
+  //       route: "/master-data/sku",
+  //       icon: markRaw(IconsSku),
+  //     },
+  //     {
+  //       label: "Facilities / Warehouses",
+  //       id: "menu__master-facilities",
+  //       route: "/master-data/facilities",
+  //       icon: markRaw(IconsBuilding),
+  //     },
+
+  //     {
+  //       label: "Facilities SKU",
+  //       id: "menu__master-facilities-sku",
+  //       route: "/master-data/facilities-sku",
+  //       icon: markRaw(IconsTruck),
+  //     },
+  //     // {
+  //     //   label: "Vehicles",
+  //     //   id: "menu__master-vehicle",
+  //     //   route: "/master-data/vehicles",
+  //     //   icon: markRaw(IconsTruck),
+  //     // },
+  //   ],
+  // },
 ];
