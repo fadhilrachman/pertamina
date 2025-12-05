@@ -7,3 +7,26 @@ export interface UserType {
   created_at: string;
 }
 
+export interface SessionRoleType {
+  id: string;
+  name: string;
+  permissions: string[] | null;
+}
+
+export interface SessionProfileType {
+  id: string;
+  first_name: string;
+  last_name: string;
+  created_at: string;
+  updated_at: string;
+  email?: string;
+  role: SessionRoleType;
+}
+
+export interface SessionResponseType {
+  code: number;
+  success: boolean;
+  message: string;
+  data: SessionProfileType;
+  error: unknown;
+}

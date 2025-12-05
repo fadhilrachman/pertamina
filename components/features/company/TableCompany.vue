@@ -1,13 +1,10 @@
 <script setup lang="ts">
-import { onBeforeMount, onMounted, reactive, ref, watch } from "vue";
+import { onMounted, reactive, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
-import ModalFormSku from "~/components/features/master-data/sku/ModalFormSku.vue";
 import ModalDelete from "~/components/general/ModalDelete/index.vue";
 import type { TableColumn } from "~/components/general/Table/index.vue";
 import type { ElementEvent } from "~/types/element";
-import type { SKUType } from "~/types/sku-type";
 import type { CompanyType } from "~/types/company-type";
-import ModalFormRole from "../user-management/role/ModalFormRole.vue";
 import { useCompanyStore } from "~/store/company/company-store";
 import { formatTableDate } from "~/utils/functions";
 import ModalFormCompany from "./ModalFormCompany.vue";
@@ -15,10 +12,10 @@ import ModalDetailCompany from "./ModalDetailCompany.vue";
 
 const companyStore = useCompanyStore();
 const { data, loadingWrite } = storeToRefs(companyStore);
-const modalAddRef = ref<InstanceType<typeof ModalFormSku> | null>(null);
+const modalAddRef = ref<InstanceType<typeof ModalFormCompany> | null>(null);
 const formModeRef = ref(<"add" | "update">"add");
 const deleteModalRef = ref<ElementEvent | null>(null);
-const selectedSku = ref<Record<string, any> | null>(null);
+const selectedCompany = ref<Record<string, any> | null>(null);
 const detailModalRef = ref<ElementEvent | null>(null);
 
 const params = reactive({
@@ -33,11 +30,6 @@ const tableColumns: TableColumn[] = [
   { key: "actions", label: "Actions", align: "right" as const },
 ];
 
-const statusOptions = [
-  { id: "", label: "All Status" },
-  { id: "active", label: "Active" },
-  { id: "inactive", label: "Inactive" },
-];
 const openAddCompanyModal = () => {
   formModeRef.value = "add";
   modalAddRef.value?.open();
@@ -54,17 +46,17 @@ const handleDeleteModalMounted = (instance: ElementEvent) => {
 };
 
 const openDeleteCompanyModal = (row: Record<string, any>) => {
-  selectedSku.value = row;
+  selectedCompany.value = row;
   deleteModalRef.value?.show();
 };
 
 const closeDeleteCompanyModal = () => deleteModalRef.value?.hide();
 
 const handleConfirmDelete = async () => {
-  if (!selectedSku.value) return;
+  if (!selectedCompany.value) return;
   try {
     await companyStore.deleteDataCompany({
-      id: String(selectedSku.value.sku_code),
+      id: String(selectedCompany.value.id),
     });
     companyStore.getDataCompany({ ...params });
     closeDeleteCompanyModal();
@@ -98,8 +90,6 @@ const handlePageSizeChange = (pageSize: number) => {
 watch(
   () => ({ ...params }),
   () => {
-    console.log({ params });
-
     companyStore.getDataCompany({ ...params });
   }
 );
@@ -114,10 +104,7 @@ onMounted(() => {
 <template>
   <section class="space-y-8">
     <header class="flex justify-between items-end">
-      <GeneralTitle
-        title="Company"
-        subtitle="Manage Stock Keeping Units"
-      />
+      <GeneralTitle title="Company" subtitle="Manage companies" />
       <div class="flex justify-between space-x-2">
         <GeneralButton
           color="primary"
@@ -201,7 +188,7 @@ onMounted(() => {
     />
     <ModalDelete
       id="modal-delete-company"
-      :target-label="selectedSku?.name || 'this SKU'"
+      :target-label="selectedCompany?.name || 'this company'"
       :is-loading="loadingWrite"
       confirm-label="Delete"
       @mounted="handleDeleteModalMounted"

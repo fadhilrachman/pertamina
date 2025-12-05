@@ -85,10 +85,32 @@ export const useStockTransaction = defineStore("stockTransaction", {
       this.loadingWrite = true;
       try {
         await postStockTransactions(body, { uuid }); // API_UNCOMMENT
-        toast.success("Success create data Stock in");
+        const trxType = (body.trx_type || "").toLowerCase();
+        let trxLabel = "Stock transaction";
+
+        if (trxType === "in") {
+          trxLabel = "Stock in";
+        } else if (trxType === "out") {
+          trxLabel = "Stock out";
+        } else if (trxType === "adjustment" || trxType === "adjusment") {
+          trxLabel = "Stock adjustment";
+        }
+
+        toast.success(`Success create data ${trxLabel}`);
         return true;
       } catch (error) {
-        toast.error("Failed create data Stock in", {
+        const trxType = (body.trx_type || "").toLowerCase();
+        let trxLabel = "Stock transaction";
+
+        if (trxType === "in") {
+          trxLabel = "Stock in";
+        } else if (trxType === "out") {
+          trxLabel = "Stock out";
+        } else if (trxType === "adjustment" || trxType === "adjusment") {
+          trxLabel = "Stock adjustment";
+        }
+
+        toast.error(`Failed create data ${trxLabel}`, {
           toastClassName: "toastify-error",
         });
         throw error;

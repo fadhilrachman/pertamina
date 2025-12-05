@@ -1,27 +1,24 @@
+import { defineStore } from "pinia";
+import { toast } from "vue3-toastify";
 import type {
   QueryParams,
   ResponseApi,
   ResponseApiDetail,
 } from "~/types/common";
-
-import { toast } from "vue3-toastify";
-import { defineStore } from "pinia";
 import type { CompanyType } from "~/types/company-type";
 import {
-  deleteCompany,
-  getCompany,
-  postCompany,
-  putCompany,
-} from "~/services/company/company-services";
+  deleteSuperadminCompany,
+  getSuperadminCompanies,
+  postSuperadminCompany,
+  putSuperadminCompany,
+} from "~/services/superadmin/company-services";
 
-export const useCompanyStore = defineStore("company", {
+export const useSuperadminCompanyStore = defineStore("superadminCompany", {
   state: () => ({
     loadingList: false,
     loadingWrite: false,
     loadingDetail: false,
-    listParams: null as
-      | (QueryParams & { search?: string; status?: string })
-      | null,
+    listParams: null as (QueryParams & { search?: string }) | null,
     data: {} as ResponseApi<CompanyType>,
     dataDetail: {} as ResponseApiDetail<CompanyType>,
     selectedData: {} as CompanyType,
@@ -30,51 +27,54 @@ export const useCompanyStore = defineStore("company", {
     setSelectedData(data: CompanyType) {
       this.selectedData = data;
     },
-    async getDataCompany(
-      params: QueryParams & { search?: string; status?: string }
-    ) {
+
+    async getDataCompanies(params: QueryParams & { search?: string }) {
       this.loadingList = true;
       this.listParams = params;
+
       try {
-        const response: any = await getCompany(params);
+        const response: any = await getSuperadminCompanies(params);
+        const pagination = response.data?.pagination ?? {};
 
         this.data = {
           code: response.code ?? 200,
           data: {
             data: response.data?.list ?? [],
-            limit: response.data?.pagination?.page_size ?? params.limit,
-            page: response.data?.pagination?.page ?? params.page,
-            total: response.data?.pagination?.total_count ?? 0,
-            total_pages: response.data?.pagination?.total_pages ?? 1,
+            limit:
+              pagination.page_size ??
+              pagination.limit ??
+              params.limit,
+            page: pagination.page ?? params.page,
+            total: pagination.total_count ?? 0,
+            total_pages: pagination.total_pages ?? 1,
           },
           error: response.error ?? "",
           message: response.message ?? "",
           success: response.success ?? true,
         };
       } catch (error) {
-        toast.error("Failed get data company", {
+        toast.error("Failed get data companies (superadmin)", {
           toastClassName: "toastify-error",
         });
         throw error;
       } finally {
-        // toast
         this.loadingList = false;
       }
     },
 
-    async refetchDataCompany() {
+    async refetchDataCompanies() {
       if (!this.listParams) return;
-      await this.getDataCompany(this.listParams);
+      await this.getDataCompanies(this.listParams);
     },
 
-    async createDataCompany(body: any) {
+    async createCompany(body: any) {
       this.loadingWrite = true;
       try {
-        await postCompany(body);
-        toast.success("Success create data company");
+        await postSuperadminCompany(body);
+        toast.success("Success create company");
         return true;
       } catch (error) {
-        toast.error("Failed create data company", {
+        toast.error("Failed create company", {
           toastClassName: "toastify-error",
         });
         throw error;
@@ -83,14 +83,14 @@ export const useCompanyStore = defineStore("company", {
       }
     },
 
-    async updateDataCompany(body: any) {
+    async updateCompany(body: any) {
       this.loadingWrite = true;
       try {
-        await putCompany(body);
-        toast.success("Success update data company");
+        await putSuperadminCompany(body);
+        toast.success("Success update company");
         return true;
       } catch (error) {
-        toast.error("Failed update data company", {
+        toast.error("Failed update company", {
           toastClassName: "toastify-error",
         });
         throw error;
@@ -99,14 +99,14 @@ export const useCompanyStore = defineStore("company", {
       }
     },
 
-    async deleteDataCompany({ id }: { id: string }) {
+    async deleteCompany({ id }: { id: string }) {
       this.loadingWrite = true;
       try {
-        await deleteCompany({ id });
-        toast.success("Success delete data company");
+        await deleteSuperadminCompany({ id });
+        toast.success("Success delete company");
         return true;
       } catch (error) {
-        toast.error("Failed delete data company", {
+        toast.error("Failed delete company", {
           toastClassName: "toastify-error",
         });
         throw error;
@@ -116,3 +116,4 @@ export const useCompanyStore = defineStore("company", {
     },
   },
 });
+

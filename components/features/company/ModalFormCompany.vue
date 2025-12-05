@@ -75,7 +75,8 @@ const modalInstance = ref<ElementEvent | null>(null);
 
 const companyStore = useCompanyStore();
 const { loadingWrite, selectedData } = storeToRefs(companyStore);
-const { createDataCompany, updateDataCompany, getDataCompany } = companyStore;
+const { createDataCompany, updateDataCompany, refetchDataCompany } =
+  companyStore;
 
 const formSchema = object({
   name: string().required("Company Name is required"),
@@ -135,7 +136,7 @@ async function handleFormSubmit(values: Record<string, any>) {
     const action =
       props.mode === "update" ? updateDataCompany : createDataCompany;
     await action(values);
-    await getDataCompany({ page: 1, limit: 10 });
+    await refetchDataCompany();
     handleCancel();
 
     return true;

@@ -1,13 +1,36 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useAuthStore } from "~/store/auth";
 import { usePageStore } from "~/store/page";
 import type { ElementEvent } from "~/types/element";
+import type { SessionResponseType } from "~/types/user-type";
+import { capitalizeString } from "~/utils/functions";
 
 const $auth = useAuthStore();
 const $router = useRouter();
 const $page = usePageStore();
 const { data } = useAuth();
+
+const sessionData = computed<SessionResponseType | null>(() => {
+  return (data.value as SessionResponseType | null) ?? null;
+});
+
+const displayName = computed(() => {
+  const session = sessionData.value;
+  if (!session?.data) return "User";
+
+  const { first_name, last_name, email } = session.data;
+  const fullName = [first_name, last_name].filter(Boolean).join(" ");
+
+  return fullName || email || "User";
+});
+
+const displayRole = computed(() => {
+  const roleName = sessionData.value?.data?.role?.name || "";
+  if (!roleName) return "";
+
+  return capitalizeString(roleName, "_");
+});
 
 const emit = defineEmits(["on-click-open-sidebar"]);
 const modalLogout = ref<ElementEvent | null>(null);

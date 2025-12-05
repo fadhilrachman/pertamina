@@ -154,7 +154,7 @@ const formFields = computed<FieldConfig[]>(() => [
     type: "text",
     placeholder: "e.g., BMW",
     grid: 6,
-    // requiredMark: true,
+    requiredMark: true,
     // options: vehicleOptions.value,
     // disabled: !values.facility_id,
   },

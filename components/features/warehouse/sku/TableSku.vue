@@ -93,7 +93,7 @@ const handleConfirmDelete = async () => {
   if (!selectedSku.value) return;
   try {
     await facilitiesSkuStore.deleteDataFacilitiesSku({
-      id: String(selectedSku.value.id),
+      id: String(selectedSku.value.sku_id),
       facility_id: warehouseId.value,
     });
     facilitiesSkuStore.getDataFacilitiesSku({

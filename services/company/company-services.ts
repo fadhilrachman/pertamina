@@ -6,8 +6,23 @@ export async function postCompany(payload: CompanyType) {
   return await api.post("/api/v1/companies", { body: payload });
 }
 
-export async function getCompany(params: QueryParams) {
-  return await api.get("/api/v1/companies", { queryParams: params });
+export async function getCompany(
+  params: QueryParams & { search?: string; status?: string }
+) {
+  const queryParams: Record<string, string> = {
+    page: String(params.page),
+    page_size: String(params.limit),
+  };
+
+  if (params.search) {
+    queryParams.search_value = params.search;
+  }
+
+  if (params.status) {
+    queryParams.status = params.status;
+  }
+
+  return await api.get("/api/v1/companies", { queryParams });
 }
 
 export async function putCompany(payload: CompanyType & { id: string }) {
