@@ -3,6 +3,7 @@ import { computed, watch } from "vue";
 import { storeToRefs } from "pinia";
 import Modal from "~/components/general/Modal/index.vue";
 import type { ElementEvent } from "~/types/element";
+import type { QueryParams } from "~/types/common";
 import { useStockTransaction } from "~/store/stock-management/stock-transaction-store";
 import type { StockTransactionType } from "~/types/stock-transaction-type";
 
@@ -34,7 +35,11 @@ const stockTransactionStore = useStockTransaction();
 const { data, loadingList } = storeToRefs(stockTransactionStore);
 
 const fetchHistory = async () => {
-  const params: Record<string, any> = {
+  const params: QueryParams & {
+    facility_id?: string;
+    sku_id?: string;
+    trx_type?: string;
+  } = {
     page: 1,
     limit: 50,
     trx_type: "adjusment",
