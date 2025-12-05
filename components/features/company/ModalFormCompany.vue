@@ -61,15 +61,15 @@ const formFields: FieldConfig[] = [
     placeholder: "Set account password",
     grid: 6,
   },
-  {
-    name: "logo",
-    label: "Upload Logo Image",
-    requiredMark: false,
-    type: "file",
-    placeholder: "Upload company logo",
-    grid: 12,
-    helperText: "PNG/JPG up to 2MB",
-  },
+  // {
+  //   name: "logo",
+  //   label: "Upload Logo Image",
+  //   requiredMark: false,
+  //   type: "file",
+  //   placeholder: "Upload company logo",
+  //   grid: 12,
+  //   helperText: "PNG/JPG up to 2MB",
+  // },
 ];
 const modalInstance = ref<ElementEvent | null>(null);
 
@@ -84,7 +84,7 @@ const formSchema = object({
   address: string().required("Address is required"),
   email: string().email().required("Email is required"),
   password: string().required("Password is required"),
-  logo: mixed().nullable(),
+  // logo: mixed().nullable(),
 });
 
 const createInitialValues = (): CompanyType => ({
