@@ -68,7 +68,7 @@ export const sidebarMenu: ISidebar[] = [
     visibleForRole: "administrator",
     menu: [
       {
-        label: "Companies",
+        label: "Company",
         id: "menu__superadmin-companies",
         route: "/superadmin/company",
         icon: markRaw(IconsBuilding),
