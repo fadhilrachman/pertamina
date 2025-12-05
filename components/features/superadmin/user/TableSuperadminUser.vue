@@ -7,12 +7,18 @@ import type { ElementEvent } from "~/types/element";
 import type { UserType } from "~/types/user-type";
 import { useSuperadminUserStore } from "~/store/superadmin/user-store";
 import { formatTableDate } from "~/utils/functions";
+import ModalFormSuperadminUser from "./ModalFormSuperadminUser.vue";
 
 const userStore = useSuperadminUserStore();
 const { data, loadingWrite, loadingList } = storeToRefs(userStore);
 
 const deleteModalRef = ref<ElementEvent | null>(null);
 const selectedUser = ref<UserType | null>(null);
+
+const modalAddRef = ref<InstanceType<typeof ModalFormSuperadminUser> | null>(
+  null
+);
+const formModeRef = ref<"add" | "update">("add");
 
 const params = reactive({
   search: "",
@@ -64,6 +70,19 @@ const handlePageSizeChange = (pageSize: number) => {
   params.page = 1;
 };
 
+const openAddUserModal = () => {
+  formModeRef.value = "add";
+  selectedUser.value = null;
+  modalAddRef.value?.open();
+};
+
+const openUpdateUserModal = (row: UserType) => {
+  userStore.setSelectedData(row);
+  formModeRef.value = "update";
+  selectedUser.value = row;
+  modalAddRef.value?.open();
+};
+
 watch(
   () => ({ ...params }),
   () => {
@@ -85,6 +104,17 @@ onMounted(() => {
         title="Users (Superadmin)"
         subtitle="Manage all users in the system"
       />
+      <div class="flex justify-between space-x-2">
+        <GeneralButton
+          color="primary"
+          label="Add User"
+          @on-click="openAddUserModal"
+        >
+          <template #prefix>
+            <IconsPlus size="18" class="text-white" />
+          </template>
+        </GeneralButton>
+      </div>
     </header>
 
     <section class="flex bg-white p-6 rounded-xl items-end space-x-2">
@@ -112,6 +142,16 @@ onMounted(() => {
           <template #cell-actions="{ row }">
             <div class="flex justify-end gap-2">
               <GeneralIconButton
+                class="h-9 w-9"
+                color="default"
+                :ghost="true"
+                @on-click="openUpdateUserModal(row as UserType)"
+              >
+                <template #icon>
+                  <IconsEdit size="16" class="text-gray-700" />
+                </template>
+              </GeneralIconButton>
+              <GeneralIconButton
                 class="h-9 w-9 bg-white"
                 color="default"
                 :bordered="false"
@@ -133,6 +173,8 @@ onMounted(() => {
         />
       </div>
     </section>
+
+    <ModalFormSuperadminUser ref="modalAddRef" :mode="formModeRef" />
 
     <ModalDelete
       id="modal-delete-superadmin-user"

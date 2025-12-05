@@ -29,6 +29,7 @@ export const sidebarMenu: ISidebar[] = [
     label: "Company",
     route: "/company",
     icon: markRaw(IconsBuilding),
+    visibleForRole: "non-administrator",
   },
   // {
   //   id: "menu__superadmin-companies",
@@ -42,6 +43,7 @@ export const sidebarMenu: ISidebar[] = [
     id: "menu__user-management",
     startWith: "/user-management",
     isOpen: false,
+    visibleForRole: "non-administrator",
     menu: [
       {
         label: "User",
@@ -55,6 +57,28 @@ export const sidebarMenu: ISidebar[] = [
       //   route: "/user-management/roles",
       //   icon: markRaw(IconsUserRole),
       // },
+    ],
+  },
+  {
+    label: "User Management ", // (Superadmin)
+    icon: markRaw(IconsUser),
+    id: "menu__superadmin",
+    startWith: "/superadmin",
+    isOpen: false,
+    visibleForRole: "administrator",
+    menu: [
+      {
+        label: "Companies",
+        id: "menu__superadmin-companies",
+        route: "/superadmin/company",
+        icon: markRaw(IconsBuilding),
+      },
+      {
+        label: "Users",
+        id: "menu__superadmin-users",
+        route: "/superadmin/user",
+        icon: markRaw(IconsUser),
+      },
     ],
   },
   {
@@ -110,27 +134,7 @@ export const sidebarMenu: ISidebar[] = [
     route: "/warehouse",
     icon: markRaw(IconsBuilding),
   },
-  // {
-  //   label: "Superadmin",
-  //   icon: markRaw(IconsUser),
-  //   id: "menu__superadmin",
-  //   startWith: "/superadmin",
-  //   isOpen: false,
-  //   menu: [
-  //     {
-  //       label: "Companies",
-  //       id: "menu__superadmin-companies",
-  //       route: "/superadmin/company",
-  //       icon: markRaw(IconsBuilding),
-  //     },
-  //     {
-  //       label: "Users",
-  //       id: "menu__superadmin-users",
-  //       route: "/superadmin/user",
-  //       icon: markRaw(IconsUser),
-  //     },
-  //   ],
-  // },
+
   // {
   //   label: "Master Data",
   //   icon: markRaw(IconsDatabase),

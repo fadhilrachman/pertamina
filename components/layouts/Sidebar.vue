@@ -2,12 +2,22 @@
 import { useActiveRoute } from "@/composables/useActiveRoute";
 import { sidebarMenu } from "@/constant/sidebar";
 import type { IChildSidebar, ISidebar } from "@/types/sidebar";
+import type { SessionResponseType } from "~/types/user-type";
 import Logo from "~/assets/image/logo-pertamina-drilling.png";
 const { data } = useAuth();
 const route = useRoute();
 const { isActive } = useActiveRoute();
 
 let menuData = reactive(sidebarMenu);
+
+const sessionRoleName = computed(() => {
+  const raw = data.value as SessionResponseType | null;
+  return raw?.data?.role?.name || "";
+});
+
+const isAdministrator = computed(
+  () => sessionRoleName.value.toLowerCase() === "administrator"
+);
 
 const emit = defineEmits(["on-mounted", "on-click-close-sidebar"]);
 
@@ -37,8 +47,8 @@ const getActiveClass = (route: string) => {
   return isActive(route) ? "stroke-primary-600" : "stroke-gray-700";
 };
 
-const toggleMenu = (index: number) => {
-  menuData[index].isOpen = !menuData[index].isOpen;
+const toggleMenu = (item: ISidebar) => {
+  item.isOpen = !item.isOpen;
 };
 
 const getIconWrapperClass = (destination: string) => {
@@ -62,6 +72,22 @@ const getChevronIconClass = (menuItem: ISidebar) => {
   const state = getIconMenuActive(menuItem?.startWith || "");
   return `${base} ${rotation} ${state}`.trim();
 };
+
+const filteredMenu = computed(() =>
+  menuData.filter((menuItem: ISidebar) => {
+    const visibleFor = menuItem.visibleForRole;
+
+    if (visibleFor === "administrator" && !isAdministrator.value) {
+      return false;
+    }
+
+    if (visibleFor === "non-administrator" && isAdministrator.value) {
+      return false;
+    }
+
+    return true;
+  })
+);
 
 watchEffect(() => {
   menuData = menuData.map((menuItem: ISidebar) => {
@@ -112,12 +138,12 @@ watchEffect(() => {
 
     <div class="px-4 whitespace-nowrap">
       <ul class="space-y-2">
-        <li v-for="(menuItem, index) in menuData" :key="menuItem.id">
+        <li v-for="menuItem in filteredMenu" :key="menuItem.id">
           <template v-if="menuItem.menu && menuItem.menu.length > 0">
             <button
               class="w-full flex items-center justify-between text-sm"
               :class="getMenuActiveClass(menuItem?.startWith || '')"
-              @click="toggleMenu(index)"
+              @click="toggleMenu(menuItem)"
             >
               <div class="flex items-center gap-3">
                 <span

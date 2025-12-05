@@ -34,19 +34,68 @@ export const useSuperadminCompanyStore = defineStore("superadminCompany", {
 
       try {
         const response: any = await getSuperadminCompanies(params);
-        const pagination = response.data?.pagination ?? {};
+
+        const raw = response.data ?? {};
+
+        let list: CompanyType[] = [];
+        let limit = params.limit;
+        let page = params.page;
+        let total = 0;
+        let total_pages = 1;
+
+        if (Array.isArray(raw.data)) {
+          // Shape: { data: [...], limit, page, total, total_pages }
+          list = raw.data;
+          limit = raw.limit ?? limit;
+          page = raw.page ?? page;
+          total = raw.total ?? total;
+          total_pages = raw.total_pages ?? total_pages;
+        } else if (Array.isArray(raw.list)) {
+          // Shape: { list: [...], pagination: {...} }
+          const pagination = raw.pagination ?? {};
+          list = raw.list;
+          limit =
+            pagination.page_size ?? pagination.limit ?? limit;
+          page = pagination.page ?? page;
+          total = pagination.total_count ?? total;
+          total_pages = pagination.total_pages ?? total_pages;
+        } else if (Array.isArray(raw)) {
+          // Shape: data is directly an array
+          list = raw;
+        } else if (raw && typeof raw === "object") {
+          // Shape: { 0: {...}, 1: {...}, ..., limit, page, total, total_pages }
+          const {
+            limit: rawLimit,
+            page: rawPage,
+            total: rawTotal,
+            total_pages: rawTotalPages,
+            ...rest
+          } = raw as Record<string, any>;
+
+          limit = rawLimit ?? limit;
+          page = rawPage ?? page;
+          total = rawTotal ?? total;
+          total_pages = rawTotalPages ?? total_pages;
+
+          list = Object.values(rest).filter(
+            (item: any) =>
+              item &&
+              typeof item === "object" &&
+              !("limit" in item) &&
+              !("page" in item) &&
+              !("total" in item) &&
+              !("total_pages" in item)
+          );
+        }
 
         this.data = {
           code: response.code ?? 200,
           data: {
-            data: response.data?.list ?? [],
-            limit:
-              pagination.page_size ??
-              pagination.limit ??
-              params.limit,
-            page: pagination.page ?? params.page,
-            total: pagination.total_count ?? 0,
-            total_pages: pagination.total_pages ?? 1,
+            data: list,
+            limit,
+            page,
+            total,
+            total_pages,
           },
           error: response.error ?? "",
           message: response.message ?? "",
@@ -116,4 +165,3 @@ export const useSuperadminCompanyStore = defineStore("superadminCompany", {
     },
   },
 });
-
