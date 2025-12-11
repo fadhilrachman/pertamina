@@ -55,8 +55,7 @@ export const useSuperadminCompanyStore = defineStore("superadminCompany", {
           // Shape: { list: [...], pagination: {...} }
           const pagination = raw.pagination ?? {};
           list = raw.list;
-          limit =
-            pagination.page_size ?? pagination.limit ?? limit;
+          limit = pagination.page_size ?? pagination.limit ?? limit;
           page = pagination.page ?? page;
           total = pagination.total_count ?? total;
           total_pages = pagination.total_pages ?? total_pages;
@@ -103,7 +102,7 @@ export const useSuperadminCompanyStore = defineStore("superadminCompany", {
           success: response.success ?? true,
         };
       } catch (error) {
-        toast.error("Failed get data companies (superadmin)", {
+        toast.error("Failed get data companies ", {
           toastClassName: "toastify-error",
         });
         throw error;

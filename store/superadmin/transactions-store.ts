@@ -68,8 +68,7 @@ export const useSuperadminTransactionsStore = defineStore(
           } else if (Array.isArray(raw.list)) {
             const pagination = raw.pagination ?? {};
             list = raw.list;
-            limit =
-              pagination.page_size ?? pagination.limit ?? limit;
+            limit = pagination.page_size ?? pagination.limit ?? limit;
             page = pagination.page ?? page;
             total = pagination.total_count ?? total;
             total_pages = pagination.total_pages ?? total_pages;
@@ -121,7 +120,7 @@ export const useSuperadminTransactionsStore = defineStore(
             success: response.success ?? true,
           };
         } catch (error) {
-          toast.error("Failed get data transactions (superadmin)", {
+          toast.error("Failed get data transactions ", {
             toastClassName: "toastify-error",
           });
           throw error;

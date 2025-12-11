@@ -10,6 +10,13 @@ export const useAuthStore = defineStore("auth", {
     password: "",
   }),
   actions: {
+    resolveRedirectPath(sessionData: any) {
+      const roleName = sessionData?.role?.name?.toLowerCase?.();
+      const isSuperadmin =
+        roleName === "superadmin" || sessionData?.is_superadmin === true;
+      return isSuperadmin ? "/superadmin/dashboard" : "/dashboard";
+    },
+
     async login() {
       // const router = useRouter();
 
@@ -45,7 +52,8 @@ export const useAuthStore = defineStore("auth", {
         setupCookies();
         // const router = useRouter();
         // router.push("/dashboard");
-        window.location.href = "/dashboard";
+        const session = (data.value as any)?.data ?? {};
+        window.location.href = this.resolveRedirectPath(session);
 
         return true;
       } catch (error: unknown) {
@@ -82,7 +90,10 @@ export const useAuthStore = defineStore("auth", {
           },
         }).catch(() => {}); // Ignore errors
 
-        await signOut({ callbackUrl: "/login", external: true });
+        // Some environments may not support server logout endpoint; fall back to client-only redirect.
+        await signOut({ callbackUrl: "/login", external: true }).catch(() => {
+          // Swallow errors to avoid blocking logout UX
+        });
         window.location.href = "/login";
 
         return true;

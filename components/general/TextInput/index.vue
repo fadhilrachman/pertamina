@@ -56,6 +56,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  suffixInteractive: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(["on-input", "on-click-clear", "update:modelValue"]);
@@ -190,7 +194,7 @@ function onInput(value: any) {
           @click="onClickClear"
         />
 
-        <div class="pointer-events-none">
+        <div :class="[props.suffixInteractive ? '' : 'pointer-events-none']">
           <slot name="suffix" />
         </div>
       </div>

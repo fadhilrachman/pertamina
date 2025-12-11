@@ -52,8 +52,7 @@ export const useSuperadminFacilitiesStore = defineStore(
           } else if (Array.isArray(raw.list)) {
             const pagination = raw.pagination ?? {};
             list = raw.list;
-            limit =
-              pagination.page_size ?? pagination.limit ?? limit;
+            limit = pagination.page_size ?? pagination.limit ?? limit;
             page = pagination.page ?? page;
             total = pagination.total_count ?? total;
             total_pages = pagination.total_pages ?? total_pages;
@@ -98,7 +97,7 @@ export const useSuperadminFacilitiesStore = defineStore(
             success: response.success ?? true,
           };
         } catch (error) {
-          toast.error("Failed get data facilities (superadmin)", {
+          toast.error("Failed get data facilities ", {
             toastClassName: "toastify-error",
           });
           throw error;
@@ -114,4 +113,3 @@ export const useSuperadminFacilitiesStore = defineStore(
     },
   }
 );
-

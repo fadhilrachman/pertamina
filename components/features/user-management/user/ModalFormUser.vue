@@ -180,6 +180,7 @@ const close = () => {
 };
 
 const handleCancel = () => {
+  form.resetForm({ values: createInitialValues() });
   close();
 };
 

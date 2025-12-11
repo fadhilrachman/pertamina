@@ -40,8 +40,8 @@ const formatStatusLabel = (status: string | undefined) => {
 };
 
 const $page = usePageStore();
-const stockOnHandStore = useSuperadminStockOnHandStore();
-const facilitiesStore = useSuperadminFacilitiesStore();
+const stockOnHandStore = useStockOnHand();
+const facilitiesStore = useFacilitiesStore();
 const skuStore = useSkuStore();
 const { data: dataFacilities } = storeToRefs(facilitiesStore);
 const { data: dataSkuStore } = storeToRefs(skuStore);

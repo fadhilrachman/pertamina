@@ -11,6 +11,7 @@ import {
   getSuperadminUsers,
   postSuperadminUser,
   putSuperadminUser,
+  getSuperadminUserDetail,
   type SuperadminCreateUserPayload,
   type SuperadminUpdateUserPayload,
 } from "~/services/superadmin/user-services";
@@ -26,6 +27,12 @@ export const useSuperadminUserStore = defineStore("superadminUser", {
     selectedData: {} as UserType,
   }),
   actions: {
+    getErrorMessage(error: any) {
+      if (error?.data?.message) return error.data.message;
+      if (error?.response?.data?.message) return error.response.data.message;
+      if (typeof error?.message === "string") return error.message;
+      return "Something went wrong";
+    },
     setSelectedData(data: UserType) {
       this.selectedData = data;
     },
@@ -56,10 +63,7 @@ export const useSuperadminUserStore = defineStore("superadminUser", {
           // Shape: { list: [...], pagination: {...} }
           const pagination = raw.pagination ?? {};
           rawList = raw.list;
-          limit =
-            pagination.page_size ??
-            pagination.limit ??
-            limit;
+          limit = pagination.page_size ?? pagination.limit ?? limit;
           page = pagination.page ?? page;
           total = pagination.total_count ?? total;
           total_pages = pagination.total_pages ?? total_pages;
@@ -96,6 +100,15 @@ export const useSuperadminUserStore = defineStore("superadminUser", {
           const firstName = item.first_name ?? "";
           const lastName = item.last_name ?? "";
           const fullName = `${firstName} ${lastName}`.trim();
+          const companies =
+            item.companies && Array.isArray(item.companies)
+              ? item.companies
+              : [];
+          const company_ids = companies
+            .map(
+              (company: any) => company?.company_id ?? company?.id ?? undefined
+            )
+            .filter(Boolean);
 
           return {
             id: item.id ?? "",
@@ -107,6 +120,8 @@ export const useSuperadminUserStore = defineStore("superadminUser", {
             first_name: firstName || undefined,
             last_name: lastName || undefined,
             is_superadmin: item.is_superadmin ?? undefined,
+            companies,
+            company_ids,
           };
         });
 
@@ -124,12 +139,63 @@ export const useSuperadminUserStore = defineStore("superadminUser", {
           success: response.success ?? true,
         };
       } catch (error) {
-        toast.error("Failed get data users (superadmin)", {
+        toast.error("Failed get data users ", {
           toastClassName: "toastify-error",
         });
         throw error;
       } finally {
         this.loadingList = false;
+      }
+    },
+
+    async getUserDetail({ id }: { id: string }) {
+      this.loadingDetail = true;
+      try {
+        const response: any = await getSuperadminUserDetail({ id });
+        const raw = response?.data ?? response ?? {};
+        const detail = raw?.data ?? raw ?? {};
+
+        const companies =
+          detail.companies && Array.isArray(detail.companies)
+            ? detail.companies
+            : [];
+        const company_ids = companies
+          .map(
+            (company: any) => company?.company_id ?? company?.id ?? undefined
+          )
+          .filter(Boolean);
+
+        const data: UserType = {
+          id: detail.id ?? "",
+          name: `${detail.first_name ?? ""} ${detail.last_name ?? ""}`.trim(),
+          email: detail.email ?? "",
+          role: detail.is_superadmin ? "Superadmin" : "User",
+          status: detail.status ?? "",
+          created_at: detail.created_at ?? "",
+          first_name: detail.first_name ?? undefined,
+          last_name: detail.last_name ?? undefined,
+          is_superadmin: detail.is_superadmin ?? undefined,
+          companies,
+          company_ids,
+        };
+
+        this.dataDetail = {
+          code: response.code ?? 200,
+          success: response.success ?? true,
+          message: response.message ?? "",
+          data,
+          error: response.error ?? "",
+        };
+
+        this.selectedData = data;
+        return data;
+      } catch (error) {
+        toast.error("Failed get user detail ", {
+          toastClassName: "toastify-error",
+        });
+        throw error;
+      } finally {
+        this.loadingDetail = false;
       }
     },
 
@@ -145,7 +211,7 @@ export const useSuperadminUserStore = defineStore("superadminUser", {
         toast.success("Success create user");
         return true;
       } catch (error) {
-        toast.error("Failed create user", {
+        toast.error(this.getErrorMessage(error), {
           toastClassName: "toastify-error",
         });
         throw error;
@@ -161,7 +227,7 @@ export const useSuperadminUserStore = defineStore("superadminUser", {
         toast.success("Success update user");
         return true;
       } catch (error) {
-        toast.error("Failed update user", {
+        toast.error(this.getErrorMessage(error), {
           toastClassName: "toastify-error",
         });
         throw error;

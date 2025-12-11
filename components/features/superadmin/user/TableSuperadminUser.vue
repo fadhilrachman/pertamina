@@ -76,11 +76,19 @@ const openAddUserModal = () => {
   modalAddRef.value?.open();
 };
 
-const openUpdateUserModal = (row: UserType) => {
+const openUpdateUserModal = async (row: UserType) => {
   userStore.setSelectedData(row);
   formModeRef.value = "update";
   selectedUser.value = row;
-  modalAddRef.value?.open();
+
+  try {
+    await userStore.getUserDetail({ id: String(row.id) });
+  } catch (error) {
+    // Keep the modal usable even if detail fetch fails
+    console.error("Failed to fetch user detail", error);
+  } finally {
+    modalAddRef.value?.open();
+  }
 };
 
 watch(
@@ -100,10 +108,7 @@ onMounted(() => {
 <template>
   <section class="space-y-8">
     <header class="flex justify-between items-end">
-      <GeneralTitle
-        title="Users (Superadmin)"
-        subtitle="Manage all users in the system"
-      />
+      <GeneralTitle title="Users " subtitle="Manage all users in the system" />
       <div class="flex justify-between space-x-2">
         <GeneralButton
           color="primary"
@@ -187,4 +192,3 @@ onMounted(() => {
     />
   </section>
 </template>
-

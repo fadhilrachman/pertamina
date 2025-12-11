@@ -9,6 +9,16 @@ export interface UserType {
   last_name?: string;
   role_id?: string;
   is_superadmin?: boolean;
+  companies?: Array<{
+    company_id?: string;
+    company_name?: string;
+    is_default?: boolean;
+    role_id?: string;
+    role_name?: string;
+    id?: string;
+    name?: string;
+  }>;
+  company_ids?: Array<string | number>;
 }
 
 export interface SessionRoleType {

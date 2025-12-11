@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { watch, type PropType } from "vue";
+import { reactive, watch, type PropType } from "vue";
 import {
   Field,
   ErrorMessage,
@@ -20,7 +20,8 @@ type FieldType =
   | "select"
   | "file"
   | "search-select"
-  | "array";
+  | "array"
+  | "switch";
 
 interface SelectOption {
   id: string | number;
@@ -47,6 +48,12 @@ export interface FieldConfig {
   minItems?: number;
   maxItems?: number;
   creatable?: boolean;
+  // switch-type specific config
+  switchLabel?: string;
+  trueValue?: string | number;
+  falseValue?: string | number;
+  // password helpers
+  togglePassword?: boolean;
 }
 
 const listColSpan = {
@@ -101,6 +108,7 @@ const emit = defineEmits<{
 }>();
 
 const { handleSubmit, values, setValues } = props.formContext;
+const passwordVisibility = reactive<Record<string, boolean>>({});
 
 watch(
   () => props.modelValue,
@@ -209,6 +217,29 @@ function updateArrayItem(
   control.onChange(updated);
 }
 
+function togglePasswordVisibility(field: FieldConfig) {
+  passwordVisibility[field.name] = !passwordVisibility[field.name];
+}
+
+function resolveInputType(field: FieldConfig) {
+  if (field.type === "password" && field.togglePassword) {
+    return passwordVisibility[field.name] ? "text" : "password";
+  }
+  return field.type;
+}
+
+function toggleSwitchValue(
+  field: FieldConfig,
+  control: FieldSlotProps["field"]
+) {
+  const trueValue = field.trueValue ?? "true";
+  const falseValue = field.falseValue ?? "false";
+  const isOn =
+    String(control.value ?? "") === String(trueValue);
+  const next = isOn ? falseValue : trueValue;
+  control.onChange(next);
+}
+
 function baseInputClasses(disabled?: boolean) {
   const cursor = disabled ? "cursor-not-allowed" : "cursor-text";
   const background = disabled
@@ -291,14 +322,37 @@ function fileInputClasses(invalid: boolean, disabled?: boolean) {
             <GeneralTextInput
               :id="`${id}-${field.name}`"
               :model-value="fieldBinding.value"
-              :type="field.type"
+              :type="resolveInputType(field)"
               :placeholder="field.placeholder"
               :disabled="field.disabled"
               :invalid="meta.touched && !meta.valid"
               :min="field.min"
               :max="field.max"
+              :suffix-interactive="field.type === 'password' && field.togglePassword"
               @update:model-value="fieldBinding.onChange"
-            />
+            >
+              <template
+                v-if="field.type === 'password' && field.togglePassword"
+                #suffix
+              >
+                <button
+                  type="button"
+                  class="p-1 text-gray-600 hover:text-gray-800 focus:outline-none"
+                  @click.stop="togglePasswordVisibility(field)"
+                >
+                  <IconsEye
+                    v-if="!passwordVisibility[field.name]"
+                    size="18"
+                    class="stroke-current"
+                  />
+                  <IconsEyeOff
+                    v-else
+                    size="18"
+                    class="stroke-current"
+                  />
+                </button>
+              </template>
+            </GeneralTextInput>
           </template>
 
           <template v-else-if="field.type === 'textarea'">
@@ -345,6 +399,40 @@ function fileInputClasses(invalid: boolean, disabled?: boolean) {
               :multiple="field.multiple"
               @update:model-value="fieldBinding.onChange"
             />
+          </template>
+          <template v-else-if="field.type === 'switch'">
+            <div
+              class="mt-1 flex items-center justify-between rounded-lg border border-gray-200 bg-white px-3 py-2"
+            >
+              <div class="flex flex-col">
+                <span class="text-sm font-medium text-gray-700">
+                  {{ field.switchLabel || "Enable" }}
+                </span>
+              </div>
+              <button
+                type="button"
+                class="relative inline-flex h-6 w-11 items-center rounded-full transition focus:outline-none disabled:cursor-not-allowed"
+                :class="[
+                  String(fieldBinding.value ?? '') ===
+                  String(field.trueValue ?? 'true')
+                    ? 'bg-primary-500'
+                    : 'bg-gray-300',
+                  field.disabled ? 'opacity-70' : '',
+                ]"
+                :disabled="field.disabled"
+                @click="toggleSwitchValue(field, fieldBinding)"
+              >
+                <span
+                  class="inline-block h-5 w-5 transform rounded-full bg-white shadow transition"
+                  :class="
+                    String(fieldBinding.value ?? '') ===
+                    String(field.trueValue ?? 'true')
+                      ? 'translate-x-5'
+                      : 'translate-x-0'
+                  "
+                />
+              </button>
+            </div>
           </template>
 
           <template v-else-if="field.type === 'array'">

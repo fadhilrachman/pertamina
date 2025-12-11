@@ -95,10 +95,7 @@ onMounted(() => {
 <template>
   <section class="space-y-8">
     <header class="flex justify-between items-end">
-      <GeneralTitle
-        title="Companies (Superadmin)"
-        subtitle="Manage all companies"
-      />
+      <GeneralTitle title="Companies " subtitle="Manage all companies" />
       <div class="flex justify-between space-x-2">
         <GeneralButton
           color="primary"
@@ -178,4 +175,3 @@ onMounted(() => {
     />
   </section>
 </template>
-

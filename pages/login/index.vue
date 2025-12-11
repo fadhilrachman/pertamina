@@ -2,11 +2,12 @@
 import { useField, useForm } from "vee-validate";
 import { object, string } from "yup";
 import { useAuthStore } from "~/store/auth";
+import type { SessionResponseType } from "~/types/user-type";
 
 definePageMeta({
   auth: {
     unauthenticatedOnly: true,
-    navigateAuthenticatedTo: "/dashboard",
+    // navigateAuthenticatedTo: "/dashboard",
   },
   layout: "login",
   layoutTransition: {
@@ -14,8 +15,9 @@ definePageMeta({
   },
 });
 
-const { getSession } = useAuth();
+const { getSession, data } = useAuth();
 const $auth = useAuthStore();
+const router = useRouter();
 
 const isShowPw = ref();
 const isShowNotificationError = ref(false);
@@ -57,6 +59,11 @@ function handleKeyPress(event: KeyboardEvent) {
 
 onMounted(async () => {
   await getSession();
+  const session = (data.value as SessionResponseType | null) ?? null;
+  if (!session?.data) return;
+
+  const target = $auth.resolveRedirectPath(session.data);
+  router.replace(target);
 });
 </script>
 

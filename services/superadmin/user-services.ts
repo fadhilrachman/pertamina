@@ -7,6 +7,7 @@ export interface SuperadminCreateUserPayload {
   last_name: string;
   password: string;
   is_superadmin?: boolean;
+  company_ids?: Array<string | number>;
 }
 
 export interface SuperadminUpdateUserPayload {
@@ -15,6 +16,7 @@ export interface SuperadminUpdateUserPayload {
   last_name: string;
   password?: string;
   is_superadmin?: boolean;
+  company_ids?: Array<string | number>;
 }
 
 export async function getSuperadminUsers(
@@ -42,6 +44,10 @@ export async function putSuperadminUser(
   return await api.put(`/api/v1/superadmin/users/${payload.id}`, {
     body: payload,
   });
+}
+
+export async function getSuperadminUserDetail(params: { id: string }) {
+  return await api.get(`/api/v1/superadmin/users/${params.id}`);
 }
 
 export async function deleteSuperadminUser(params: { id: string }) {

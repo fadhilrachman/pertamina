@@ -1564,49 +1564,6 @@
             }
           }
         }
-      },
-      "post": {
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
-        "description": "Create a new role",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
-        "tags": ["Role"],
-        "summary": "Create a new role",
-        "parameters": [
-          {
-            "description": "Role data",
-            "name": "request",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/role.RoleRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/helper.Response"
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "schema": {
-              "$ref": "#/definitions/helper.Response"
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "schema": {
-              "$ref": "#/definitions/helper.Response"
-            }
-          }
-        }
       }
     },
     "/api/v1/roles/{id}": {
@@ -1615,108 +1572,6 @@
         "produces": ["application/json"],
         "tags": ["Role"],
         "summary": "Get role by ID (Reference only)",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Role ID",
-            "name": "id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/helper.Response"
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "schema": {
-              "$ref": "#/definitions/helper.Response"
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "schema": {
-              "$ref": "#/definitions/helper.Response"
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "schema": {
-              "$ref": "#/definitions/helper.Response"
-            }
-          }
-        }
-      },
-      "put": {
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
-        "description": "Update an existing role",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
-        "tags": ["Role"],
-        "summary": "Update a role",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Role ID",
-            "name": "id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "description": "Updated role data",
-            "name": "request",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/role.RoleRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/helper.Response"
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "schema": {
-              "$ref": "#/definitions/helper.Response"
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "schema": {
-              "$ref": "#/definitions/helper.Response"
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "schema": {
-              "$ref": "#/definitions/helper.Response"
-            }
-          }
-        }
-      },
-      "delete": {
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
-        "description": "Delete a role by ID",
-        "produces": ["application/json"],
-        "tags": ["Role"],
-        "summary": "Delete a role",
         "parameters": [
           {
             "type": "string",
@@ -2721,6 +2576,297 @@
             "description": "Internal Server Error",
             "schema": {
               "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/superadmin/facilities": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "List facilities with optional filter by company and search",
+        "produces": ["application/json"],
+        "tags": ["Superadmin"],
+        "summary": "List all facilities (Superadmin only)",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Filter by company ID",
+            "name": "company_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Search by name/code",
+            "name": "search",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "Page number",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 20,
+            "description": "Items per page",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/superadmin.ListFacilitiesResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/superadmin/facility-skus": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "List facility SKUs with optional filters by company, facility, sku",
+        "produces": ["application/json"],
+        "tags": ["Superadmin"],
+        "summary": "List facility SKUs (Superadmin only)",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Filter by company ID",
+            "name": "company_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Filter by facility ID",
+            "name": "facility_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Filter by SKU ID",
+            "name": "sku_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Search by description",
+            "name": "search",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "Page number",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 20,
+            "description": "Items per page",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/superadmin.ListFacilitySKUResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/superadmin/stock-on-hand": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "List stock balances with filters (company, facility, sku)",
+        "produces": ["application/json"],
+        "tags": ["Superadmin"],
+        "summary": "List stock on hand (Superadmin only)",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Filter by company ID",
+            "name": "company_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Filter by facility ID",
+            "name": "facility_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Filter by SKU ID",
+            "name": "sku_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "Page number",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 20,
+            "description": "Items per page",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/superadmin.ListStockOnHandResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/superadmin/transactions": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "List stock transactions with filters (company, facility, trx_type, date range)",
+        "produces": ["application/json"],
+        "tags": ["Superadmin"],
+        "summary": "List stock transactions (Superadmin only)",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Filter by company ID",
+            "name": "company_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Filter by facility ID",
+            "name": "facility_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by trx_type (IN, OUT, ADJUST_IN, ADJUST_OUT)",
+            "name": "trx_type",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "description": "Start date (YYYY-MM-DD)",
+            "name": "date_from",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "description": "End date (YYYY-MM-DD)",
+            "name": "date_to",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "Page number",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 20,
+            "description": "Items per page",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/superadmin.ListTransactionsResponse"
+                    }
+                  }
+                }
+              ]
             }
           }
         }
@@ -4845,14 +4991,6 @@
         }
       }
     },
-    "role.RoleRequest": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        }
-      }
-    },
     "sku.CreateSKURequest": {
       "type": "object",
       "required": ["name", "sku_code", "unit"],
@@ -5004,6 +5142,17 @@
         }
       }
     },
+    "stock.FacilityRef": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
     "stock.ListOnHandStockResponse": {
       "type": "object",
       "properties": {
@@ -5065,6 +5214,14 @@
         "category": {
           "type": "string"
         },
+        "facility": {
+          "description": "facility object with id and name",
+          "allOf": [
+            {
+              "$ref": "#/definitions/stock.FacilityRef"
+            }
+          ]
+        },
         "facility_id": {
           "description": "for backward compatibility",
           "type": "string"
@@ -5102,7 +5259,7 @@
           "type": "string"
         },
         "warehouse": {
-          "description": "facility_name",
+          "description": "facility_name (deprecated, use facility.name)",
           "type": "string"
         }
       }
@@ -5396,6 +5553,10 @@
       "type": "object",
       "required": ["email", "first_name", "last_name", "password"],
       "properties": {
+        "company_id": {
+          "description": "Required if IsSuperadmin=false, must be empty if IsSuperadmin=true",
+          "type": "string"
+        },
         "email": {
           "type": "string"
         },
@@ -5455,6 +5616,64 @@
         }
       }
     },
+    "superadmin.FacilityListItem": {
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "company": {
+          "$ref": "#/definitions/superadmin.SimpleRef"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "superadmin.FacilitySKUListItem": {
+      "type": "object",
+      "properties": {
+        "company": {
+          "$ref": "#/definitions/superadmin.SimpleRef"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "facility": {
+          "$ref": "#/definitions/superadmin.SimpleRef"
+        },
+        "high_stock_threshold": {
+          "type": "number"
+        },
+        "id": {
+          "type": "string"
+        },
+        "low_stock_threshold": {
+          "type": "number"
+        },
+        "sku": {
+          "$ref": "#/definitions/superadmin.SimpleRef"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
     "superadmin.ListCompaniesResponse": {
       "type": "object",
       "properties": {
@@ -5472,6 +5691,107 @@
         },
         "total": {
           "type": "integer"
+        },
+        "total_pages": {
+          "type": "integer"
+        }
+      }
+    },
+    "superadmin.ListFacilitiesResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/superadmin.FacilityListItem"
+          }
+        },
+        "limit": {
+          "type": "integer"
+        },
+        "page": {
+          "type": "integer"
+        },
+        "total": {
+          "type": "integer"
+        },
+        "total_pages": {
+          "type": "integer"
+        }
+      }
+    },
+    "superadmin.ListFacilitySKUResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/superadmin.FacilitySKUListItem"
+          }
+        },
+        "limit": {
+          "type": "integer"
+        },
+        "page": {
+          "type": "integer"
+        },
+        "total": {
+          "type": "integer"
+        },
+        "total_pages": {
+          "type": "integer"
+        }
+      }
+    },
+    "superadmin.ListStockOnHandResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/superadmin.StockOnHandItem"
+          }
+        },
+        "limit": {
+          "type": "integer"
+        },
+        "page": {
+          "type": "integer"
+        },
+        "total": {
+          "type": "integer"
+        },
+        "total_pages": {
+          "type": "integer"
+        }
+      }
+    },
+    "superadmin.ListTransactionsResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/superadmin.TransactionListItem"
+          }
+        },
+        "limit": {
+          "type": "integer"
+        },
+        "page": {
+          "type": "integer"
+        },
+        "total": {
+          "type": "integer"
+        },
+        "total_in": {
+          "type": "number"
+        },
+        "total_in_hand_stock": {
+          "type": "number"
+        },
+        "total_out": {
+          "type": "number"
         },
         "total_pages": {
           "type": "integer"
@@ -5501,6 +5821,69 @@
         }
       }
     },
+    "superadmin.SimpleRef": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "superadmin.StockOnHandItem": {
+      "type": "object",
+      "properties": {
+        "company": {
+          "$ref": "#/definitions/superadmin.SimpleRef"
+        },
+        "facility": {
+          "$ref": "#/definitions/superadmin.SimpleRef"
+        },
+        "id": {
+          "type": "string"
+        },
+        "on_hand_qty": {
+          "type": "number"
+        },
+        "sku": {
+          "$ref": "#/definitions/superadmin.SimpleRef"
+        },
+        "updated_at": {
+          "type": "string"
+        }
+      }
+    },
+    "superadmin.TransactionListItem": {
+      "type": "object",
+      "properties": {
+        "company": {
+          "$ref": "#/definitions/superadmin.SimpleRef"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "endpoint": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "purpose": {
+          "type": "string"
+        },
+        "trx_date": {
+          "type": "string"
+        },
+        "trx_no": {
+          "type": "string"
+        },
+        "trx_type": {
+          "type": "string"
+        }
+      }
+    },
     "superadmin.UpdateCompanyRequest": {
       "type": "object",
       "required": ["name"],
@@ -5526,6 +5909,10 @@
       "type": "object",
       "required": ["email", "first_name", "last_name"],
       "properties": {
+        "company_id": {
+          "description": "Required if IsSuperadmin=false, must be empty if IsSuperadmin=true",
+          "type": "string"
+        },
         "email": {
           "type": "string"
         },

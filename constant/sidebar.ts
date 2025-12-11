@@ -23,6 +23,15 @@ export const sidebarMenu: ISidebar[] = [
     route: "/dashboard",
     icon: markRaw(IconsDashboard),
     active: false,
+    visibleForRole: "non-administrator",
+  },
+  {
+    id: "menu__dashboard_superadmin",
+    label: "Dashboard",
+    route: "/superadmin/dashboard",
+    icon: markRaw(IconsDashboard),
+    active: false,
+    visibleForRole: "administrator",
   },
   // {
   //   id: "menu__companies",
@@ -33,7 +42,7 @@ export const sidebarMenu: ISidebar[] = [
   // },
   // {
   //   id: "menu__superadmin-companies",
-  //   label: "Company (Superadmin)",
+  //   label: "Company ",
   //   route: "/superadmin/company",
   //   icon: markRaw(IconsBuilding),
   // },
@@ -60,7 +69,7 @@ export const sidebarMenu: ISidebar[] = [
     ],
   },
   {
-    label: "User Management ", // (Superadmin)
+    label: "User Management ", //
     icon: markRaw(IconsUser),
     id: "menu__superadmin",
     startWith: "/superadmin",

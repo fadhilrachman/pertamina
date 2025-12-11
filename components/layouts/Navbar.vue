@@ -32,6 +32,7 @@ const displayEmail = computed(() => {
 });
 
 const isProfileOpen = ref(false);
+const isLoggingOut = ref(false);
 
 const toggleProfileMenu = () => {
   isProfileOpen.value = !isProfileOpen.value;
@@ -62,7 +63,16 @@ onBeforeUnmount(() => {
 });
 
 async function handleLogout() {
-  await $auth.logout();
+  if (isLoggingOut.value) return;
+  isLoggingOut.value = true;
+  try {
+    await $auth.logout();
+  } catch (error) {
+    console.error("Logout failed", error);
+  } finally {
+    isLoggingOut.value = false;
+    closeProfileMenu();
+  }
 }
 </script>
 
@@ -120,24 +130,14 @@ async function handleLogout() {
             id="navbar-profile-dropdown"
             class="absolute right-0 mt-2 w-64 rounded-lg border bg-white py-2 shadow-lg z-50"
           >
-            <div class="px-4 pb-2 border-b border-gray-100">
-              <p class="text-sm font-semibold text-gray-900">
-                {{ displayName }}
-              </p>
-              <p v-if="displayRole" class="text-xs text-gray-500">
-                {{ displayRole }}
-              </p>
-              <p v-if="displayEmail" class="text-xs text-gray-400 truncate">
-                {{ displayEmail }}
-              </p>
-            </div>
             <button
               type="button"
-              class="flex w-full items-center px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+              class="flex w-full items-center px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-60 disabled:cursor-not-allowed"
+              :disabled="isLoggingOut"
               @click="handleLogout"
             >
               <IconsLogout size="16" class="mr-2 stroke-gray-700" />
-              <span>Log out</span>
+              <span>{{ isLoggingOut ? "Logging out..." : "Log out" }}</span>
             </button>
           </div>
         </div>
