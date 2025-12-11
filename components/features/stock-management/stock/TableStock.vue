@@ -1,13 +1,18 @@
 <script setup lang="ts">
-import { computed, onBeforeMount, onMounted, reactive, ref, watch } from "vue";
+import {
+  computed,
+  nextTick,
+  onBeforeMount,
+  onMounted,
+  reactive,
+  ref,
+  watch,
+} from "vue";
 import { storeToRefs } from "pinia";
-import ModalFormSku from "~/components/features/master-data/sku/ModalFormSku.vue";
-import ModalDelete from "~/components/general/ModalDelete/index.vue";
 import type { TableColumn } from "~/components/general/Table/index.vue";
 import type { ElementEvent } from "~/types/element";
 import { useSkuStore } from "~/store/master-data/sku-store";
 import { usePageStore } from "~/store/page";
-import type { SKUType } from "~/types/sku-type";
 import { useStockOnHand } from "~/store/stock-on-hand/stock-on-hand-store";
 import { useFacilitiesStore } from "~/store/master-data/facilities-store";
 import { formatTableDate } from "~/utils/functions";
@@ -16,6 +21,8 @@ import ModalFormStockOut from "./ModalFormStockOut.vue";
 import ModalFormStockAdjusment from "./ModalFormStockAdjusment.vue";
 import ModalAdjustmentHistory from "../stock-adjustment/ModalAdjustmentHistory.vue";
 import type { StockOnHandType } from "~/types/stock-on-hand-type";
+import type { SessionResponseType } from "~/types/user-type";
+import ModalImportStockAdjustment from "./ModalImportStockAdjustment.vue";
 
 const $page = usePageStore();
 const formModeRef = ref(<"add" | "update">"add");
@@ -25,6 +32,13 @@ const facilitiesStore = useFacilitiesStore();
 const skuStore = useSkuStore();
 const { data: dataFacilities } = storeToRefs(facilitiesStore);
 const { data: dataSkuStore } = storeToRefs(skuStore);
+const { data: authData } = useAuth();
+
+const isManagementRole = computed(() => {
+  const session = authData.value as SessionResponseType | null;
+  const roleName = session?.data?.role?.name || "";
+  return roleName.toLowerCase() === "management";
+});
 
 const facilitiesOptions = computed(
   () =>
@@ -43,14 +57,13 @@ const skuOptions = computed(
 );
 const { data, loadingWrite, loadingList } = storeToRefs(stockOnHandStore);
 
-const stockInModalRef = ref<InstanceType<typeof ModalFormStockIn> | null>(null);
-const stockOutModalRef = ref<InstanceType<typeof ModalFormStockOut> | null>(
-  null
-);
 const stockAdjustmentModalRef = ref<InstanceType<
   typeof ModalFormStockAdjusment
 > | null>(null);
 const historyModalRef = ref<ElementEvent | null>(null);
+const importModalRef = ref<InstanceType<
+  typeof ModalImportStockAdjustment
+> | null>(null);
 
 const params = reactive({
   sku_id: "",
@@ -86,63 +99,15 @@ const handlePageSizeChange = (pageSize: number) => {
   params.page = 1;
 };
 
-const handleStatusChange = (value: string | number) => {
-  params.status = String(value);
-  params.page = 1;
-};
-
-const openStockInModal = () => {
-  formModeRef.value = "add";
-
-  stockInModalRef.value?.open();
-};
-
-const openStockOutModal = () => {
-  formModeRef.value = "add";
-
-  stockOutModalRef.value?.open();
-};
-
-const openUpdateStockInModal = async (row: StockOnHandType) => {
-  console.log({ row });
-
-  stockOnHandStore.setSelectedData(row);
-  formModeRef.value = "update";
-
-  await nextTick();
-  stockInModalRef.value?.open();
-};
-
-const openUpdateStockOutModal = async (row: StockOnHandType) => {
-  stockOnHandStore.setSelectedData(row);
-  formModeRef.value = "update";
-
-  await nextTick();
-  stockOutModalRef.value?.open();
-};
-
 const openStockAdjustmentModal = async (row: StockOnHandType) => {
   stockOnHandStore.setSelectedData(row);
   await nextTick();
   stockAdjustmentModalRef.value?.open();
 };
 
-const fileInputRef = ref<HTMLInputElement | null>(null);
-
-const handleClickImport = () => {
-  fileInputRef.value?.click();
-};
-
-const handleImportFileChange = (event: Event) => {
-  const target = event.target as HTMLInputElement | null;
-  const file = target?.files?.[0];
-  if (!file) return;
-
-  console.log("Selected import file:", file.name);
-  // TODO: call real import API here
-
-  // reset so same file can be chosen again
-  if (target) target.value = "";
+const openImportModal = async () => {
+  await nextTick();
+  importModalRef.value?.open();
 };
 
 const handleHistoryModalMounted = (instance: ElementEvent) => {
@@ -197,33 +162,28 @@ onBeforeMount(() => {
             <IconsHistory size="18" class="text-gray-700" />
           </template>
         </GeneralOutlinedButton>
-        <GeneralButton
-          color="success"
-          label="Download Template"
-          type="button"
-          @on-click="handleDownloadTemplate"
-        >
-          <template #prefix>
-            <IconsDownload size="18" class="text-white" />
-          </template>
-        </GeneralButton>
-        <GeneralButton
-          color="primary"
-          label="Import Bulk"
-          type="button"
-          @on-click="handleClickImport"
-        >
-          <template #prefix>
-            <IconsUpload size="18" class="text-white" />
-          </template>
-        </GeneralButton>
-        <input
-          ref="fileInputRef"
-          type="file"
-          class="hidden"
-          accept=".xlsx,.xls,.csv"
-          @change="handleImportFileChange"
-        />
+        <template v-if="!isManagementRole">
+          <GeneralButton
+            color="success"
+            label="Download Template"
+            type="button"
+            @on-click="handleDownloadTemplate"
+          >
+            <template #prefix>
+              <IconsDownload size="18" class="text-white" />
+            </template>
+          </GeneralButton>
+          <GeneralButton
+            color="primary"
+            label="Import Bulk"
+            type="button"
+            @on-click="openImportModal"
+          >
+            <template #prefix>
+              <IconsUpload size="18" class="text-white" />
+            </template>
+          </GeneralButton>
+        </template>
         <!-- <GeneralButton
           color="error"
           label="Stock Out"
@@ -262,7 +222,7 @@ onBeforeMount(() => {
         />
       </div>
       <div class="min-w-[240px] space-y-1">
-        <label class="mb-1.5 text-sm font-[600] text-gray-700">Sku</label>
+        <label class="mb-1.5 text-sm font-[600] text-gray-700">SKU</label>
         <GeneralDropdownSearch
           v-model="params.sku_id"
           :options="skuOptions"
@@ -284,7 +244,7 @@ onBeforeMount(() => {
             {{ formatTableDate(value as string) }}
           </template>
           <template #cell-actions="{ row }">
-            <div class="flex justify-end gap-2">
+            <div v-if="!isManagementRole" class="flex justify-end gap-2">
               <!-- <GeneralButton
                 color="error"
                 label="Stock Out"
@@ -322,6 +282,7 @@ onBeforeMount(() => {
     <ModalFormStockIn ref="stockInModalRef" :mode="formModeRef" />
     <ModalFormStockOut ref="stockOutModalRef" :mode="formModeRef" />
     <ModalFormStockAdjusment ref="stockAdjustmentModalRef" />
+    <ModalImportStockAdjustment ref="importModalRef" :list-params="params" />
     <ModalAdjustmentHistory
       id="modal-stock-history"
       :facility-id="params.facility_id"

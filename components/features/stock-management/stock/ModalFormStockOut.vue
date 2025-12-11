@@ -106,7 +106,7 @@ const formFields = computed<FieldConfig[]>(() => [
   },
   {
     name: "sku_id",
-    label: "Sku Name",
+    label: "SKU Name",
     type: "search-select",
     placeholder: "Select SKU",
     grid: 6,

@@ -1,20 +1,27 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import ModalDelete from "~/components/general/ModalDelete/index.vue";
 import type { TableColumn } from "~/components/general/Table/index.vue";
 import type { ElementEvent } from "~/types/element";
 import { useUserStore } from "~/store/user-management/user-store";
-import type { UserType } from "~/types/user-type";
+import type { SessionResponseType, UserType } from "~/types/user-type";
 import ModalFormUser from "./ModalFormUser.vue";
 import { formatTableDate } from "~/utils/functions";
 
 const userStore = useUserStore();
-const { data, loadingWrite } = storeToRefs(userStore);
+const { data, loadingWrite, loadingList } = storeToRefs(userStore);
 const modalAddRef = ref<InstanceType<typeof ModalFormUser> | null>(null);
 const formModeRef = ref(<"add" | "update">"add");
 const deleteModalRef = ref<ElementEvent | null>(null);
 const selectedUser = ref<UserType | null>(null);
+const { data: authData } = useAuth();
+
+const isManagementRole = computed(() => {
+  const session = authData.value as SessionResponseType | null;
+  const roleName = session?.data?.role?.name || "";
+  return roleName.toLowerCase() === "management";
+});
 
 const params = reactive({
   search: "",
@@ -101,6 +108,7 @@ onMounted(() => {
       />
       <div class="flex justify-between space-x-2">
         <GeneralButton
+          v-if="!isManagementRole"
           color="primary"
           label="Add User"
           @on-click="openAddRoleModal"
@@ -123,6 +131,7 @@ onMounted(() => {
     <section class="space-y-4">
       <div class="bg-white p-6 rounded-xl space-y-4">
         <GeneralTable
+          :loading="loadingList"
           :columns="tableColumns"
           :data="data?.data?.data"
           row-key="id"
@@ -132,7 +141,7 @@ onMounted(() => {
             {{ formatTableDate(value as string) }}
           </template>
           <template #cell-actions="{ row }">
-            <div class="flex justify-end gap-2">
+            <div v-if="!isManagementRole" class="flex justify-end gap-2">
               <GeneralIconButton
                 class="h-9 w-9"
                 color="default"

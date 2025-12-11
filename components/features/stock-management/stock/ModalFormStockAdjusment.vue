@@ -9,6 +9,7 @@ import { useStockOnHand } from "~/store/stock-on-hand/stock-on-hand-store";
 import { v4 as uuidv4 } from "uuid";
 import { useStockTransaction } from "~/store/stock-management/stock-transaction-store";
 import moment from "moment";
+import type { SessionResponseType } from "~/types/user-type";
 
 const idempotencyKey = uuidv4();
 
@@ -18,6 +19,13 @@ const { loadingWrite } = storeToRefs(stockTransactionStore);
 
 const stockOnHandStore = useStockOnHand();
 const { selectedData } = storeToRefs(stockOnHandStore);
+const { data: authData } = useAuth();
+
+const isManagementRole = computed(() => {
+  const session = authData.value as SessionResponseType | null;
+  const roleName = session?.data?.role?.name || "";
+  return roleName.toLowerCase() === "management";
+});
 
 const modalInstance = ref<ElementEvent | null>(null);
 
@@ -102,6 +110,9 @@ const handleCancel = () => {
 };
 
 const handleFormSubmit = async (val: any) => {
+  if (isManagementRole.value) {
+    return;
+  }
   const data = selectedData.value;
   await stockTransactionStore.createDataStockTransaction(
     {
@@ -200,6 +211,7 @@ defineExpose({
             @on-click="handleCancel"
           />
           <GeneralButton
+            v-if="!isManagementRole"
             type="submit"
             :loading="loadingWrite"
             :disabled="loadingWrite"

@@ -20,6 +20,8 @@ import CardDetailWarehouse from "~/components/features/warehouse/sku/CardDetailW
 import { useFacilitiesStore } from "~/store/master-data/facilities-store";
 import ModalFormSku from "./ModalFormSku.vue";
 import ModalFormEditSku from "./ModalFormEditSku.vue";
+import type { SessionResponseType } from "~/types/user-type";
+import ModalImportSku from "./ModalImportSku.vue";
 
 const $page = usePageStore();
 const facilitiesSkuStore = useFacilitiesSkuStore();
@@ -28,10 +30,18 @@ const modalAddRef = ref<InstanceType<typeof ModalFormSku> | null>(null);
 const modalEditRef = ref<InstanceType<typeof ModalFormEditSku> | null>(null);
 const deleteModalRef = ref<ElementEvent | null>(null);
 const selectedSku = ref<Record<string, any> | null>(null);
+const importModalRef = ref<InstanceType<typeof ModalImportSku> | null>(null);
 
 const facilitiesStore = useFacilitiesStore();
 const { dataDetail } = storeToRefs(facilitiesStore);
 const route = useRoute();
+const { data: authData } = useAuth();
+
+const isManagementRole = computed(() => {
+  const session = authData.value as SessionResponseType | null;
+  const roleName = session?.data?.role?.name || "";
+  return roleName.toLowerCase() === "management";
+});
 
 const warehouseId = computed(() => String(route.params.warehouse_id || ""));
 const warehouse = computed(() => dataDetail.value?.data);
@@ -119,6 +129,20 @@ const handlePageSizeChange = (pageSize: number) => {
   params.page = 1;
 };
 
+const handleDownloadTemplate = () => {
+  const link = document.createElement("a");
+  link.href = "/assets/template/sku_template.xlsx";
+  link.download = "sku_template.xlsx";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
+const openImportModal = async () => {
+  await nextTick();
+  importModalRef.value?.open();
+};
+
 watch(
   () => ({ ...params, facility_id: warehouseId.value }),
   () => {
@@ -151,25 +175,37 @@ onBeforeMount(() => {
     <header class="flex justify-between items-end">
       <GeneralTitle title="SKU Master" subtitle="Manage Stock Keeping Units" />
       <div class="flex justify-between space-x-2">
-        <GeneralButton color="success" label="Download Template">
+        <GeneralButton
+          color="success"
+          label="Download Template"
+          type="button"
+          @on-click="handleDownloadTemplate"
+        >
           <template #prefix>
             <IconsDownload size="18" class="text-white" />
           </template>
         </GeneralButton>
-        <GeneralButton color="warning" label="Import">
-          <template #prefix>
-            <IconsUpload size="18" class="text-white" />
-          </template>
-        </GeneralButton>
-        <GeneralButton
-          color="primary"
-          label="Add SKU"
-          @on-click="openAddSkuModal"
-        >
-          <template #prefix>
-            <IconsPlus size="18" class="text-white" />
-          </template>
-        </GeneralButton>
+        <template v-if="!isManagementRole">
+          <GeneralButton
+            color="warning"
+            label="Import"
+            type="button"
+            @on-click="openImportModal"
+          >
+            <template #prefix>
+              <IconsUpload size="18" class="text-white" />
+            </template>
+          </GeneralButton>
+          <GeneralButton
+            color="primary"
+            label="Add SKU"
+            @on-click="openAddSkuModal"
+          >
+            <template #prefix>
+              <IconsPlus size="18" class="text-white" />
+            </template>
+          </GeneralButton>
+        </template>
       </div>
     </header>
 
@@ -187,16 +223,6 @@ onBeforeMount(() => {
             :debounce="1000"
             @change="handleSearchChange"
           />
-
-          <!-- <GeneralDropdown
-            v-model="params.status"
-            variant="field"
-            :options="statusOptions"
-            label="Status"
-            placeholder="All Status"
-            class="w-max"
-            @change="handleStatusChange"
-          /> -->
         </section>
 
         <section class="space-y-4">
@@ -212,7 +238,7 @@ onBeforeMount(() => {
                 {{ formatTableDate(value as string) }}
               </template> -->
               <template #cell-actions="{ row }">
-                <div class="flex justify-end gap-2">
+                <div v-if="!isManagementRole" class="flex justify-end gap-2">
                   <GeneralIconButton
                     class="h-9 w-9"
                     color="default"
@@ -248,6 +274,7 @@ onBeforeMount(() => {
       </div>
     </section>
     <ModalFormSku ref="modalAddRef" />
+    <ModalImportSku ref="importModalRef" :list-params="params" />
     <ModalFormEditSku ref="modalEditRef" />
     <ModalDelete
       id="modal-delete-sku"

@@ -24,13 +24,13 @@ export const sidebarMenu: ISidebar[] = [
     icon: markRaw(IconsDashboard),
     active: false,
   },
-  {
-    id: "menu__companies",
-    label: "Company",
-    route: "/company",
-    icon: markRaw(IconsBuilding),
-    visibleForRole: "non-administrator",
-  },
+  // {
+  //   id: "menu__companies",
+  //   label: "Company",
+  //   route: "/company",
+  //   icon: markRaw(IconsBuilding),
+  //   visibleForRole: "non-administrator",
+  // },
   // {
   //   id: "menu__superadmin-companies",
   //   label: "Company (Superadmin)",

@@ -9,6 +9,7 @@ import { useFacilitiesSkuStore } from "~/store/master-data/facilities-sku-store"
 import { useStockTransaction } from "~/store/stock-management/stock-transaction-store";
 import { useVehiclesStore } from "~/store/master-data/vehicles-store";
 import { v4 as uuidv4 } from "uuid";
+import type { SessionResponseType } from "~/types/user-type";
 
 const idempotencyKey = uuidv4();
 const stockTransactionStore = useStockTransaction();
@@ -19,6 +20,13 @@ const vehicleStore = useVehiclesStore();
 const { data: vehiclesData } = storeToRefs(vehicleStore);
 const { data: facilitiesSkuData } = storeToRefs(facilitiesSkuStore);
 const { data: facilitiesData } = storeToRefs(facilitiesStore);
+const { data: authData } = useAuth();
+
+const isManagementRole = computed(() => {
+  const session = authData.value as SessionResponseType | null;
+  const roleName = session?.data?.role?.name || "";
+  return roleName.toLowerCase() === "management";
+});
 
 const facilitiesSkuList = computed(
   () =>
@@ -211,6 +219,9 @@ onMounted(() => {
           class-name=""
           @submit="
             async (val) => {
+              if (isManagementRole) {
+                return;
+              }
               console.log({ val });
 
               await stockTransactionStore.createDataStockTransaction(
@@ -240,6 +251,7 @@ onMounted(() => {
         <div class="flex justify-end mt-4 gap-3 pt-2">
           <!-- <GeneralOutlinedButton label="Cancel" type="button" /> -->
           <GeneralButton
+            v-if="!isManagementRole"
             :loading="loadingWrite"
             :disabled="loadingWrite"
             type="submit"

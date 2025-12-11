@@ -3,17 +3,8 @@ import type {
   ResponseApi,
   ResponseApiDetail,
 } from "~/types/common";
-import {
-  deleteSku,
-  getSku,
-  getSkuDetail,
-  postSku,
-  putSku,
-} from "../../services/master-data/sku-services";
 import { toast } from "vue3-toastify";
-import { DATA_SKU } from "../../dummy.json";
 import { defineStore } from "pinia";
-import type { SKUType } from "~/types/sku-type";
 import type {
   PayloadStockTransactionType,
   StockTransactionType,
@@ -22,6 +13,7 @@ import {
   getTransactions,
   postStockTransactions,
 } from "~/services/stock-management/stock-transactions-services";
+import { importStockAdjustment } from "~/services/import/import-services";
 
 export const useStockTransaction = defineStore("stockTransaction", {
   state: () => ({
@@ -111,6 +103,24 @@ export const useStockTransaction = defineStore("stockTransaction", {
         }
 
         toast.error(`Failed create data ${trxLabel}`, {
+          toastClassName: "toastify-error",
+        });
+        throw error;
+      } finally {
+        this.loadingWrite = false;
+      }
+    },
+
+    async importStockAdjustment(file: File) {
+      this.loadingWrite = true;
+      try {
+        const response = await importStockAdjustment(file);
+        toast.success("Success import stock adjustment", {
+          toastClassName: "toastify-success",
+        });
+        return response;
+      } catch (error: any) {
+        toast.error(error?.message || "Failed import stock adjustment", {
           toastClassName: "toastify-error",
         });
         throw error;

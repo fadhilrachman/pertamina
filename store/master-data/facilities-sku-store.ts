@@ -17,6 +17,7 @@ import {
   postFacilitiesSku,
   putFacilitiesSku,
 } from "~/services/master-data/facilities-sku-services";
+import { importSkuFacilitySku } from "~/services/import/import-services";
 
 export const useFacilitiesSkuStore = defineStore("facilitiesSku", {
   state: () => ({
@@ -137,6 +138,24 @@ export const useFacilitiesSkuStore = defineStore("facilitiesSku", {
         return true;
       } catch (error: any) {
         toast.error(error.message || "Failed delete data SKU", {
+          toastClassName: "toastify-error",
+        });
+        throw error;
+      } finally {
+        this.loadingWrite = false;
+      }
+    },
+
+    async importFacilitiesSku(file: File) {
+      this.loadingWrite = true;
+      try {
+        const data = await importSkuFacilitySku(file);
+        toast.success("Success import SKU", {
+          toastClassName: "toastify-success",
+        });
+        return data;
+      } catch (error: any) {
+        toast.error(error?.message || "Failed import SKU", {
           toastClassName: "toastify-error",
         });
         throw error;

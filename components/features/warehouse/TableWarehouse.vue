@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, onMounted, reactive, ref, watch } from "vue";
+import { computed, onBeforeMount, onMounted, reactive, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import ModalDelete from "~/components/general/ModalDelete/index.vue";
 import type { TableColumn } from "~/components/general/Table/index.vue";
@@ -9,6 +9,7 @@ import { useFacilitiesStore } from "~/store/master-data/facilities-store";
 import type { FacilitiesType } from "~/types/facilities-type";
 import ModalFormFacilities from "./ModalFormWarehouse.vue";
 import ModalFormWarehouse from "./ModalFormWarehouse.vue";
+import type { SessionResponseType } from "~/types/user-type";
 
 const $page = usePageStore();
 const router = useRouter();
@@ -18,6 +19,13 @@ const modalAddRef = ref<InstanceType<typeof ModalFormFacilities> | null>(null);
 const formModeRef = ref(<"add" | "update">"add");
 const deleteModalRef = ref<ElementEvent | null>(null);
 const selectedSku = ref<Record<string, any> | null>(null);
+const { data: authData } = useAuth();
+
+const isManagementRole = computed(() => {
+  const session = authData.value as SessionResponseType | null;
+  const roleName = session?.data?.role?.name || "";
+  return roleName.toLowerCase() === "management";
+});
 
 const params = reactive({
   search: "",
@@ -130,6 +138,7 @@ onMounted(() => {
           </template>
         </GeneralButton> -->
         <GeneralButton
+          v-if="!isManagementRole"
           color="primary"
           label="Add Warehouse"
           @on-click="openAddFacilities"
@@ -184,26 +193,28 @@ onMounted(() => {
                   <IconsEye size="16" class="text-gray-700" />
                 </template>
               </GeneralIconButton>
-              <GeneralIconButton
-                class="h-9 w-9"
-                color="default"
-                :ghost="true"
-                @on-click="openUpdateFacilities(row as FacilitiesType)"
-              >
-                <template #icon>
-                  <IconsEdit size="16" class="text-gray-700" />
-                </template>
-              </GeneralIconButton>
-              <GeneralIconButton
-                class="h-9 w-9 bg-white"
-                color="default"
-                :bordered="false"
-                @on-click="openDeleteFacilities(row)"
-              >
-                <template #icon>
-                  <IconsDelete size="18" class="text-red-500" />
-                </template>
-              </GeneralIconButton>
+              <template v-if="!isManagementRole">
+                <GeneralIconButton
+                  class="h-9 w-9"
+                  color="default"
+                  :ghost="true"
+                  @on-click="openUpdateFacilities(row as FacilitiesType)"
+                >
+                  <template #icon>
+                    <IconsEdit size="16" class="text-gray-700" />
+                  </template>
+                </GeneralIconButton>
+                <GeneralIconButton
+                  class="h-9 w-9 bg-white"
+                  color="default"
+                  :bordered="false"
+                  @on-click="openDeleteFacilities(row)"
+                >
+                  <template #icon>
+                    <IconsDelete size="18" class="text-red-500" />
+                  </template>
+                </GeneralIconButton>
+              </template>
             </div>
           </template>
         </GeneralTable>

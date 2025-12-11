@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, onMounted, reactive, ref, watch } from "vue";
+import { computed, onBeforeMount, onMounted, reactive, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import ModalFormSku from "~/components/features/master-data/sku/ModalFormSku.vue";
 import ModalDelete from "~/components/general/ModalDelete/index.vue";
@@ -10,6 +10,7 @@ import { usePageStore } from "~/store/page";
 import type { SKUType } from "~/types/sku-type";
 import { formatTableDate } from "~/utils/functions";
 import ModalAdjustmentHistory from "./ModalAdjustmentHistory.vue";
+import type { SessionResponseType } from "~/types/user-type";
 
 const $page = usePageStore();
 const skuStore = useSkuStore();
@@ -19,6 +20,14 @@ const formModeRef = ref(<"add" | "update">"add");
 const deleteModalRef = ref<ElementEvent | null>(null);
 const selectedSku = ref<Record<string, any> | null>(null);
 const historyModalRef = ref<ElementEvent | null>(null);
+
+const { data: authData } = useAuth();
+
+const isManagementRole = computed(() => {
+  const session = authData.value as SessionResponseType | null;
+  const roleName = session?.data?.role?.name || "";
+  return roleName.toLowerCase() === "management";
+});
 
 const params = reactive({
   search: "",
@@ -128,21 +137,27 @@ onBeforeMount(() => {
         subtitle="Manually Adjust Inventory Levels"
       />
       <div class="flex justify-between space-x-2">
-        <GeneralOutlinedButton label="History" type="button" @on-click="openHistoryModal">
+        <GeneralOutlinedButton
+          label="History"
+          type="button"
+          @on-click="openHistoryModal"
+        >
           <template #prefix>
             <IconsHistory size="18" class="text-gray-700" />
           </template>
         </GeneralOutlinedButton>
-        <GeneralButton color="success" label="Download Template">
-          <template #prefix>
-            <IconsDownload size="18" class="text-white" />
-          </template>
-        </GeneralButton>
-        <GeneralButton color="primary" label="Import Bulk">
-          <template #prefix>
-            <IconsUpload size="18" class="text-white" />
-          </template>
-        </GeneralButton>
+        <template v-if="!isManagementRole">
+          <GeneralButton color="success" label="Download Template">
+            <template #prefix>
+              <IconsDownload size="18" class="text-white" />
+            </template>
+          </GeneralButton>
+          <GeneralButton color="primary" label="Import Bulk">
+            <template #prefix>
+              <IconsUpload size="18" class="text-white" />
+            </template>
+          </GeneralButton>
+        </template>
       </div>
     </header>
     <section class="flex bg-white p-6 rounded-xl items-end space-x-2">
@@ -177,7 +192,7 @@ onBeforeMount(() => {
             {{ formatTableDate(value as string) }}
           </template>
           <template #cell-actions="{ row }">
-            <div class="flex justify-end gap-2">
+            <div v-if="!isManagementRole" class="flex justify-end gap-2">
               <GeneralIconButton
                 class="h-9 w-9"
                 color="default"

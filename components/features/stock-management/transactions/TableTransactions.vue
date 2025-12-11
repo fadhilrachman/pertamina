@@ -1,14 +1,10 @@
 <script setup lang="ts">
 import { computed, onBeforeMount, onMounted, reactive, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
-import ModalFormSku from "~/components/features/master-data/sku/ModalFormSku.vue";
-import ModalDelete from "~/components/general/ModalDelete/index.vue";
 import type { TableColumn } from "~/components/general/Table/index.vue";
 import type { ElementEvent } from "~/types/element";
 import { useSkuStore } from "~/store/master-data/sku-store";
 import { usePageStore } from "~/store/page";
-import type { SKUType } from "~/types/sku-type";
-import { useStockOnHand } from "~/store/stock-on-hand/stock-on-hand-store";
 import { useFacilitiesStore } from "~/store/master-data/facilities-store";
 import { useStockTransaction } from "~/store/stock-management/stock-transaction-store";
 import type { StockTransactionType } from "~/types/stock-transaction-type";
@@ -226,7 +222,7 @@ onBeforeMount(() => {
         />
       </div>
       <div class="min-w-[240px] space-y-1">
-        <label class="mb-1.5 text-sm font-[600] text-gray-700">Sku</label>
+        <label class="mb-1.5 text-sm font-[600] text-gray-700">SKU</label>
         <GeneralDropdownSearch
           v-model="params.sku_id"
           :options="skuOptions"

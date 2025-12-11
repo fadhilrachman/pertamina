@@ -64,7 +64,7 @@ const formFields = computed<FieldConfig[]>(() => [
   },
   {
     name: "sku_id",
-    label: "Sku Name",
+    label: "SKU Name",
     requiredMark: true,
     type: "search-select",
     placeholder: "Select SKU",

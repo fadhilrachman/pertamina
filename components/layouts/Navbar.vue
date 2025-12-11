@@ -85,7 +85,7 @@ async function handleLogout() {
         placeholder="Search SKU, Warehouse, or Transaction..."
       /> -->
       <div class="flex items-center space-x-4">
-        <IconsBell size="18" class="stroke-neutral-600" />
+        <!-- <IconsBell size="18" class="stroke-neutral-600" /> -->
 
         <div class="relative">
           <button

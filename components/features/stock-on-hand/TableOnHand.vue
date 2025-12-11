@@ -171,7 +171,7 @@ onBeforeMount(() => {
         />
       </div>
       <div class="min-w-[240px] space-y-1">
-        <label class="mb-1.5 text-sm font-[600] text-gray-700">Sku</label>
+        <label class="mb-1.5 text-sm font-[600] text-gray-700">SKU</label>
         <GeneralDropdownSearch
           v-model="params.sku_id"
           :options="skuOptions"
