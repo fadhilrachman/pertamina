@@ -54,11 +54,11 @@ const formFields: FieldConfig[] = [
     grid: 6,
   },
   {
-    name: "password",
-    label: "Password",
+    name: "owner_email",
+    label: "Owner Email",
     requiredMark: true,
-    type: "password",
-    placeholder: "Set account password",
+    type: "email",
+    placeholder: "e.g., owner@company.com",
     grid: 6,
   },
 ];
@@ -74,7 +74,7 @@ const formSchema = object({
   pic_name: string().required("PIC Name is required"),
   address: string().required("Address is required"),
   email: string().email().required("Email is required"),
-  password: string().required("Password is required"),
+  owner_email: string().email().required("Owner Email is required"),
 });
 
 const createInitialValues = (): CompanyType => ({
@@ -82,8 +82,8 @@ const createInitialValues = (): CompanyType => ({
   pic_name: "",
   address: "",
   email: "",
-  password: "",
-  logo: null,
+  owner_email: "",
+  logo: "",
 });
 
 const form = useForm<CompanyType>({
@@ -123,8 +123,20 @@ const handleCancel = () => {
 
 async function handleFormSubmit(values: Record<string, any>) {
   try {
-    const action = props.mode === "update" ? updateCompany : createCompany;
-    await action(values);
+    const payload = {
+      name: values.name,
+      pic_name: values.pic_name,
+      address: values.address,
+      email: values.email,
+      owner_email: values.owner_email,
+    };
+
+    if (props.mode === "update" && selectedData.value?.id) {
+      await updateCompany({ id: selectedData.value.id, ...payload });
+    } else {
+      await createCompany(payload);
+    }
+
     await refetchDataCompanies();
     handleCancel();
 
@@ -181,4 +193,3 @@ defineExpose({
     </template>
   </GeneralModal>
 </template>
-

@@ -81,10 +81,12 @@ export const sidebarMenu: ISidebar[] = [
       },
     ],
   },
+
   {
     label: "Stock Management",
     icon: markRaw(IconsCube),
     id: "menu__stock-management",
+    visibleForRole: "non-administrator",
     startWith: "/stock-management",
     isOpen: false,
     menu: [
@@ -126,12 +128,72 @@ export const sidebarMenu: ISidebar[] = [
     id: "menu__onhand",
     label: "On-hand Stock",
     route: "/on-hand-stock",
+    visibleForRole: "non-administrator",
+    icon: markRaw(IconsWarehouse),
+  },
+
+  {
+    label: "Warehouses",
+    id: "menu__warehouses",
+    route: "/warehouse",
+    visibleForRole: "non-administrator",
+    icon: markRaw(IconsBuilding),
+  },
+
+  // ///////////////////////////////////////
+  // /////////////////////////////////////////
+  // SUPERADMIN
+  // ////////////////////////////////////////
+  // ////////////////////////////////////////
+
+  {
+    label: "Stock Management",
+    icon: markRaw(IconsCube),
+    id: "menu__stock-management_superadmin",
+    startWith: "/stock-management",
+    visibleForRole: "administrator",
+
+    isOpen: false,
+    menu: [
+      // {
+      //   label: "Stock In",
+      //   id: "menu__stock-management-in",
+      //   route: "/stock-management/stock-in",
+      //   icon: markRaw(IconsStockIn),
+      // },
+      // {
+      //   label: "Stock Out",
+      //   route: "/stock-management/stock-out",
+      //   id: "menu__stock-management-out",
+      //   icon: markRaw(IconsStockOut),
+      // },
+      {
+        label: "Stock Adjustment",
+        route: "/superadmin/stock-management/stock-adjusment",
+        id: "menu__stock-management-adjustment",
+        icon: markRaw(IconsStockAdjustment),
+      },
+
+      {
+        label: "Transactions",
+        route: "/superadmin/stock-management/transactions",
+        id: "menu__stock-management-transactions",
+        icon: markRaw(IconsTransactions),
+      },
+    ],
+  },
+  {
+    id: "menu__onhand",
+    label: "On-hand Stock",
+    route: "/superadmin/on-hand-stock",
+    visibleForRole: "administrator",
     icon: markRaw(IconsWarehouse),
   },
   {
     label: "Warehouses",
     id: "menu__warehouses",
-    route: "/warehouse",
+    route: "/superadmin/warehouse",
+    visibleForRole: "administrator",
     icon: markRaw(IconsBuilding),
   },
 

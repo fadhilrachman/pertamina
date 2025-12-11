@@ -91,6 +91,8 @@ export const useStockTransaction = defineStore("stockTransaction", {
         toast.success(`Success create data ${trxLabel}`);
         return true;
       } catch (error) {
+        console.log({ error });
+
         const trxType = (body.trx_type || "").toLowerCase();
         let trxLabel = "Stock transaction";
 

@@ -11,6 +11,8 @@ import {
   getSuperadminUsers,
   postSuperadminUser,
   putSuperadminUser,
+  type SuperadminCreateUserPayload,
+  type SuperadminUpdateUserPayload,
 } from "~/services/superadmin/user-services";
 
 export const useSuperadminUserStore = defineStore("superadminUser", {
@@ -37,7 +39,7 @@ export const useSuperadminUserStore = defineStore("superadminUser", {
 
         const raw = response.data ?? {};
 
-        let list: UserType[] = [];
+        let rawList: any[] = [];
         let limit = params.limit;
         let page = params.page;
         let total = 0;
@@ -45,7 +47,7 @@ export const useSuperadminUserStore = defineStore("superadminUser", {
 
         if (Array.isArray(raw.data)) {
           // Shape: { data: [...], limit, page, total, total_pages }
-          list = raw.data;
+          rawList = raw.data;
           limit = raw.limit ?? limit;
           page = raw.page ?? page;
           total = raw.total ?? total;
@@ -53,7 +55,7 @@ export const useSuperadminUserStore = defineStore("superadminUser", {
         } else if (Array.isArray(raw.list)) {
           // Shape: { list: [...], pagination: {...} }
           const pagination = raw.pagination ?? {};
-          list = raw.list;
+          rawList = raw.list;
           limit =
             pagination.page_size ??
             pagination.limit ??
@@ -63,7 +65,7 @@ export const useSuperadminUserStore = defineStore("superadminUser", {
           total_pages = pagination.total_pages ?? total_pages;
         } else if (Array.isArray(raw)) {
           // Shape: data is directly an array
-          list = raw;
+          rawList = raw;
         } else if (raw && typeof raw === "object") {
           // Shape: { 0: {...}, 1: {...}, ..., limit, page, total, total_pages }
           const {
@@ -79,7 +81,7 @@ export const useSuperadminUserStore = defineStore("superadminUser", {
           total = rawTotal ?? total;
           total_pages = rawTotalPages ?? total_pages;
 
-          list = Object.values(rest).filter(
+          rawList = Object.values(rest).filter(
             (item: any) =>
               item &&
               typeof item === "object" &&
@@ -89,6 +91,24 @@ export const useSuperadminUserStore = defineStore("superadminUser", {
               !("total_pages" in item)
           );
         }
+
+        const list: UserType[] = rawList.map((item: any) => {
+          const firstName = item.first_name ?? "";
+          const lastName = item.last_name ?? "";
+          const fullName = `${firstName} ${lastName}`.trim();
+
+          return {
+            id: item.id ?? "",
+            name: fullName || (item.email ?? ""),
+            email: item.email ?? "",
+            role: item.is_superadmin ? "Superadmin" : "User",
+            status: item.status ?? "",
+            created_at: item.created_at ?? "",
+            first_name: firstName || undefined,
+            last_name: lastName || undefined,
+            is_superadmin: item.is_superadmin ?? undefined,
+          };
+        });
 
         this.data = {
           code: response.code ?? 200,
@@ -118,7 +138,7 @@ export const useSuperadminUserStore = defineStore("superadminUser", {
       await this.getDataUsers(this.listParams);
     },
 
-    async createUser(body: any) {
+    async createUser(body: SuperadminCreateUserPayload) {
       this.loadingWrite = true;
       try {
         await postSuperadminUser(body);
@@ -134,7 +154,7 @@ export const useSuperadminUserStore = defineStore("superadminUser", {
       }
     },
 
-    async updateUser(body: any) {
+    async updateUser(body: SuperadminUpdateUserPayload & { id: string }) {
       this.loadingWrite = true;
       try {
         await putSuperadminUser(body);

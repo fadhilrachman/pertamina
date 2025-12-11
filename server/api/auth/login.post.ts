@@ -12,6 +12,9 @@ interface LoginResponse {
   status: string;
   data?: {
     access_token: string;
+    refresh_token?: string;
+    expires_in?: number;
+    token_type?: string;
     [key: string]: any;
   };
   [key: string]: any;
@@ -126,7 +129,21 @@ export default defineEventHandler(async (event) => {
     // Set any necessary cookies based on the response
 
     if (response.data?.access_token) {
+      // HTTP-only token used for server-to-server auth (session validation)
       setCookie(event, "session_token", response.data.access_token, {
+        httpOnly: true,
+        path: "/",
+      });
+
+      // Non-HTTP-only token used by nuxt-auth on the client
+      setCookie(event, "auth.token", response.data.access_token, {
+        httpOnly: false,
+        path: "/",
+      });
+    }
+
+    if (response.data?.refresh_token) {
+      setCookie(event, "refresh_token", response.data.refresh_token, {
         httpOnly: true,
         path: "/",
       });

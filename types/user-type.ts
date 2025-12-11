@@ -5,6 +5,10 @@ export interface UserType {
   role: string;
   status: string;
   created_at: string;
+  first_name?: string;
+  last_name?: string;
+  role_id?: string;
+  is_superadmin?: boolean;
 }
 
 export interface SessionRoleType {

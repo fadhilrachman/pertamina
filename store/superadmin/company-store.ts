@@ -11,6 +11,7 @@ import {
   getSuperadminCompanies,
   postSuperadminCompany,
   putSuperadminCompany,
+  type SuperadminCompanyPayload,
 } from "~/services/superadmin/company-services";
 
 export const useSuperadminCompanyStore = defineStore("superadminCompany", {
@@ -116,7 +117,7 @@ export const useSuperadminCompanyStore = defineStore("superadminCompany", {
       await this.getDataCompanies(this.listParams);
     },
 
-    async createCompany(body: any) {
+    async createCompany(body: SuperadminCompanyPayload) {
       this.loadingWrite = true;
       try {
         await postSuperadminCompany(body);
@@ -132,7 +133,7 @@ export const useSuperadminCompanyStore = defineStore("superadminCompany", {
       }
     },
 
-    async updateCompany(body: any) {
+    async updateCompany(body: SuperadminCompanyPayload & { id: string }) {
       this.loadingWrite = true;
       try {
         await putSuperadminCompany(body);

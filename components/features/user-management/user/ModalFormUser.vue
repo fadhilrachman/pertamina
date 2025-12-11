@@ -7,6 +7,8 @@ import { object, string } from "yup";
 import type { FieldConfig } from "~/components/general/FormGenerator/index.vue";
 import { useUserStore } from "~/store/user-management/user-store";
 import type { UserType } from "~/types/user-type";
+import { getRoles } from "~/services/user-managements/role-services";
+import type { RoleType } from "~/types/role-types";
 
 const props = withDefaults(
   defineProps<{
@@ -21,10 +23,11 @@ const isUpdateMode = computed(() => props.mode === "update");
 const emit = defineEmits(["opened", "closed"]);
 
 type UserFormValues = {
-  role: string;
-  name: string;
-  username: string;
+  first_name: string;
+  last_name: string;
+  email: string;
   password: string;
+  role_id: string;
 };
 
 const modalInstance = ref<ElementEvent | null>(null);
@@ -33,32 +36,34 @@ const userStore = useUserStore();
 const { loadingWrite, selectedData } = storeToRefs(userStore);
 const { createDataUser, updateDataUser, getDataUser } = userStore;
 
-const roleOptions = computed(() => [
-  { id: "admin", label: "admin" },
-  { id: "staf", label: "staf" },
-]);
+const roles = ref<RoleType[]>([]);
+const roleOptions = computed(() =>
+  roles.value.map((role) => ({
+    id: role.id ?? "",
+    label: role.name,
+  }))
+);
 
 const formFields = computed<FieldConfig[]>(() => [
   {
-    name: "role",
-    label: "Role",
-    requiredMark: true,
-    type: "select",
-    placeholder: "Select role",
-    grid: 12,
-    options: roleOptions.value,
-  },
-  {
-    name: "name",
-    label: "Name",
+    name: "first_name",
+    label: "First Name",
     requiredMark: true,
     type: "text",
-    placeholder: "e.g., John Doe",
+    placeholder: "e.g., John",
     grid: 12,
   },
   {
-    name: "username",
-    label: "Username / Email",
+    name: "last_name",
+    label: "Last Name",
+    requiredMark: true,
+    type: "text",
+    placeholder: "e.g., Doe",
+    grid: 12,
+  },
+  {
+    name: "email",
+    label: "Email",
     requiredMark: true,
     type: "text",
     placeholder: "e.g., johndoe@example.com",
@@ -74,12 +79,21 @@ const formFields = computed<FieldConfig[]>(() => [
     helperText:
       "Password must contain uppercase, lowercase, and be at least 8 characters.",
   },
+  {
+    name: "role_id",
+    label: "Role",
+    requiredMark: true,
+    type: "select",
+    placeholder: "Select role",
+    grid: 12,
+    options: roleOptions.value,
+  },
 ]);
 
 const formSchema = object({
-  role: string().required("Role is required"),
-  name: string().required("Name is required"),
-  username: string().required("Username is required"),
+  first_name: string().required("First name is required"),
+  last_name: string().required("Last name is required"),
+  email: string().required("Email is required"),
   password: string()
     .required("Password is required")
     .min(8, "Password must be at least 8 characters")
@@ -91,13 +105,15 @@ const formSchema = object({
       /[A-Z]/,
       "Password must contain at least one uppercase letter"
     ),
+  role_id: string().required("Role is required"),
 });
 
 const createInitialValues = (): UserFormValues => ({
-  role: "",
-  name: "",
-  username: "",
+  first_name: "",
+  last_name: "",
+  email: "",
   password: "",
+  role_id: "",
 });
 
 const form = useForm<UserFormValues>({
@@ -115,10 +131,11 @@ watch(
       const current = selectedData as UserType;
       form.resetForm({
         values: {
-          role: current.role || "",
-          name: current.name || "",
-          username: current.email || "",
+          first_name: current.first_name || "",
+          last_name: current.last_name || "",
+          email: current.email || "",
           password: "",
+          role_id: current.role_id || "",
         },
       });
     } else {
@@ -129,7 +146,26 @@ watch(
 );
 
 onMounted(() => {
-  // no-op for now; roles are static (admin, staf)
+  (async () => {
+    try {
+      const response: any = await getRoles({ page: 1, limit: 100, search: "" });
+      const raw = response.data ?? {};
+      let list: RoleType[] = [];
+
+      if (Array.isArray(raw.data)) {
+        list = raw.data;
+      } else if (Array.isArray(raw.list)) {
+        list = raw.list;
+      } else if (Array.isArray(raw)) {
+        list = raw;
+      }
+
+      roles.value = list;
+    } catch (error) {
+      // silently ignore; dropdown will be empty
+      console.error("Failed to load roles for user form", error);
+    }
+  })();
 });
 
 const handleModalMounted = (instance: ElementEvent) => {
@@ -149,17 +185,29 @@ const handleCancel = () => {
 
 async function handleFormSubmit(values: UserFormValues) {
   try {
-    const payload = {
-      role: values.role,
-      name: values.name,
-      email: values.username,
-      password: values.password,
+    const basePayload = {
+      email: values.email,
+      first_name: values.first_name,
+      last_name: values.last_name,
+      role_id: values.role_id,
     };
 
     if (props.mode === "update" && selectedData.value?.id) {
-      await updateDataUser({ id: selectedData.value.id, ...payload });
+      const updatePayload: any = {
+        id: selectedData.value.id,
+        ...basePayload,
+      };
+
+      if (values.password) {
+        updatePayload.password = values.password;
+      }
+
+      await updateDataUser(updatePayload);
     } else {
-      await createDataUser(payload);
+      await createDataUser({
+        ...basePayload,
+        password: values.password,
+      });
     }
 
     await getDataUser({ page: 1, limit: 10 });

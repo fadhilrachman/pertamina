@@ -12,7 +12,8 @@ import {
   getUsers,
   postUser,
   putUser,
-  type PayloadUserType,
+  type CreateUserPayload,
+  type UpdateUserPayload,
 } from "~/services/user-managements/user-services";
 
 export const useUserStore = defineStore("user", {
@@ -36,21 +37,21 @@ export const useUserStore = defineStore("user", {
         const response: any = await getUsers(params);
         const raw = response.data ?? {};
 
-        let list: UserType[] = [];
+        let rawList: any[] = [];
         let limit = params.limit;
         let page = params.page;
         let total = 0;
         let total_pages = 1;
 
         if (Array.isArray(raw.data)) {
-          list = raw.data;
+          rawList = raw.data;
           limit = raw.limit ?? limit;
           page = raw.page ?? page;
           total = raw.total ?? total;
           total_pages = raw.total_pages ?? total_pages;
         } else if (Array.isArray(raw.list)) {
           const pagination = raw.pagination ?? {};
-          list = raw.list;
+          rawList = raw.list;
           limit =
             pagination.page_size ??
             pagination.limit ??
@@ -59,7 +60,7 @@ export const useUserStore = defineStore("user", {
           total = pagination.total_count ?? total;
           total_pages = pagination.total_pages ?? total_pages;
         } else if (Array.isArray(raw)) {
-          list = raw;
+          rawList = raw;
         } else if (raw && typeof raw === "object") {
           const {
             limit: rawLimit,
@@ -74,7 +75,7 @@ export const useUserStore = defineStore("user", {
           total = rawTotal ?? total;
           total_pages = rawTotalPages ?? total_pages;
 
-          list = Object.values(rest).filter(
+          rawList = Object.values(rest).filter(
             (item: any) =>
               item &&
               typeof item === "object" &&
@@ -84,6 +85,32 @@ export const useUserStore = defineStore("user", {
               !("total_pages" in item)
           );
         }
+
+        const list: UserType[] = rawList.map((item: any) => {
+          const firstName = item.first_name ?? "";
+          const lastName = item.last_name ?? "";
+          const fullName = `${firstName} ${lastName}`.trim();
+
+          const roleObj = item.role ?? null;
+          const roleName =
+            (roleObj && typeof roleObj === "object" && roleObj.name) ||
+            (typeof item.role === "string" ? item.role : "") ||
+            "";
+          const roleId =
+            (roleObj && typeof roleObj === "object" && roleObj.id) || "";
+
+          return {
+            id: item.id ?? "",
+            name: fullName || (item.email ?? ""),
+            email: item.email ?? "",
+            role: roleName,
+            status: item.status ?? "",
+            created_at: item.created_at ?? "",
+            first_name: firstName || undefined,
+            last_name: lastName || undefined,
+            role_id: roleId || undefined,
+          };
+        });
 
         this.data = {
           code: response.code ?? 200,
@@ -108,7 +135,7 @@ export const useUserStore = defineStore("user", {
       }
     },
 
-    async createDataUser(body: PayloadUserType) {
+    async createDataUser(body: CreateUserPayload) {
       this.loadingWrite = true;
       try {
         await postUser(body);
@@ -124,7 +151,7 @@ export const useUserStore = defineStore("user", {
       }
     },
 
-    async updateDataUser(body: PayloadUserType & { id: string }) {
+    async updateDataUser(body: UpdateUserPayload & { id: string }) {
       this.loadingWrite = true;
       try {
         await putUser(body);

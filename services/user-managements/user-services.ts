@@ -1,11 +1,20 @@
 import { api } from "~/services/api";
 import type { QueryParams } from "~/types/common";
 
-export interface PayloadUserType {
-  name: string;
+export interface CreateUserPayload {
   email: string;
+  first_name: string;
+  last_name: string;
   password: string;
-  role: string;
+  role_id: string;
+}
+
+export interface UpdateUserPayload {
+  email: string;
+  first_name: string;
+  last_name: string;
+  role_id?: string;
+  password?: string;
 }
 
 export async function getUsers(
@@ -18,20 +27,20 @@ export async function getUsers(
 
   if (params.search) {
     queryParams.search_value = params.search;
-    queryParams.search_columns = "name,email";
+    queryParams.search_columns = "email,first_name,last_name";
   }
 
   return await api.get("/api/v1/users", { queryParams });
 }
 
-export async function postUser(payload: PayloadUserType) {
+export async function postUser(payload: CreateUserPayload) {
   return await api.post("/api/v1/users", {
     body: payload,
   });
 }
 
 export async function putUser(
-  payload: PayloadUserType & { id: string }
+  payload: UpdateUserPayload & { id: string }
 ) {
   return await api.put(`/api/v1/users/${payload.id}`, {
     body: payload,

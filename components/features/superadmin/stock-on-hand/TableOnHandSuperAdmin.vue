@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, onMounted, reactive, ref, watch } from "vue";
+import { computed, onBeforeMount, onMounted, reactive, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import ModalFormSku from "~/components/features/master-data/sku/ModalFormSku.vue";
 import ModalDelete from "~/components/general/ModalDelete/index.vue";
@@ -8,11 +8,12 @@ import type { ElementEvent } from "~/types/element";
 import { useSkuStore } from "~/store/master-data/sku-store";
 import { usePageStore } from "~/store/page";
 import type { SKUType } from "~/types/sku-type";
-import { useStockOnHand } from "~/store/stock-on-hand/stock-on-hand-store";
 import { useFacilitiesStore } from "~/store/master-data/facilities-store";
 import { formatTableDate } from "~/utils/functions";
 import { useSuperadminFacilitiesStore } from "~/store/superadmin/facilities-store";
 import { useSuperadminStockOnHandStore } from "~/store/superadmin/stock-on-hand-store";
+import { useSuperadminCompanyStore } from "~/store/superadmin/company-store";
+import type { CompanyType } from "~/types/company-type";
 
 const statusBadgeClass = (status: string | undefined) => {
   if (!status) return "bg-gray-100 text-gray-600 border border-gray-200";
@@ -42,9 +43,18 @@ const formatStatusLabel = (status: string | undefined) => {
 const $page = usePageStore();
 const stockOnHandStore = useSuperadminStockOnHandStore();
 const facilitiesStore = useSuperadminFacilitiesStore();
-const skuStore = useSkuStore();
+const companyStore = useSuperadminCompanyStore();
+// const skuStore = useSkuStore();
 const { data: dataFacilities } = storeToRefs(facilitiesStore);
-const { data: dataSkuStore } = storeToRefs(skuStore);
+const { data: companyData } = storeToRefs(companyStore);
+// const { data: dataSkuStore } = storeToRefs(skuStore);
+const companyOptions = computed(
+  () =>
+    companyData.value?.data?.data?.map((item: CompanyType) => ({
+      id: item.id,
+      label: item.name,
+    })) || []
+);
 
 const facilitiesOptions = computed(
   () =>
@@ -54,29 +64,47 @@ const facilitiesOptions = computed(
     })) || []
 );
 
-const skuOptions = computed(
-  () =>
-    dataSkuStore.value?.data?.data?.map((item) => ({
-      id: item.id,
-      label: item.name,
-    })) || []
-);
+// const skuOptions = computed(
+//   () =>
+//     dataSkuStore.value?.data?.data?.map((item) => ({
+//       id: item.id,
+//       label: item.name,
+//     })) || []
+// );
 const { data, loadingWrite, loadingList } = storeToRefs(stockOnHandStore);
 const deleteModalRef = ref<ElementEvent | null>(null);
 const selectedSku = ref<Record<string, any> | null>(null);
 
 const params = reactive({
+  company_id: "",
   sku_id: "",
   facility_id: "",
   page: 1,
   limit: 10,
   status: "",
 });
+
+const tableData = computed(() => {
+  const raw =
+    data.value?.data?.data ||
+    (Array.isArray(data.value?.data) ? data.value?.data : []);
+
+  return (raw as any[]).map((item) => ({
+    ...item,
+    company_name: item.company_name ?? item.company?.name ?? "-",
+    facility_name: item.facility_name ?? item.facility?.name ?? "-",
+    sku_name: item.sku_name ?? item.sku?.name ?? "-",
+    sku_code: item.sku_code ?? item.sku?.code ?? "-",
+    warehouse: item.warehouse ?? item.facility?.name ?? "-",
+  }));
+});
+
 const tableColumns: TableColumn[] = [
+  { key: "company_name", label: "Company" },
+  { key: "facility_name", label: "Warehouse" },
   { key: "sku_code", label: "SKU Code" },
   { key: "sku_name", label: "SKU Name" },
   { key: "category", label: "Category" },
-  { key: "warehouse", label: "Warehouse" },
   { key: "on_hand_qty", label: "On-hand Quantity" },
 
   { key: "unit_of_measure", label: "UOM" },
@@ -95,8 +123,22 @@ const statusOptions = [
   { id: "out_of_stock", label: "Out of Stock" },
 ];
 
+const handleCompanyChange = (value: any) => {
+  params.company_id = String(value ?? "");
+  params.facility_id = "";
+  params.page = 1;
+
+  facilitiesStore.getDataFacilities({
+    page: 1,
+    limit: 1000,
+    company_id: params.company_id || undefined,
+    search: "",
+  });
+};
+
 const handleFacilitiesChange = (value: any) => {
   params.facility_id = value;
+  params.page = 1;
 };
 const handleSkuChange = (value: any) => {
   params.sku_id = value;
@@ -126,11 +168,17 @@ watch(
 );
 
 onMounted(() => {
+  companyStore.getDataCompanies({ page: 1, limit: 100, search: "" });
   stockOnHandStore.getDataStockOnHand({
     ...params,
   });
-  skuStore.getDataSku({ page: 1, limit: 1000 });
-  facilitiesStore.getDataFacilities({ page: 1, limit: 1000 });
+  // skuStore.getDataSku({ page: 1, limit: 1000 });
+  facilitiesStore.getDataFacilities({
+    page: 1,
+    limit: 1000,
+    company_id: params.company_id || undefined,
+    search: "",
+  });
 });
 
 onBeforeMount(() => {
@@ -155,6 +203,15 @@ onBeforeMount(() => {
     </header>
     <section class="flex bg-white p-6 rounded-xl items-end space-x-2">
       <div class="min-w-[240px] space-y-1">
+        <label class="mb-1.5 text-sm font-[600] text-gray-700">Company</label>
+        <GeneralDropdownSearch
+          v-model="params.company_id"
+          :options="companyOptions"
+          placeholder="All Companies"
+          @change="handleCompanyChange"
+        />
+      </div>
+      <div class="min-w-[240px] space-y-1">
         <label class="mb-1.5 text-sm font-[600] text-gray-700"
           >Facilities</label
         >
@@ -165,7 +222,7 @@ onBeforeMount(() => {
           @change="handleFacilitiesChange"
         />
       </div>
-      <div class="min-w-[240px] space-y-1">
+      <!-- <div class="min-w-[240px] space-y-1">
         <label class="mb-1.5 text-sm font-[600] text-gray-700">SKU</label>
         <GeneralDropdownSearch
           v-model="params.sku_id"
@@ -173,7 +230,7 @@ onBeforeMount(() => {
           placeholder="All SKU"
           @change="handleSkuChange"
         />
-      </div>
+      </div> -->
 
       <GeneralDropdown
         v-model="params.status"
@@ -193,7 +250,7 @@ onBeforeMount(() => {
         </div>
         <GeneralTable
           :columns="tableColumns"
-          :data="data?.data?.data || []"
+          :data="tableData"
           :loading="loadingList"
           row-key="id"
           striped

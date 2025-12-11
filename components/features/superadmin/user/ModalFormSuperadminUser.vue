@@ -21,10 +21,11 @@ const isUpdateMode = computed(() => props.mode === "update");
 const emit = defineEmits(["opened", "closed"]);
 
 type UserFormValues = {
-  role: string;
-  name: string;
-  username: string;
+  first_name: string;
+  last_name: string;
+  email: string;
   password: string;
+  is_superadmin: string;
 };
 
 const modalInstance = ref<ElementEvent | null>(null);
@@ -33,32 +34,26 @@ const userStore = useSuperadminUserStore();
 const { loadingWrite, selectedData } = storeToRefs(userStore);
 const { createUser, updateUser, getDataUsers } = userStore;
 
-const roleOptions = computed(() => [
-  { id: "admin", label: "admin" },
-  { id: "staf", label: "staf" },
-]);
-
 const formFields = computed<FieldConfig[]>(() => [
   {
-    name: "role",
-    label: "Role",
-    requiredMark: true,
-    type: "select",
-    placeholder: "Select role",
-    grid: 12,
-    options: roleOptions.value,
-  },
-  {
-    name: "name",
-    label: "Name",
+    name: "first_name",
+    label: "First Name",
     requiredMark: true,
     type: "text",
-    placeholder: "e.g., John Doe",
+    placeholder: "e.g., John",
     grid: 12,
   },
   {
-    name: "username",
-    label: "Username / Email",
+    name: "last_name",
+    label: "Last Name",
+    requiredMark: true,
+    type: "text",
+    placeholder: "e.g., Doe",
+    grid: 12,
+  },
+  {
+    name: "email",
+    label: "Email",
     requiredMark: true,
     type: "text",
     placeholder: "e.g., johndoe@example.com",
@@ -74,24 +69,38 @@ const formFields = computed<FieldConfig[]>(() => [
     helperText:
       "Password must contain uppercase, lowercase, and be at least 8 characters.",
   },
+  {
+    name: "is_superadmin",
+    label: "User Type",
+    requiredMark: true,
+    type: "select",
+    placeholder: "Select user type",
+    grid: 12,
+    options: [
+      { id: "false", label: "User" },
+      { id: "true", label: "Superadmin" },
+    ],
+  },
 ]);
 
 const formSchema = object({
-  role: string().required("Role is required"),
-  name: string().required("Name is required"),
-  username: string().required("Username is required"),
+  first_name: string().required("First name is required"),
+  last_name: string().required("Last name is required"),
+  email: string().required("Email is required"),
   password: string()
     .required("Password is required")
     .min(8, "Password must be at least 8 characters")
     .matches(/[a-z]/, "Password must contain at least one lowercase letter")
     .matches(/[A-Z]/, "Password must contain at least one uppercase letter"),
+  is_superadmin: string().required("User type is required"),
 });
 
 const createInitialValues = (): UserFormValues => ({
-  role: "",
-  name: "",
-  username: "",
+  first_name: "",
+  last_name: "",
+  email: "",
   password: "",
+  is_superadmin: "false",
 });
 
 const form = useForm<UserFormValues>({
@@ -109,10 +118,11 @@ watch(
       const current = selectedData as UserType;
       form.resetForm({
         values: {
-          role: current.role || "",
-          name: current.name || "",
-          username: current.email || "",
+          first_name: (current as any).first_name || "",
+          last_name: (current as any).last_name || "",
+          email: current.email || "",
           password: "",
+          is_superadmin: (current as any).is_superadmin ? "true" : "false",
         },
       });
     } else {
@@ -140,14 +150,27 @@ const handleCancel = () => {
 async function handleFormSubmit(values: UserFormValues) {
   try {
     const payload = {
-      role: values.role,
-      name: values.name,
-      email: values.username,
+      email: values.email,
+      first_name: values.first_name,
+      last_name: values.last_name,
       password: values.password,
+      is_superadmin: values.is_superadmin === "true",
     };
 
     if (props.mode === "update" && selectedData.value?.id) {
-      await updateUser({ id: selectedData.value.id, ...payload });
+      const updatePayload: any = {
+        id: selectedData.value.id,
+        email: payload.email,
+        first_name: payload.first_name,
+        last_name: payload.last_name,
+        is_superadmin: payload.is_superadmin,
+      };
+
+      if (values.password) {
+        updatePayload.password = values.password;
+      }
+
+      await updateUser(updatePayload);
     } else {
       await createUser(payload);
     }
@@ -208,4 +231,3 @@ defineExpose({
     </template>
   </GeneralModal>
 </template>
-

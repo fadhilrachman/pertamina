@@ -1,6 +1,21 @@
 import { api } from "~/services/api";
 import type { QueryParams } from "~/types/common";
-import type { UserType } from "~/types/user-type";
+
+export interface SuperadminCreateUserPayload {
+  email: string;
+  first_name: string;
+  last_name: string;
+  password: string;
+  is_superadmin?: boolean;
+}
+
+export interface SuperadminUpdateUserPayload {
+  email: string;
+  first_name: string;
+  last_name: string;
+  password?: string;
+  is_superadmin?: boolean;
+}
 
 export async function getSuperadminUsers(
   params: QueryParams & { search?: string }
@@ -17,11 +32,13 @@ export async function getSuperadminUsers(
   return await api.get("/api/v1/superadmin/users", { queryParams });
 }
 
-export async function postSuperadminUser(payload: UserType) {
+export async function postSuperadminUser(payload: SuperadminCreateUserPayload) {
   return await api.post("/api/v1/superadmin/users", { body: payload });
 }
 
-export async function putSuperadminUser(payload: UserType & { id: string }) {
+export async function putSuperadminUser(
+  payload: SuperadminUpdateUserPayload & { id: string }
+) {
   return await api.put(`/api/v1/superadmin/users/${payload.id}`, {
     body: payload,
   });
@@ -30,4 +47,3 @@ export async function putSuperadminUser(payload: UserType & { id: string }) {
 export async function deleteSuperadminUser(params: { id: string }) {
   return await api.delete(`/api/v1/superadmin/users/${params.id}`);
 }
-

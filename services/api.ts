@@ -1,5 +1,36 @@
 import { useIsUnauthorized } from "~/composables/is-unauthorized";
 
+async function handleUnauthorized() {
+  useIsUnauthorized().value = true;
+
+  const { signOut } = useAuth();
+  await signOut({ callbackUrl: "/login" });
+}
+
+async function tryRefreshToken() {
+  try {
+    const response = await fetch("/api/auth/refresh-token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      return false;
+    }
+
+    // Ensure body is consumed so fetch doesn't warn
+    await response.json().catch(() => {});
+
+    return true;
+  } catch (error) {
+    console.error("Failed to refresh token", error);
+    return false;
+  }
+}
+
 export const api = {
   provider: <Body = unknown>(
     url: string,
@@ -48,15 +79,6 @@ export const api = {
   afterResponse: async <T>(response: Response, isByte: boolean) => {
     const data = isByte ? await response.blob() : await response.json();
 
-    // if (response.status >= 500) navigateTo("/server-error");
-
-    if (response.status === 401 && !response.url.includes("syncfms")) {
-      useIsUnauthorized().value = true;
-
-      const { signOut } = useAuth();
-      await signOut({ callbackUrl: "/login" });
-    }
-
     if (response.status >= 400) throw data;
 
     return data;
@@ -70,19 +92,39 @@ export const api = {
       isByte?: boolean;
     }
   ) => {
-    const { newUrl, newHeaders } = api.provider(
-      url,
-      option?.queryParams,
-      undefined,
-      option?.headers,
-      option?.isByte
-    );
-
     const isByte = option?.isByte || false;
-    const response = await fetch(newUrl, {
-      method: "GET",
-      headers: newHeaders,
-    });
+
+    const doRequest = async () => {
+      const { newUrl, newHeaders } = api.provider(
+        url,
+        option?.queryParams,
+        undefined,
+        option?.headers,
+        option?.isByte
+      );
+
+      return await fetch(newUrl, {
+        method: "GET",
+        headers: newHeaders,
+      });
+    };
+
+    let response = await doRequest();
+
+    if (response.status === 401 && !response.url.includes("syncfms")) {
+      const refreshed = await tryRefreshToken();
+      if (refreshed) {
+        response = await doRequest();
+      }
+
+      if (response.status === 401 || !refreshed) {
+        await handleUnauthorized();
+        const errorData = isByte
+          ? await response.blob()
+          : await response.json();
+        throw errorData;
+      }
+    }
 
     return await api.afterResponse(response, isByte);
   },
@@ -96,23 +138,43 @@ export const api = {
       isByte?: boolean;
     }
   ) => {
-    const { newUrl, newHeaders } = api.provider(
-      url,
-      option?.queryParams,
-      option?.body,
-      option?.headers,
-      option?.isByte
-    );
-
     const isByte = option?.isByte || false;
-    const response = await fetch(newUrl, {
-      method: "POST",
-      headers: newHeaders,
-      body:
-        option?.body instanceof FormData
-          ? option.body
-          : JSON.stringify(option?.body),
-    });
+
+    const doRequest = async () => {
+      const { newUrl, newHeaders } = api.provider(
+        url,
+        option?.queryParams,
+        option?.body,
+        option?.headers,
+        option?.isByte
+      );
+
+      return await fetch(newUrl, {
+        method: "POST",
+        headers: newHeaders,
+        body:
+          option?.body instanceof FormData
+            ? option.body
+            : JSON.stringify(option?.body),
+      });
+    };
+
+    let response = await doRequest();
+
+    if (response.status === 401 && !response.url.includes("syncfms")) {
+      const refreshed = await tryRefreshToken();
+      if (refreshed) {
+        response = await doRequest();
+      }
+
+      if (response.status === 401 || !refreshed) {
+        await handleUnauthorized();
+        const errorData = isByte
+          ? await response.blob()
+          : await response.json();
+        throw errorData;
+      }
+    }
 
     return await api.afterResponse(response, isByte);
   },
@@ -126,23 +188,43 @@ export const api = {
       isByte?: boolean;
     }
   ) => {
-    const { newUrl, newHeaders } = api.provider(
-      url,
-      option?.queryParams,
-      option?.body,
-      option?.headers,
-      option?.isByte
-    );
-
     const isByte = option?.isByte || false;
-    const response = await fetch(newUrl, {
-      method: "PUT",
-      headers: newHeaders,
-      body:
-        option?.body instanceof FormData
-          ? option.body
-          : JSON.stringify(option?.body),
-    });
+
+    const doRequest = async () => {
+      const { newUrl, newHeaders } = api.provider(
+        url,
+        option?.queryParams,
+        option?.body,
+        option?.headers,
+        option?.isByte
+      );
+
+      return await fetch(newUrl, {
+        method: "PUT",
+        headers: newHeaders,
+        body:
+          option?.body instanceof FormData
+            ? option.body
+            : JSON.stringify(option?.body),
+      });
+    };
+
+    let response = await doRequest();
+
+    if (response.status === 401 && !response.url.includes("syncfms")) {
+      const refreshed = await tryRefreshToken();
+      if (refreshed) {
+        response = await doRequest();
+      }
+
+      if (response.status === 401 || !refreshed) {
+        await handleUnauthorized();
+        const errorData = isByte
+          ? await response.blob()
+          : await response.json();
+        throw errorData;
+      }
+    }
 
     return await api.afterResponse(response, isByte);
   },
@@ -156,19 +238,39 @@ export const api = {
       isByte?: boolean;
     }
   ) => {
-    const { newUrl, newHeaders } = api.provider(
-      url,
-      option?.queryParams,
-      option?.body,
-      option?.headers,
-      option?.isByte
-    );
-
     const isByte = option?.isByte || false;
-    const response = await fetch(newUrl, {
-      method: "DELETE",
-      headers: newHeaders,
-    });
+
+    const doRequest = async () => {
+      const { newUrl, newHeaders } = api.provider(
+        url,
+        option?.queryParams,
+        option?.body,
+        option?.headers,
+        option?.isByte
+      );
+
+      return await fetch(newUrl, {
+        method: "DELETE",
+        headers: newHeaders,
+      });
+    };
+
+    let response = await doRequest();
+
+    if (response.status === 401 && !response.url.includes("syncfms")) {
+      const refreshed = await tryRefreshToken();
+      if (refreshed) {
+        response = await doRequest();
+      }
+
+      if (response.status === 401 || !refreshed) {
+        await handleUnauthorized();
+        const errorData = isByte
+          ? await response.blob()
+          : await response.json();
+        throw errorData;
+      }
+    }
 
     return await api.afterResponse(response, isByte);
   },

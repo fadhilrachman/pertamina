@@ -16,7 +16,7 @@ const sessionRoleName = computed(() => {
 });
 
 const isAdministrator = computed(
-  () => sessionRoleName.value.toLowerCase() === "administrator"
+  () => sessionRoleName.value.toLowerCase() === "superadmin"
 );
 
 const emit = defineEmits(["on-mounted", "on-click-close-sidebar"]);

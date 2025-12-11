@@ -29,10 +29,10 @@ const params = reactive({
   limit: 10,
 });
 const tableColumns: TableColumn[] = [
-  { key: "name", label: "Name", headerClass: "min-w-[180px]" },
+  { key: "first_name", label: "Name", headerClass: "min-w-[180px]" },
   { key: "email", label: "Email", headerClass: "min-w-[220px]" },
   { key: "role", label: "Role" },
-  { key: "status", label: "Status" },
+  // { key: "status", label: "Status" },
   { key: "created_at", label: "Created At" },
   { key: "actions", label: "Actions", align: "right" as const },
 ];
@@ -137,6 +137,9 @@ onMounted(() => {
           row-key="id"
           striped
         >
+          <template #cell-role="{ value }">
+            {{ (value as any)?.name ?? value }}
+          </template>
           <template #cell-created_at="{ value }">
             {{ formatTableDate(value as string) }}
           </template>
