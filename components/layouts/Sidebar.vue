@@ -8,7 +8,12 @@ const { data } = useAuth();
 const route = useRoute();
 const { isActive } = useActiveRoute();
 
-let menuData = reactive(sidebarMenu);
+const menuData = reactive<ISidebar[]>(
+  sidebarMenu.map((item) => ({
+    ...item,
+    menu: item.menu ? [...item.menu] : undefined,
+  }))
+);
 
 const sessionRoleName = computed(() => {
   const raw = data.value as SessionResponseType | null;
@@ -83,62 +88,58 @@ const getChevronIconClass = (menuItem: ISidebar) => {
 };
 
 const filteredMenu = computed(() =>
-  menuData
-    .filter((menuItem: ISidebar) => {
-      const hiddenRoles = (menuItem.hiddenForRoles || []).map((r) =>
-        r.toLowerCase()
-      );
-      if (hiddenRoles.includes(normalizedRole.value)) {
-        return false;
-      }
+  menuData.filter((menuItem: ISidebar) => {
+    const hiddenRoles = (menuItem.hiddenForRoles || []).map((r) =>
+      r.toLowerCase()
+    );
+    if (hiddenRoles.includes(normalizedRole.value)) {
+      return false;
+    }
 
-      const visibleFor = menuItem.visibleForRole;
-      if (visibleFor === "administrator" && !isAdministrator.value) {
-        return false;
-      }
+    const visibleFor = menuItem.visibleForRole;
+    if (visibleFor === "administrator" && !isAdministrator.value) {
+      return false;
+    }
 
-      if (visibleFor === "non-administrator" && isAdministrator.value) {
-        return false;
-      }
+    if (visibleFor === "non-administrator" && isAdministrator.value) {
+      return false;
+    }
 
-      return true;
-    })
-    .map((menuItem: ISidebar) => {
-      if (menuItem.menu && menuItem.menu.length > 0) {
-        const filteredChildren = menuItem.menu.filter((subMenu) => {
-          const hiddenChildRoles = (subMenu.hiddenForRoles || []).map((r) =>
-            r.toLowerCase()
-          );
-          return !hiddenChildRoles.includes(normalizedRole.value);
-        });
-
-        // mutate in place to keep reactivity on isOpen toggles
-        menuItem.menu = filteredChildren;
-      }
-      return menuItem;
-    })
-    .filter((menuItem: ISidebar) => {
-      if (menuItem.menu && menuItem.menu.length === 0) {
-        return false;
-      }
-      return true;
-    })
+    return true;
+  })
 );
 
-watchEffect(() => {
-  menuData = menuData.map((menuItem: ISidebar) => {
-    if (menuItem.menu && menuItem.menu.length > 0) {
-      const hasActiveChild = menuItem.menu.some((subMenu: IChildSidebar) =>
-        route.path.startsWith(subMenu.route)
-      );
-      // Auto-open if a child matches, otherwise keep the user's toggle state
-      if (hasActiveChild) {
-        menuItem.isOpen = true;
-      }
-    }
-    return menuItem;
+const getVisibleChildren = (menuItem: ISidebar) => {
+  const hiddenRoles = (menuItem.hiddenForRoles || []).map((r) =>
+    r.toLowerCase()
+  );
+  const isParentHidden = hiddenRoles.includes(normalizedRole.value);
+  if (isParentHidden) return [];
+
+  return (menuItem.menu || []).filter((subMenu) => {
+    const hiddenChildRoles = (subMenu.hiddenForRoles || []).map((r) =>
+      r.toLowerCase()
+    );
+    return !hiddenChildRoles.includes(normalizedRole.value);
   });
-});
+};
+
+watch(
+  () => route.path,
+  () => {
+    menuData.forEach((menuItem: ISidebar) => {
+      if (menuItem.menu && menuItem.menu.length > 0) {
+        const hasActiveChild = menuItem.menu.some((subMenu: IChildSidebar) =>
+          route.path.startsWith(subMenu.route)
+        );
+        if (hasActiveChild) {
+          menuItem.isOpen = true;
+        }
+      }
+    });
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
@@ -177,7 +178,7 @@ watchEffect(() => {
     <div class="px-4 whitespace-nowrap">
       <ul class="space-y-2">
         <li v-for="menuItem in filteredMenu" :key="menuItem.id">
-          <template v-if="menuItem.menu && menuItem.menu.length > 0">
+          <template v-if="getVisibleChildren(menuItem).length > 0">
             <button
               class="w-full flex items-center justify-between text-sm"
               :class="getMenuActiveClass(menuItem)"
@@ -196,7 +197,10 @@ watchEffect(() => {
             </button>
 
             <ul v-show="menuItem.isOpen" class="space-y-1 mt-2 pl-4">
-              <li v-for="subMenuItem in menuItem.menu" :key="subMenuItem.id">
+              <li
+                v-for="subMenuItem in getVisibleChildren(menuItem)"
+                :key="subMenuItem.id"
+              >
                 <AppNavigationLink
                   class="pl-4"
                   :id="subMenuItem.id"
