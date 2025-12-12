@@ -28,17 +28,26 @@ const isParentRouteActive = (destination: string) => {
   return route.path.startsWith(destination);
 };
 
-const getMenuActiveClass = (destination: string) => {
+const isMenuActive = (menuItem: ISidebar) => {
+  const destination = menuItem?.startWith || "";
+  const byStartWith = destination ? route.path.startsWith(destination) : false;
+  const byChild =
+    menuItem?.menu?.some((child) => route.path.startsWith(child.route)) ||
+    false;
+  return byStartWith || byChild;
+};
+
+const getMenuActiveClass = (menuItem: ISidebar) => {
   const base =
     "w-full flex whitespace-nowrap items-center justify-between rounded-xl px-3 py-2 text-sm font-medium text-gray-700 transition-colors";
-  const state = isParentRouteActive(destination)
+  const state = isMenuActive(menuItem)
     ? "bg-primary-50 text-primary-600"
     : "hover:bg-gray-100 hover:text-gray-900";
   return `${base} ${state}`;
 };
 
-const getIconMenuActive = (destination: string) => {
-  return isParentRouteActive(destination)
+const getIconMenuActive = (menuItem: ISidebar) => {
+  return isMenuActive(menuItem)
     ? "stroke-primary-600"
     : "stroke-gray-700";
 };
@@ -58,10 +67,10 @@ const getIconWrapperClass = (destination: string) => {
   return active ? `${base} border-primary-200 bg-primary-50` : `${base} `;
 };
 
-const getParentIconWrapperClass = (destination: string) => {
+const getParentIconWrapperClass = (menuItem: ISidebar) => {
   const base =
     "flex h-6 w-6 items-center whitespace-nowrap justify-center rounded-2xl  transition-colors";
-  return isParentRouteActive(destination)
+  return isMenuActive(menuItem)
     ? `${base} border-primary-200 bg-primary-50`
     : `${base} `;
 };
@@ -69,7 +78,7 @@ const getParentIconWrapperClass = (destination: string) => {
 const getChevronIconClass = (menuItem: ISidebar) => {
   const base = "h-4 w-4 transition-transform duration-200";
   const rotation = menuItem.isOpen ? "rotate-180" : "";
-  const state = getIconMenuActive(menuItem?.startWith || "");
+  const state = getIconMenuActive(menuItem);
   return `${base} ${rotation} ${state}`.trim();
 };
 
@@ -119,11 +128,13 @@ const filteredMenu = computed(() =>
 watchEffect(() => {
   menuData = menuData.map((menuItem: ISidebar) => {
     if (menuItem.menu && menuItem.menu.length > 0) {
-      menuItem.menu.map((subMenu: IChildSidebar) => {
-        if (route.path.includes(subMenu.route)) {
-          menuItem.isOpen = true;
-        }
-      });
+      const hasActiveChild = menuItem.menu.some((subMenu: IChildSidebar) =>
+        route.path.startsWith(subMenu.route)
+      );
+      // Auto-open if a child matches, otherwise keep the user's toggle state
+      if (hasActiveChild) {
+        menuItem.isOpen = true;
+      }
     }
     return menuItem;
   });
@@ -169,16 +180,14 @@ watchEffect(() => {
           <template v-if="menuItem.menu && menuItem.menu.length > 0">
             <button
               class="w-full flex items-center justify-between text-sm"
-              :class="getMenuActiveClass(menuItem?.startWith || '')"
+              :class="getMenuActiveClass(menuItem)"
               @click="toggleMenu(menuItem)"
             >
               <div class="flex items-center gap-3">
-                <span
-                  :class="getParentIconWrapperClass(menuItem?.startWith || '')"
-                >
+                <span :class="getParentIconWrapperClass(menuItem)">
                   <component
                     :is="menuItem.icon"
-                    :class="getIconMenuActive(menuItem?.startWith || '')"
+                    :class="getIconMenuActive(menuItem)"
                   />
                 </span>
                 <span class="text-sm">{{ menuItem?.label }}</span>

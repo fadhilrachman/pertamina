@@ -68,7 +68,7 @@ export const sidebarMenu: ISidebar[] = [
     label: "User Management ", //
     icon: markRaw(IconsUser),
     id: "menu__superadmin",
-    startWith: "/superadmin",
+    startWith: "/superadmin/user",
     isOpen: false,
     visibleForRole: "administrator",
     menu: [
@@ -157,7 +157,7 @@ export const sidebarMenu: ISidebar[] = [
     label: "Stock Management",
     icon: markRaw(IconsCube),
     id: "menu__stock-management_superadmin",
-    startWith: "/stock-management",
+    startWith: "/superadmin/stock-management",
     visibleForRole: "administrator",
 
     isOpen: false,
