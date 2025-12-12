@@ -4,6 +4,7 @@ export interface IChildSidebar {
   route: string;
   icon?: any;
   active?: boolean;
+  hiddenForRoles?: string[];
 }
 
 export interface ISidebar {
@@ -16,4 +17,5 @@ export interface ISidebar {
   isOpen?: boolean;
   menu?: IChildSidebar[];
   visibleForRole?: "administrator" | "non-administrator";
+  hiddenForRoles?: string[];
 }

@@ -18,7 +18,7 @@ export interface UserType {
     id?: string;
     name?: string;
   }>;
-  company_ids?: Array<string | number>;
+  company_id?: string;
 }
 
 export interface SessionRoleType {

@@ -7,7 +7,7 @@ export interface SuperadminCreateUserPayload {
   last_name: string;
   password: string;
   is_superadmin?: boolean;
-  company_ids?: Array<string | number>;
+  company_id?: string;
 }
 
 export interface SuperadminUpdateUserPayload {
@@ -16,7 +16,7 @@ export interface SuperadminUpdateUserPayload {
   last_name: string;
   password?: string;
   is_superadmin?: boolean;
-  company_ids?: Array<string | number>;
+  company_id?: string;
 }
 
 export async function getSuperadminUsers(

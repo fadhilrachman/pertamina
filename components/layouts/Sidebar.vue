@@ -15,9 +15,9 @@ const sessionRoleName = computed(() => {
   return raw?.data?.role?.name || "";
 });
 
-const isAdministrator = computed(
-  () => sessionRoleName.value.toLowerCase() === "superadmin"
-);
+const normalizedRole = computed(() => sessionRoleName.value.toLowerCase());
+
+const isAdministrator = computed(() => normalizedRole.value === "superadmin");
 
 const emit = defineEmits(["on-mounted", "on-click-close-sidebar"]);
 
@@ -74,19 +74,46 @@ const getChevronIconClass = (menuItem: ISidebar) => {
 };
 
 const filteredMenu = computed(() =>
-  menuData.filter((menuItem: ISidebar) => {
-    const visibleFor = menuItem.visibleForRole;
+  menuData
+    .filter((menuItem: ISidebar) => {
+      const hiddenRoles = (menuItem.hiddenForRoles || []).map((r) =>
+        r.toLowerCase()
+      );
+      if (hiddenRoles.includes(normalizedRole.value)) {
+        return false;
+      }
 
-    if (visibleFor === "administrator" && !isAdministrator.value) {
-      return false;
-    }
+      const visibleFor = menuItem.visibleForRole;
+      if (visibleFor === "administrator" && !isAdministrator.value) {
+        return false;
+      }
 
-    if (visibleFor === "non-administrator" && isAdministrator.value) {
-      return false;
-    }
+      if (visibleFor === "non-administrator" && isAdministrator.value) {
+        return false;
+      }
 
-    return true;
-  })
+      return true;
+    })
+    .map((menuItem: ISidebar) => {
+      if (menuItem.menu && menuItem.menu.length > 0) {
+        const filteredChildren = menuItem.menu.filter((subMenu) => {
+          const hiddenChildRoles = (subMenu.hiddenForRoles || []).map((r) =>
+            r.toLowerCase()
+          );
+          return !hiddenChildRoles.includes(normalizedRole.value);
+        });
+
+        // mutate in place to keep reactivity on isOpen toggles
+        menuItem.menu = filteredChildren;
+      }
+      return menuItem;
+    })
+    .filter((menuItem: ISidebar) => {
+      if (menuItem.menu && menuItem.menu.length === 0) {
+        return false;
+      }
+      return true;
+    })
 );
 
 watchEffect(() => {

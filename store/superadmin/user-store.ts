@@ -100,30 +100,30 @@ export const useSuperadminUserStore = defineStore("superadminUser", {
           const firstName = item.first_name ?? "";
           const lastName = item.last_name ?? "";
           const fullName = `${firstName} ${lastName}`.trim();
-          const companies =
-            item.companies && Array.isArray(item.companies)
-              ? item.companies
-              : [];
-          const company_ids = companies
-            .map(
-              (company: any) => company?.company_id ?? company?.id ?? undefined
-            )
-            .filter(Boolean);
+        const companies =
+          item.companies && Array.isArray(item.companies)
+            ? item.companies
+            : [];
+        const company_id =
+          companies.find((c: any) => c?.is_default)?.company_id ??
+          companies[0]?.company_id ??
+          companies[0]?.id ??
+          undefined;
 
-          return {
-            id: item.id ?? "",
-            name: fullName || (item.email ?? ""),
-            email: item.email ?? "",
+        return {
+          id: item.id ?? "",
+          name: fullName || (item.email ?? ""),
+          email: item.email ?? "",
             role: item.is_superadmin ? "Superadmin" : "User",
             status: item.status ?? "",
             created_at: item.created_at ?? "",
-            first_name: firstName || undefined,
-            last_name: lastName || undefined,
-            is_superadmin: item.is_superadmin ?? undefined,
-            companies,
-            company_ids,
-          };
-        });
+          first_name: firstName || undefined,
+          last_name: lastName || undefined,
+          is_superadmin: item.is_superadmin ?? undefined,
+          companies,
+          company_id,
+        };
+      });
 
         this.data = {
           code: response.code ?? 200,
@@ -159,11 +159,11 @@ export const useSuperadminUserStore = defineStore("superadminUser", {
           detail.companies && Array.isArray(detail.companies)
             ? detail.companies
             : [];
-        const company_ids = companies
-          .map(
-            (company: any) => company?.company_id ?? company?.id ?? undefined
-          )
-          .filter(Boolean);
+        const company_id =
+          companies.find((c: any) => c?.is_default)?.company_id ??
+          companies[0]?.company_id ??
+          companies[0]?.id ??
+          undefined;
 
         const data: UserType = {
           id: detail.id ?? "",
@@ -176,7 +176,7 @@ export const useSuperadminUserStore = defineStore("superadminUser", {
           last_name: detail.last_name ?? undefined,
           is_superadmin: detail.is_superadmin ?? undefined,
           companies,
-          company_ids,
+          company_id,
         };
 
         this.dataDetail = {

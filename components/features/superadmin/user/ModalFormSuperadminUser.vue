@@ -3,7 +3,7 @@ import { computed, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useForm } from "vee-validate";
 import type { ElementEvent } from "~/types/element";
-import { array, object, string } from "yup";
+import { object, string } from "yup";
 import type { FieldConfig } from "~/components/general/FormGenerator/index.vue";
 import { useSuperadminUserStore } from "~/store/superadmin/user-store";
 import type { UserType } from "~/types/user-type";
@@ -28,7 +28,7 @@ type UserFormValues = {
   email: string;
   password: string;
   is_superadmin: string;
-  company_ids: Array<string | number>;
+  company_id: string;
 };
 
 const modalInstance = ref<ElementEvent | null>(null);
@@ -54,9 +54,13 @@ const formSchema = object({
   password: string().required("Password is required"),
   // .min(8, "Password must be at least 8 characters")
   // .matches(/[a-z]/, "Password must contain at least one lowercase letter")
-  // .matches(/[A-Z]/, "Password must contain at least one uppercase letter"),
-  is_superadmin: string().required("User type is required"),
-  company_ids: array(string()).optional(),
+// .matches(/[A-Z]/, "Password must contain at least one uppercase letter"),
+is_superadmin: string().required("User type is required"),
+company_id: string().when("is_superadmin", {
+  is: "false",
+  then: (schema) => schema.required("Company is required for regular user"),
+  otherwise: (schema) => schema.optional(),
+}),
 });
 
 const createInitialValues = (): UserFormValues => ({
@@ -65,7 +69,7 @@ const createInitialValues = (): UserFormValues => ({
   email: "",
   password: "",
   is_superadmin: "false",
-  company_ids: [],
+  company_id: "",
 });
 
 const form = useForm<UserFormValues>({
@@ -81,7 +85,7 @@ watch(
   () => form.values.is_superadmin,
   (next) => {
     if (next === "true") {
-      form.setFieldValue("company_ids", []);
+      form.setFieldValue("company_id", "");
     }
   }
 );
@@ -131,12 +135,11 @@ const formFields = computed<FieldConfig[]>(() => [
     grid: 12,
   },
   {
-    name: "company_ids",
-    label: "Companies",
+    name: "company_id",
+    label: "Company",
     type: "search-select",
-    placeholder: "Select companies",
+    placeholder: "Select company",
     grid: 12,
-    multiple: true,
     options: companyOptions.value,
     disabled: isSuperadminSelected.value,
   },
@@ -150,12 +153,12 @@ watch(
   ({ mode, selectedData }) => {
     if (mode === "update" && selectedData) {
       const current = selectedData as UserType;
-      const fallbackCompanies =
-        current.company_ids ||
-        current.companies?.map(
-          (company: any) => company.company_id || company.id || ""
-        ) ||
-        [];
+      const fallbackCompany =
+        current.company_id ||
+        current.companies?.find((company: any) => company?.is_default)?.company_id ||
+        current.companies?.[0]?.company_id ||
+        current.companies?.[0]?.id ||
+        "";
       const isSuperadmin = (current as any).is_superadmin;
       form.resetForm({
         values: {
@@ -164,7 +167,7 @@ watch(
           email: current.email || "",
           password: "",
           is_superadmin: isSuperadmin ? "true" : "false",
-          company_ids: isSuperadmin ? [] : fallbackCompanies,
+          company_id: isSuperadmin ? "" : String(fallbackCompany),
         },
       });
     } else {
@@ -196,13 +199,19 @@ const handleCancel = () => {
 
 async function handleFormSubmit(values: UserFormValues) {
   try {
+    const companyId =
+      values.is_superadmin === "true"
+        ? undefined
+        : values.company_id
+        ? String(values.company_id)
+        : undefined;
     const payload = {
       email: values.email,
       first_name: values.first_name,
       last_name: values.last_name,
       password: values.password,
       is_superadmin: values.is_superadmin === "true",
-      company_ids: (values.company_ids || []).filter(Boolean),
+      company_id: companyId,
     };
 
     if (props.mode === "update" && selectedData.value?.id) {
@@ -212,7 +221,7 @@ async function handleFormSubmit(values: UserFormValues) {
         first_name: payload.first_name,
         last_name: payload.last_name,
         is_superadmin: payload.is_superadmin,
-        company_ids: payload.company_ids,
+        company_id: payload.company_id,
       };
 
       if (values.password) {

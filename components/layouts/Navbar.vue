@@ -116,12 +116,12 @@ async function handleLogout() {
               <p class="text-xs text-gray-500 leading-tight">
                 {{ displayRole }}
               </p>
-              <p
+              <!-- <p
                 v-if="displayEmail"
                 class="text-xs text-gray-400 leading-tight truncate max-w-[180px]"
               >
                 {{ displayEmail }}
-              </p>
+              </p> -->
             </div>
           </button>
 

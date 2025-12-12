@@ -2,15 +2,11 @@ import {
   IconsBuilding,
   IconsCube,
   IconsDashboard,
-  IconsDatabase,
-  IconsSku,
   IconsStockAdjustment,
   IconsStockIn,
   IconsStockOut,
   IconsTransactions,
-  IconsTruck,
   IconsUser,
-  IconsUserRole,
   IconsWarehouse,
 } from "#components";
 import type { ISidebar } from "@/types/sidebar";
@@ -110,12 +106,14 @@ export const sidebarMenu: ISidebar[] = [
         id: "menu__stock-management-in",
         route: "/stock-management/stock-in",
         icon: markRaw(IconsStockIn),
+        hiddenForRoles: ["management"],
       },
       {
         label: "Stock Out",
         route: "/stock-management/stock-out",
         id: "menu__stock-management-out",
         icon: markRaw(IconsStockOut),
+        hiddenForRoles: ["management"],
       },
       {
         label: "Stock Adjustment",
