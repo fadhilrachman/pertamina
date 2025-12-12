@@ -22,3 +22,6 @@ export async function getSuperadminFacilities(
   });
 }
 
+export async function getSuperadminFacilityDetail(params: { id: string }) {
+  return await api.get(`/api/v1/superadmin/facilities/${params.id}`);
+}

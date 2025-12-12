@@ -27,7 +27,7 @@ const facilitiesSkuStore = useSuperadminFacilitySkuStore();
 const { data, loadingWrite, loadingList } = storeToRefs(facilitiesSkuStore);
 
 const facilitiesStore = useSuperadminFacilitiesStore();
-const { dataDetail } = storeToRefs(facilitiesStore);
+const { dataDetail, loadingDetail } = storeToRefs(facilitiesStore);
 const route = useRoute();
 const { data: authData } = useAuth();
 
@@ -48,10 +48,8 @@ const tableData = computed(() => {
 
   return (raw as any[]).map((item) => ({
     ...item,
-    sku_code:
-      item.sku_code ?? item.sku?.code ?? "-",
-    sku_name:
-      item.sku_name ?? item.sku?.name ?? "-",
+    sku_code: item.sku_code ?? item.sku?.sku_code ?? item.sku?.code ?? "-",
+    sku_name: item.sku_name ?? item.sku?.sku_name ?? item.sku?.name ?? "-",
   }));
 });
 
@@ -77,15 +75,6 @@ const handlePageSizeChange = (pageSize: number) => {
   params.page = 1;
 };
 
-const handleDownloadTemplate = () => {
-  const link = document.createElement("a");
-  link.href = "/assets/template/sku_template.xlsx";
-  link.download = "sku_template.xlsx";
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
-
 watch(
   () => ({ ...params, facility_id: warehouseId.value }),
   () => {
@@ -99,9 +88,9 @@ watch(
 );
 
 onMounted(() => {
-  // if (warehouseId.value) {
-  //   facilitiesStore.getDataFacilities({ id: warehouseId.value,  });
-  // }
+  if (warehouseId.value) {
+    facilitiesStore.getFacilityDetail({ id: warehouseId.value });
+  }
   facilitiesSkuStore.getDataFacilitySku({
     ...params,
     facility_id: warehouseId.value,

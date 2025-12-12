@@ -1,5 +1,6 @@
 export interface StockOnHandType {
   facility_id: string;
+  facility_sku_id: string;
   facility_name: string;
   warehouse: string;
   low_stock_threshold: number;

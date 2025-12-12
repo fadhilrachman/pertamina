@@ -93,11 +93,51 @@ const tableData = computed(() => {
     ...item,
     company_name: item.company_name ?? item.company?.name ?? "-",
     facility_name: item.facility_name ?? item.facility?.name ?? "-",
-    sku_name: item.sku_name ?? item.sku?.name ?? "-",
-    sku_code: item.sku_code ?? item.sku?.code ?? "-",
+    sku_name:
+      item.sku_name ??
+      item.sku?.sku_name ??
+      item.sku?.name ??
+      "-",
+    sku_code:
+      item.sku_code ??
+      item.sku?.sku_code ??
+      item.sku?.code ??
+      "-",
+    category: item.category ?? item.sku?.category ?? "-",
+    unit_of_measure:
+      item.unit_of_measure ??
+      item.unit ??
+      item.sku?.unit_of_measure ??
+      item.sku?.unit ??
+      "-",
+    min_stock:
+      item.min_stock ??
+      item.min_qty ??
+      item.facility?.min_stock ??
+      item.facility?.min_qty ??
+      "-",
+    max_stock:
+      item.max_stock ??
+      item.max_qty ??
+      item.facility?.max_stock ??
+      item.facility?.max_qty ??
+      "-",
     warehouse: item.warehouse ?? item.facility?.name ?? "-",
+    last_movement: item.last_movement ?? item.updated_at ?? item.created_at,
+    on_hand_qty:
+      item.on_hand_qty ??
+      item.on_hand ??
+      item.quantity ??
+      0,
   }));
 });
+
+const totalOnHandQty = computed(() =>
+  tableData.value.reduce(
+    (sum, item) => sum + Number(item.on_hand_qty || 0),
+    0
+  )
+);
 
 const tableColumns: TableColumn[] = [
   { key: "company_name", label: "Company" },
@@ -246,7 +286,9 @@ onBeforeMount(() => {
       <div class="bg-white p-6 rounded-xl space-y-4">
         <div class="text-sm text-neutral-600">
           <span> Total On-Hand Quantity: </span>
-          <span class="text-blue-500 font-medium"> 150,579 </span>
+          <span class="text-blue-500 font-medium">
+            {{ totalOnHandQty.toLocaleString() }}
+          </span>
         </div>
         <GeneralTable
           :columns="tableColumns"

@@ -6,7 +6,10 @@ import type {
   ResponseApiDetail,
 } from "~/types/common";
 import type { FacilitiesType } from "~/types/facilities-type";
-import { getSuperadminFacilities } from "~/services/superadmin/facilities-services";
+import {
+  getSuperadminFacilities,
+  getSuperadminFacilityDetail,
+} from "~/services/superadmin/facilities-services";
 
 export const useSuperadminFacilitiesStore = defineStore(
   "superadminFacilities",
@@ -106,10 +109,36 @@ export const useSuperadminFacilitiesStore = defineStore(
         }
       },
 
-      async refetchDataFacilities() {
-        if (!this.listParams) return;
-        await this.getDataFacilities(this.listParams);
-      },
+    async refetchDataFacilities() {
+      if (!this.listParams) return;
+      await this.getDataFacilities(this.listParams);
+    },
+
+    async getFacilityDetail(params: { id: string }) {
+      this.loadingDetail = true;
+      try {
+        const response: any = await getSuperadminFacilityDetail(params);
+        const detail = response?.data?.data ?? response?.data ?? response ?? {};
+
+        this.dataDetail = {
+          code: response?.code ?? 200,
+          data: detail as FacilitiesType,
+          error: response?.error ?? "",
+          message: response?.message ?? "",
+          success: response?.success ?? true,
+        };
+
+        this.selectedData = detail as FacilitiesType;
+        return detail as FacilitiesType;
+      } catch (error) {
+        toast.error("Failed get facility detail (superadmin)", {
+          toastClassName: "toastify-error",
+        });
+        throw error;
+      } finally {
+        this.loadingDetail = false;
+      }
+    },
     },
   }
 );

@@ -1925,7 +1925,7 @@
           },
           {
             "type": "string",
-            "description": "Filter by status (available/low/out_of_stock)",
+            "description": "Filter by status (available/low/out_of_stock/overstock)",
             "name": "status",
             "in": "query"
           },
@@ -2638,6 +2638,61 @@
                   }
                 }
               ]
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/superadmin/facilities/{id}": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get details of a specific facility",
+        "produces": ["application/json"],
+        "tags": ["Superadmin"],
+        "summary": "Get facility by ID (Superadmin only)",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Facility ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/superadmin.FacilityDetailResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
             }
           }
         }
@@ -5142,17 +5197,6 @@
         }
       }
     },
-    "stock.FacilityRef": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        }
-      }
-    },
     "stock.ListOnHandStockResponse": {
       "type": "object",
       "properties": {
@@ -5214,16 +5258,14 @@
         "category": {
           "type": "string"
         },
-        "facility": {
-          "description": "facility object with id and name",
-          "allOf": [
-            {
-              "$ref": "#/definitions/stock.FacilityRef"
-            }
-          ]
-        },
         "facility_id": {
-          "description": "for backward compatibility",
+          "type": "string"
+        },
+        "facility_name": {
+          "type": "string"
+        },
+        "facility_sku_id": {
+          "description": "Will be empty UUID if facility_sku is not assigned",
           "type": "string"
         },
         "last_movement": {
@@ -5245,7 +5287,6 @@
           "type": "string"
         },
         "sku_id": {
-          "description": "for backward compatibility",
           "type": "string"
         },
         "sku_name": {
@@ -5259,7 +5300,7 @@
           "type": "string"
         },
         "warehouse": {
-          "description": "facility_name (deprecated, use facility.name)",
+          "description": "facility_name (deprecated, use facility_name)",
           "type": "string"
         }
       }
@@ -5616,6 +5657,44 @@
         }
       }
     },
+    "superadmin.FacilityDetailResponse": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string"
+        },
+        "capacity": {
+          "type": "number"
+        },
+        "city": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "company": {
+          "$ref": "#/definitions/superadmin.SimpleRef"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "deleted_at": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        }
+      }
+    },
     "superadmin.FacilityListItem": {
       "type": "object",
       "properties": {
@@ -5667,9 +5746,32 @@
           "type": "number"
         },
         "sku": {
-          "$ref": "#/definitions/superadmin.SimpleRef"
+          "$ref": "#/definitions/superadmin.FacilitySKUSKU"
         },
         "status": {
+          "type": "string"
+        }
+      }
+    },
+    "superadmin.FacilitySKUSKU": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string"
+        },
+        "facility_sku_id": {
+          "type": "string"
+        },
+        "sku_code": {
+          "type": "string"
+        },
+        "sku_id": {
+          "type": "string"
+        },
+        "sku_name": {
+          "type": "string"
+        },
+        "unit": {
           "type": "string"
         }
       }
@@ -5844,13 +5946,48 @@
         "id": {
           "type": "string"
         },
+        "last_movement": {
+          "type": "string"
+        },
+        "max_stock": {
+          "type": "number"
+        },
+        "min_stock": {
+          "type": "number"
+        },
         "on_hand_qty": {
           "type": "number"
         },
         "sku": {
-          "$ref": "#/definitions/superadmin.SimpleRef"
+          "$ref": "#/definitions/superadmin.StockOnHandSKU"
+        },
+        "status": {
+          "type": "string"
         },
         "updated_at": {
+          "type": "string"
+        }
+      }
+    },
+    "superadmin.StockOnHandSKU": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string"
+        },
+        "facility_sku_id": {
+          "type": "string"
+        },
+        "sku_code": {
+          "type": "string"
+        },
+        "sku_id": {
+          "type": "string"
+        },
+        "sku_name": {
+          "type": "string"
+        },
+        "unit": {
           "type": "string"
         }
       }

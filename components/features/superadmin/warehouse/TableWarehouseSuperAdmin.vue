@@ -6,6 +6,7 @@ import { usePageStore } from "~/store/page";
 import { useSuperadminFacilitiesStore } from "~/store/superadmin/facilities-store";
 import { useSuperadminCompanyStore } from "~/store/superadmin/company-store";
 import type { CompanyType } from "~/types/company-type";
+import { useRouter } from "vue-router";
 
 const $page = usePageStore();
 const router = useRouter();
@@ -27,10 +28,12 @@ const params = reactive({
 
 const companyOptions = computed(
   () =>
-    companyData.value?.data?.data?.map((item: CompanyType) => ({
-      id: item.id,
-      label: item.name,
-    })) || []
+    companyData.value?.data?.data
+      ?.map((item: CompanyType) => ({
+        id: item.id ?? "",
+        label: item.name,
+      }))
+      .filter((option) => option.id !== "") || []
 );
 const tableColumns: TableColumn[] = [
   { key: "code", label: "Code" },

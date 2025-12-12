@@ -119,7 +119,7 @@ const handleFormSubmit = async (val: any) => {
       lines: [
         {
           qty: Number(val.qty),
-          facility_sku_id: data.sku_id,
+          facility_sku_id: data.facility_sku_id,
           uom: data.unit_of_measure,
         },
       ],

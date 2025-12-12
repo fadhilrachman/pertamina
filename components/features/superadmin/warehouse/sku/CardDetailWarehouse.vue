@@ -20,7 +20,9 @@ const props = defineProps<{
         </h2>
         <p class="text-xs text-gray-500 flex items-center gap-1">
           <span>Code</span>
-          <span class="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-700">
+          <span
+            class="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-700"
+          >
             {{ warehouse?.code || "-" }}
           </span>
         </p>
