@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, onMounted, reactive, ref, watch } from "vue";
+import { computed, onBeforeMount, onMounted, reactive, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import ModalFormSku from "~/components/features/master-data/sku/ModalFormSku.vue";
 import ModalDelete from "~/components/general/ModalDelete/index.vue";
@@ -13,6 +13,7 @@ import { useFacilitiesStore } from "~/store/master-data/facilities-store";
 import { formatTableDate } from "~/utils/functions";
 import { useSuperadminFacilitiesStore } from "~/store/superadmin/facilities-store";
 import { useSuperadminStockOnHandStore } from "~/store/superadmin/stock-on-hand-store";
+import { toast } from "vue3-toastify";
 
 const statusBadgeClass = (status: string | undefined) => {
   if (!status) return "bg-gray-100 text-gray-600 border border-gray-200";
@@ -64,6 +65,16 @@ const skuOptions = computed(
 const { data, loadingWrite, loadingList } = storeToRefs(stockOnHandStore);
 const deleteModalRef = ref<ElementEvent | null>(null);
 const selectedSku = ref<Record<string, any> | null>(null);
+const exporting = ref(false);
+const tableData = computed(
+  () => (data.value?.data?.data as any[]) || ([] as any[])
+);
+const totalOnHandQty = computed(() =>
+  tableData.value.reduce(
+    (sum, item) => sum + Number(item?.on_hand_qty ?? item?.on_hand ?? 0),
+    0
+  )
+);
 
 const params = reactive({
   sku_id: "",
@@ -116,6 +127,39 @@ const handleStatusChange = (value: string | number) => {
   params.page = 1;
 };
 
+const handleExportExcel = async () => {
+  if (exporting.value) return;
+
+  exporting.value = true;
+
+  try {
+    const blob = await stockOnHandStore.downloadStockOnHand({
+      facility_id: params.facility_id || undefined,
+      sku_id: params.sku_id || undefined,
+      status: params.status || undefined,
+    });
+
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "stock_on_hand.xlsx";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  } catch (error: any) {
+    console.error("Failed to export stock on hand", error);
+    toast.error(
+      error?.message || "Failed to export stock on hand. Please try again.",
+      {
+        toastClassName: "toastify-error",
+      }
+    );
+  } finally {
+    exporting.value = false;
+  }
+};
+
 watch(
   () => ({ ...params }),
   () => {
@@ -146,7 +190,13 @@ onBeforeMount(() => {
         subtitle="Current stock per SKU and warehouse"
       />
       <div class="flex justify-between space-x-2">
-        <GeneralButton color="success" label="Export to Excel">
+        <GeneralButton
+          color="success"
+          label="Export to Excel"
+          :loading="exporting"
+          :disabled="exporting"
+          @on-click="handleExportExcel"
+        >
           <template #prefix>
             <IconsDownload size="18" class="text-white" />
           </template>
@@ -189,11 +239,13 @@ onBeforeMount(() => {
       <div class="bg-white p-6 rounded-xl space-y-4">
         <div class="text-sm text-neutral-600">
           <span> Total On-Hand Quantity: </span>
-          <span class="text-blue-500 font-medium"> 150,579 </span>
+          <span class="text-blue-500 font-medium">
+            {{ totalOnHandQty.toLocaleString() }}
+          </span>
         </div>
         <GeneralTable
           :columns="tableColumns"
-          :data="data?.data?.data || []"
+          :data="tableData"
           :loading="loadingList"
           row-key="id"
           striped

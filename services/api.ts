@@ -1,5 +1,10 @@
 import { useIsUnauthorized } from "~/composables/is-unauthorized";
 
+const formatBearer = (token: string) =>
+  token.startsWith("Bearer ") ? token : `Bearer ${token}`;
+
+let refreshPromise: Promise<string | null> | null = null;
+
 async function handleUnauthorized() {
   useIsUnauthorized().value = true;
 
@@ -7,27 +12,63 @@ async function handleUnauthorized() {
   await signOut({ callbackUrl: "/login" });
 }
 
-async function tryRefreshToken() {
-  try {
-    const response = await fetch("/api/auth/refresh-token", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-    });
+async function tryRefreshToken(): Promise<string | null> {
+  if (refreshPromise) return refreshPromise;
 
-    if (!response.ok) {
-      return false;
+  refreshPromise = (async () => {
+    try {
+      const refreshCookie = process.client
+        ? useCookie<string | null>("refresh_token")
+        : null;
+
+      const bodyPayload =
+        refreshCookie && refreshCookie.value
+          ? { refresh_token: refreshCookie.value }
+          : undefined;
+
+      const response = await fetch("/api/auth/refresh-token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: bodyPayload ? JSON.stringify(bodyPayload) : undefined,
+      });
+
+      if (!response.ok) {
+        return null;
+      }
+
+      const data = await response.json().catch(() => null);
+      const newToken = data?.data?.access_token as string | undefined;
+
+      if (newToken) {
+        const { token, getSession } = useAuth();
+
+        if (token) {
+          token.value = newToken;
+        }
+
+        if (typeof getSession === "function") {
+          try {
+            await getSession({ force: true } as any);
+          } catch (err) {
+            console.warn("Failed to refresh session after token refresh", err);
+          }
+        }
+      }
+
+      return newToken ?? null;
+    } catch (error) {
+      console.error("Failed to refresh token", error);
+      return null;
     }
+  })();
 
-    // Ensure body is consumed so fetch doesn't warn
-    await response.json().catch(() => {});
-
-    return true;
-  } catch (error) {
-    console.error("Failed to refresh token", error);
-    return false;
+  try {
+    return await refreshPromise;
+  } finally {
+    refreshPromise = null;
   }
 }
 
@@ -94,12 +135,19 @@ export const api = {
   ) => {
     const isByte = option?.isByte || false;
 
-    const doRequest = async () => {
+    const doRequest = async (overrideToken?: string) => {
+      const mergedHeaders = overrideToken
+        ? {
+            ...(option?.headers || {}),
+            Authorization: formatBearer(overrideToken),
+          }
+        : option?.headers;
+
       const { newUrl, newHeaders } = api.provider(
         url,
         option?.queryParams,
         undefined,
-        option?.headers,
+        mergedHeaders,
         option?.isByte
       );
 
@@ -112,12 +160,12 @@ export const api = {
     let response = await doRequest();
 
     if (response.status === 401 && !response.url.includes("syncfms")) {
-      const refreshed = await tryRefreshToken();
-      if (refreshed) {
-        response = await doRequest();
+      const refreshedToken = await tryRefreshToken();
+      if (refreshedToken) {
+        response = await doRequest(refreshedToken);
       }
 
-      if (response.status === 401 || !refreshed) {
+      if (response.status === 401 || !refreshedToken) {
         await handleUnauthorized();
         const errorData = isByte
           ? await response.blob()
@@ -140,12 +188,19 @@ export const api = {
   ) => {
     const isByte = option?.isByte || false;
 
-    const doRequest = async () => {
+    const doRequest = async (overrideToken?: string) => {
+      const mergedHeaders = overrideToken
+        ? {
+            ...(option?.headers || {}),
+            Authorization: formatBearer(overrideToken),
+          }
+        : option?.headers;
+
       const { newUrl, newHeaders } = api.provider(
         url,
         option?.queryParams,
         option?.body,
-        option?.headers,
+        mergedHeaders,
         option?.isByte
       );
 
@@ -162,12 +217,12 @@ export const api = {
     let response = await doRequest();
 
     if (response.status === 401 && !response.url.includes("syncfms")) {
-      const refreshed = await tryRefreshToken();
-      if (refreshed) {
-        response = await doRequest();
+      const refreshedToken = await tryRefreshToken();
+      if (refreshedToken) {
+        response = await doRequest(refreshedToken);
       }
 
-      if (response.status === 401 || !refreshed) {
+      if (response.status === 401 || !refreshedToken) {
         await handleUnauthorized();
         const errorData = isByte
           ? await response.blob()
@@ -190,12 +245,19 @@ export const api = {
   ) => {
     const isByte = option?.isByte || false;
 
-    const doRequest = async () => {
+    const doRequest = async (overrideToken?: string) => {
+      const mergedHeaders = overrideToken
+        ? {
+            ...(option?.headers || {}),
+            Authorization: formatBearer(overrideToken),
+          }
+        : option?.headers;
+
       const { newUrl, newHeaders } = api.provider(
         url,
         option?.queryParams,
         option?.body,
-        option?.headers,
+        mergedHeaders,
         option?.isByte
       );
 
@@ -212,12 +274,12 @@ export const api = {
     let response = await doRequest();
 
     if (response.status === 401 && !response.url.includes("syncfms")) {
-      const refreshed = await tryRefreshToken();
-      if (refreshed) {
-        response = await doRequest();
+      const refreshedToken = await tryRefreshToken();
+      if (refreshedToken) {
+        response = await doRequest(refreshedToken);
       }
 
-      if (response.status === 401 || !refreshed) {
+      if (response.status === 401 || !refreshedToken) {
         await handleUnauthorized();
         const errorData = isByte
           ? await response.blob()
@@ -240,12 +302,19 @@ export const api = {
   ) => {
     const isByte = option?.isByte || false;
 
-    const doRequest = async () => {
+    const doRequest = async (overrideToken?: string) => {
+      const mergedHeaders = overrideToken
+        ? {
+            ...(option?.headers || {}),
+            Authorization: formatBearer(overrideToken),
+          }
+        : option?.headers;
+
       const { newUrl, newHeaders } = api.provider(
         url,
         option?.queryParams,
         option?.body,
-        option?.headers,
+        mergedHeaders,
         option?.isByte
       );
 
@@ -258,12 +327,12 @@ export const api = {
     let response = await doRequest();
 
     if (response.status === 401 && !response.url.includes("syncfms")) {
-      const refreshed = await tryRefreshToken();
-      if (refreshed) {
-        response = await doRequest();
+      const refreshedToken = await tryRefreshToken();
+      if (refreshedToken) {
+        response = await doRequest(refreshedToken);
       }
 
-      if (response.status === 401 || !refreshed) {
+      if (response.status === 401 || !refreshedToken) {
         await handleUnauthorized();
         const errorData = isByte
           ? await response.blob()

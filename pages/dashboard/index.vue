@@ -234,12 +234,12 @@ const maxTopSkuQty = computed(() => {
       />
       <div class="min-w-[240px] space-y-1">
         <label class="mb-1.5 text-sm font-[600] text-gray-700">
-          Facilities
+          Warehouse
         </label>
         <GeneralDropdownSearch
           v-model="selectedFacilityId"
           :options="facilitiesOptions"
-          placeholder="All Facilities"
+          placeholder="All Warehouse"
         />
       </div>
     </header>

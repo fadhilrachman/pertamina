@@ -136,18 +136,6 @@ onMounted(() => {
   facilitiesStore.getDataFacilities({ page: 1, limit: 1000 });
 });
 
-// watch(
-//   () => ({
-//     mode: props.mode,
-//   }),
-//   ({ mode }) => {
-//     console.log("uhuyyyyyyyyyy");
-//     console.log({ selectedData });
-
-//   },
-//   { immediate: true }
-// );
-
 const open = () => {
   if (props.mode === "update") {
     const current = selectedData.value as FacilitiesSkuType;

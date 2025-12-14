@@ -79,8 +79,8 @@ const tableData = computed(() => {
     ...item,
     company_name: item.company_name ?? item.company?.name ?? "-",
     warehouse: item.warehouse ?? item.facility?.name ?? "-",
-    sku_name: item.sku_name ?? item.sku?.name ?? "-",
-    sku_code: item.sku_code ?? item.sku?.code ?? "-",
+    sku_name: item.sku?.sku_code ?? "-",
+    sku_code: item.sku?.sku_name ?? "-",
   }));
 });
 
@@ -93,7 +93,7 @@ const tableColumns: TableColumn[] = [
   { key: "on_hand_qty", label: "On-Hand Quantity" },
   { key: "unit_of_measure", label: "UOM" },
 
-  { key: "actions", label: "Actions", align: "right" as const },
+  // { key: "actions", label: "Actions", align: "right" as const },
 ];
 
 const handleCompanyChange = (value: any) => {

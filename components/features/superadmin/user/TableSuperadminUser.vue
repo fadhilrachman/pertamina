@@ -30,7 +30,6 @@ const tableColumns: TableColumn[] = [
   { key: "name", label: "Name", headerClass: "min-w-[180px]" },
   { key: "email", label: "Email", headerClass: "min-w-[220px]" },
   { key: "role", label: "Role" },
-  { key: "status", label: "Status" },
   { key: "created_at", label: "Created At" },
   { key: "actions", label: "Actions", align: "right" as const },
 ];

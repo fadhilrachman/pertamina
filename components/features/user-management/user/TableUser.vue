@@ -29,13 +29,28 @@ const params = reactive({
   limit: 10,
 });
 const tableColumns: TableColumn[] = [
-  { key: "first_name", label: "Name", headerClass: "min-w-[180px]" },
+  { key: "name", label: "Name", headerClass: "min-w-[180px]" },
   { key: "email", label: "Email", headerClass: "min-w-[220px]" },
   { key: "role", label: "Role" },
   // { key: "status", label: "Status" },
   { key: "created_at", label: "Created At" },
   { key: "actions", label: "Actions", align: "right" as const },
 ];
+
+const tableData = computed(() => {
+  const list = (data.value?.data?.data || []) as UserType[];
+
+  return list.map((item) => {
+    const first = item.first_name?.trim() || "";
+    const last = item.last_name?.trim() || "";
+    const fullName = `${first} ${last}`.trim();
+
+    return {
+      ...item,
+      name: fullName || item.name || "-",
+    };
+  });
+});
 
 const openAddRoleModal = () => {
   formModeRef.value = "add";
@@ -133,7 +148,7 @@ onMounted(() => {
         <GeneralTable
           :loading="loadingList"
           :columns="tableColumns"
-          :data="data?.data?.data"
+          :data="tableData"
           row-key="id"
           striped
         >

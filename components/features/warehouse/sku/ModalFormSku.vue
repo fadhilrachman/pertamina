@@ -13,7 +13,10 @@ import { useStockTransaction } from "~/store/stock-management/stock-transaction-
 import { v4 as uuidv4 } from "uuid";
 import moment from "moment";
 
-const idempotencyKey = uuidv4();
+const idempotencyKey = ref<string>("");
+const generateIdempotencyKey = () => {
+  idempotencyKey.value = uuidv4();
+};
 
 const emit = defineEmits(["opened", "closed"]);
 const route = useRoute();
@@ -222,6 +225,9 @@ async function handleFormSubmit(values: Record<string, any>) {
   console.log({ values });
 
   try {
+    generateIdempotencyKey();
+    const lockKey = `stock_${values.sku_id || values.sku_code || "unknown"}`;
+
     if (isExistingSku) {
       const idSku = skuData.value?.data?.data?.find(
         (item) => item.sku_code === values.sku_code
@@ -257,7 +263,8 @@ async function handleFormSubmit(values: Record<string, any>) {
           trx_type: "IN",
         },
         {
-          uuid: idempotencyKey,
+          uuid: idempotencyKey.value,
+          lockKey,
         }
       );
     } else {
@@ -291,7 +298,8 @@ async function handleFormSubmit(values: Record<string, any>) {
           trx_type: "IN",
         },
         {
-          uuid: idempotencyKey,
+          uuid: idempotencyKey.value,
+          lockKey,
         }
       );
       console.log({ resultSku });

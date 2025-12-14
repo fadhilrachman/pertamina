@@ -11,7 +11,10 @@ import { useStockTransaction } from "~/store/stock-management/stock-transaction-
 import moment from "moment";
 import type { SessionResponseType } from "~/types/user-type";
 
-const idempotencyKey = uuidv4();
+const idempotencyKey = ref<string>("");
+const generateIdempotencyKey = () => {
+  idempotencyKey.value = uuidv4();
+};
 
 const emit = defineEmits(["opened", "closed"]);
 const stockTransactionStore = useStockTransaction();
@@ -114,6 +117,8 @@ const handleFormSubmit = async (val: any) => {
     return;
   }
   const data = selectedData.value;
+  generateIdempotencyKey();
+  const lockKey = `stock_${data?.facility_sku_id || data?.sku_id || "unknown"}`;
   await stockTransactionStore.createDataStockTransaction(
     {
       lines: [
@@ -130,7 +135,8 @@ const handleFormSubmit = async (val: any) => {
       trx_type: "IN",
     },
     {
-      uuid: idempotencyKey,
+      uuid: idempotencyKey.value,
+      lockKey,
     }
   );
 

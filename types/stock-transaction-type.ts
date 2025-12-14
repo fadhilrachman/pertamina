@@ -28,15 +28,18 @@ export interface StockTransactionType {
   endpoint: string;
   id: string;
   lines: {
-    facility_id: string;
-    facility_name: string;
-    id: string;
-    note: string;
-    qty: number;
-    sku_code: string;
-    sku_id: string;
-    sku_name: string;
-    uom: string;
+    sku: {
+      sku_id: string;
+      facility_sku_id: string;
+      sku_code: string;
+      sku_name: string;
+      unit: string;
+    };
+    quantity: number;
+    warehouse: {
+      id: string;
+      name: string;
+    };
   }[];
   note: string;
   purpose: string;

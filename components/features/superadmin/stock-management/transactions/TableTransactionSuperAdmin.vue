@@ -93,36 +93,20 @@ const tableData = computed<TransactionTableRow[]>(() => {
   const rows: TransactionTableRow[] = [];
 
   items.forEach((trx) => {
-    if (!trx.lines || trx.lines.length === 0) {
-      rows.push({
-        id: trx.id,
-        trx_no: trx.trx_no,
-        trx_type: trx.trx_type,
-        sku: "-",
-        qty: 0,
-        warehouse: "-",
-        purpose: trx.purpose,
-        trx_date: trx.trx_date,
-        transaction: trx,
-        lineIndex: 0,
-      } as any);
-      return;
-    }
-
-    trx.lines.forEach((line, index) => {
-      rows.push({
-        id: line.id || `${trx.id}-${line.sku_id}`,
-        trx_no: trx.trx_no,
-        trx_type: trx.trx_type,
-        sku: `${line.sku_code} - ${line.sku_name}`,
-        qty: line.qty,
-        warehouse: line.facility_name,
-        purpose: trx.purpose,
-        trx_date: trx.trx_date,
-        transaction: trx,
-        lineIndex: index,
-      } as any);
-    });
+    const dataSku = trx?.lines?.[0];
+    rows.push({
+      id: trx.id,
+      trx_no: trx.trx_no,
+      trx_type: trx.trx_type,
+      sku: dataSku?.sku?.sku_name,
+      qty: dataSku?.quantity || 0,
+      warehouse: dataSku?.warehouse?.name,
+      purpose: trx.purpose,
+      trx_date: trx.trx_date,
+      transaction: trx,
+      lineIndex: 0,
+    } as any);
+    return;
   });
 
   return rows as any;
@@ -214,9 +198,7 @@ onBeforeMount(() => {
         @change="handleFacilitiesChange"
       /> -->
       <div class="min-w-[240px] space-y-1">
-        <label class="mb-1.5 text-sm font-[600] text-gray-700"
-          >Company</label
-        >
+        <label class="mb-1.5 text-sm font-[600] text-gray-700">Company</label>
         <GeneralDropdownSearch
           v-model="params.company_id"
           :options="companyOptions"

@@ -12,7 +12,10 @@ import { v4 as uuidv4 } from "uuid";
 import type { ElementEvent } from "~/types/element";
 import { useStockOnHand } from "~/store/stock-on-hand/stock-on-hand-store";
 
-const idempotencyKey = uuidv4();
+const idempotencyKey = ref<string>("");
+const generateIdempotencyKey = () => {
+  idempotencyKey.value = uuidv4();
+};
 const props = withDefaults(
   defineProps<{
     mode?: "add" | "update";
@@ -250,6 +253,8 @@ const handleCancel = () => {
 };
 
 const handleFormSubmit = async (val: any) => {
+  generateIdempotencyKey();
+  const lockKey = `stock_${val.sku_id || "unknown"}`;
   await stockTransactionStore.createDataStockTransaction(
     {
       lines: [
@@ -267,7 +272,8 @@ const handleFormSubmit = async (val: any) => {
       trx_type: "OUT",
     },
     {
-      uuid: idempotencyKey,
+      uuid: idempotencyKey.value,
+      lockKey,
     }
   );
   await stockOnHandStore.getDataStockOnHand({

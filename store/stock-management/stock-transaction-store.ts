@@ -24,8 +24,21 @@ export const useStockTransaction = defineStore("stockTransaction", {
     dataDetail: {} as ResponseApiDetail<StockTransactionType>,
     selectedData: {} as StockTransactionType,
     selectedLineIndex: 0 as number,
+    activeLocks: new Set<string>(),
   }),
   actions: {
+    acquireLock(key: string) {
+      if (!key) return true;
+      if (this.activeLocks.has(key)) {
+        return false;
+      }
+      this.activeLocks.add(key);
+      return true;
+    },
+    releaseLock(key: string) {
+      if (!key) return;
+      this.activeLocks.delete(key);
+    },
     setSelectedData(data: StockTransactionType) {
       this.selectedData = data;
     },
@@ -72,8 +85,16 @@ export const useStockTransaction = defineStore("stockTransaction", {
 
     async createDataStockTransaction(
       body: PayloadStockTransactionType,
-      { uuid }: { uuid: string }
+      { uuid, lockKey }: { uuid: string; lockKey?: string }
     ) {
+      const acquired = lockKey ? this.acquireLock(lockKey) : true;
+      if (!acquired) {
+        toast.error("Another operation for this item is in progress.", {
+          toastClassName: "toastify-error",
+        });
+        return false;
+      }
+
       this.loadingWrite = true;
       try {
         await postStockTransactions(body, { uuid }); // API_UNCOMMENT
@@ -110,6 +131,9 @@ export const useStockTransaction = defineStore("stockTransaction", {
         throw error;
       } finally {
         this.loadingWrite = false;
+        if (lockKey) {
+          this.releaseLock(lockKey);
+        }
       }
     },
 

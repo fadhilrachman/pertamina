@@ -4,6 +4,7 @@ import { storeToRefs } from "pinia";
 import type { ElementEvent } from "~/types/element";
 import { useStockTransaction } from "~/store/stock-management/stock-transaction-store";
 import { useStockOnHand } from "~/store/stock-on-hand/stock-on-hand-store";
+import { toast } from "vue3-toastify";
 
 const props = defineProps<{
   listParams: {
@@ -49,6 +50,33 @@ const handleCancel = () => {
 const handleFileChange = (event: Event) => {
   const target = event.target as HTMLInputElement | null;
   const file = target?.files?.[0] || null;
+
+  if (!file) {
+    selectedFile.value = null;
+    return;
+  }
+
+  const allowedExtensions = [".csv", ".xlsx"];
+  const maxSize = 5 * 1024 * 1024; // 5MB
+  const lowerName = file.name.toLowerCase();
+  const isAllowed = allowedExtensions.some((ext) => lowerName.endsWith(ext));
+
+  if (!isAllowed) {
+    selectedFile.value = null;
+    toast.error("Invalid file type. Use CSV or XLSX.", {
+      toastClassName: "toastify-error",
+    });
+    return;
+  }
+
+  if (file.size > maxSize) {
+    selectedFile.value = null;
+    toast.error("File too large. Max size is 5MB.", {
+      toastClassName: "toastify-error",
+    });
+    return;
+  }
+
   selectedFile.value = file;
 };
 
@@ -97,7 +125,7 @@ defineExpose({
           </label>
           <input
             type="file"
-            accept=".csv,.xlsx,.xls"
+            accept=".csv,.xlsx"
             class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
             @change="handleFileChange"
           />

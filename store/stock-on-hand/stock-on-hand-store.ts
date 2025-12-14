@@ -9,7 +9,10 @@ import { defineStore } from "pinia";
 import type { CompanyType } from "~/types/company-type";
 
 import type { StockOnHandType } from "~/types/stock-on-hand-type";
-import { getStockOnHand } from "~/services/on-hand-stock/on-hand-stock-services";
+import {
+  downloadStockOnHand,
+  getStockOnHand,
+} from "~/services/on-hand-stock/on-hand-stock-services";
 
 export const useStockOnHand = defineStore("stockOnHand", {
   state: () => ({
@@ -53,6 +56,24 @@ export const useStockOnHand = defineStore("stockOnHand", {
       } finally {
         // toast
         this.loadingList = false;
+      }
+    },
+
+    async downloadStockOnHand(params: {
+      facility_id?: string;
+      sku_id?: string;
+      status?: string;
+    }) {
+      this.loadingWrite = true;
+      try {
+        return await downloadStockOnHand(params);
+      } catch (error) {
+        toast.error("Failed download stock on hand", {
+          toastClassName: "toastify-error",
+        });
+        throw error;
+      } finally {
+        this.loadingWrite = false;
       }
     },
   },
