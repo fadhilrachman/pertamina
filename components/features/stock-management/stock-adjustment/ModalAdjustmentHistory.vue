@@ -3,9 +3,9 @@ import { computed, watch } from "vue";
 import { storeToRefs } from "pinia";
 import Modal from "~/components/general/Modal/index.vue";
 import type { ElementEvent } from "~/types/element";
-import type { QueryParams } from "~/types/common";
-import { useStockTransaction } from "~/store/stock-management/stock-transaction-store";
-import type { StockTransactionType } from "~/types/stock-transaction-type";
+import type { AdjustmentQueryParams } from "~/services/stock-management/stock-adjustment-services";
+import { useStockAdjustmentStore } from "~/store/stock-management/stock-adjustment-store";
+import type { StockAdjustmentItem } from "~/types/stock-adjustment-type";
 
 const props = defineProps<{
   id: string;
@@ -31,25 +31,24 @@ type AdjustmentHistoryItem = {
   date: string;
 };
 
-const stockTransactionStore = useStockTransaction();
-const { data, loadingList } = storeToRefs(stockTransactionStore);
+const adjustmentStore = useStockAdjustmentStore();
+const { data, loadingList } = storeToRefs(adjustmentStore);
 
 const fetchHistory = async () => {
-  const params: QueryParams & {
-    facility_id?: string;
-    sku_id?: string;
-    trx_type?: string;
-  } = {
+  const params: AdjustmentQueryParams = {
     page: 1,
     limit: 50,
-    trx_type: "adjusment",
   };
 
   if (props.facilityId) {
     params.facility_id = String(props.facilityId);
   }
 
-  await stockTransactionStore.getDataTransactions(params);
+  try {
+    await adjustmentStore.getAdjustments(params);
+  } catch (error) {
+    console.error("Failed to fetch adjustment history", error);
+  }
 };
 
 watch(
@@ -80,34 +79,34 @@ const formatDateTime = (value: string) => {
 
 const historyItems = computed<AdjustmentHistoryItem[]>(() => {
   const raw =
-    (data.value?.data?.data as unknown as StockTransactionType[]) || [];
+    (data.value?.data?.data as unknown as StockAdjustmentItem[]) || [];
 
-  const items: AdjustmentHistoryItem[] = [];
+  return raw.map((trx) => {
+    const before = Number(trx.stock_before ?? 0);
+    const after = Number(trx.stock_after ?? 0);
+    const adjustment = Number(trx.adjustment ?? 0);
 
-  raw.forEach((trx) => {
-    (trx.lines || []).forEach((line) => {
-      items.push({
-        id: trx.trx_no,
-        warehouse: line.facility_name,
-        sku: `${line.sku_code} - ${line.sku_name}`,
-        // Untuk saat ini, kita hanya tahu quantity akhir;
-        // nilai before dan adjustment diisi sama dengan qty.
-        before: 0,
-        after: line.qty,
-        adjustment: line.qty,
-        user: trx.created_by,
-        date: formatDateTime(trx.trx_date),
-      });
-    });
+    return {
+      id: trx.transaction_id || "-",
+      warehouse: trx.facility?.name || "-",
+      sku:
+        trx.facility_sku?.name ||
+        trx.facility_sku?.facility_sku_id ||
+        "-",
+      before: Number.isFinite(before) ? before : 0,
+      after: Number.isFinite(after) ? after : 0,
+      adjustment: Number.isFinite(adjustment) ? adjustment : 0,
+      user: trx.created_by?.name || trx.created_by?.email || "-",
+      date: formatDateTime(trx.trx_date || ""),
+    };
   });
-
-  return items;
 });
 
-const formatAdjustment = (value: number) => {
-  if (value === 0) return "0";
-  const sign = value > 0 ? "+" : "-";
-  return `${sign}${Math.abs(value)}`;
+const formatAdjustment = (value: number | null | undefined) => {
+  const numeric = typeof value === "number" ? value : Number(value || 0);
+  if (!Number.isFinite(numeric) || numeric === 0) return "0";
+  const sign = numeric > 0 ? "+" : "-";
+  return `${sign}${Math.abs(numeric)}`;
 };
 </script>
 
