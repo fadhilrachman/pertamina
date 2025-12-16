@@ -104,6 +104,7 @@ const statusOptions = [
   { id: "available", label: "Available" },
   { id: "low", label: "Low" },
   { id: "out_of_stock", label: "Out of Stock" },
+  { id: "overstock", label: "Overstock" },
 ];
 
 const handleFacilitiesChange = (value: any) => {
