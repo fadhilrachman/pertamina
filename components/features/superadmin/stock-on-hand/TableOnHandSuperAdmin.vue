@@ -2,14 +2,9 @@
 import { computed, onBeforeMount, onMounted, reactive, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { toast } from "vue3-toastify";
-import ModalFormSku from "~/components/features/master-data/sku/ModalFormSku.vue";
-import ModalDelete from "~/components/general/ModalDelete/index.vue";
 import type { TableColumn } from "~/components/general/Table/index.vue";
 import type { ElementEvent } from "~/types/element";
-import { useSkuStore } from "~/store/master-data/sku-store";
 import { usePageStore } from "~/store/page";
-import type { SKUType } from "~/types/sku-type";
-import { useFacilitiesStore } from "~/store/master-data/facilities-store";
 import { formatTableDate } from "~/utils/functions";
 import { useSuperadminFacilitiesStore } from "~/store/superadmin/facilities-store";
 import { useSuperadminStockOnHandStore } from "~/store/superadmin/stock-on-hand-store";
@@ -96,16 +91,8 @@ const tableData = computed(() => {
     ...item,
     company_name: item.company_name ?? item.company?.name ?? "-",
     facility_name: item.facility_name ?? item.facility?.name ?? "-",
-    sku_name:
-      item.sku_name ??
-      item.sku?.sku_name ??
-      item.sku?.name ??
-      "-",
-    sku_code:
-      item.sku_code ??
-      item.sku?.sku_code ??
-      item.sku?.code ??
-      "-",
+    sku_name: item.sku_name ?? item.sku?.sku_name ?? item.sku?.name ?? "-",
+    sku_code: item.sku_code ?? item.sku?.sku_code ?? item.sku?.code ?? "-",
     category: item.category ?? item.sku?.category ?? "-",
     unit_of_measure:
       item.unit_of_measure ??
@@ -127,19 +114,12 @@ const tableData = computed(() => {
       "-",
     warehouse: item.warehouse ?? item.facility?.name ?? "-",
     last_movement: item.last_movement ?? item.updated_at ?? item.created_at,
-    on_hand_qty:
-      item.on_hand_qty ??
-      item.on_hand ??
-      item.quantity ??
-      0,
+    on_hand_qty: item.on_hand_qty ?? item.on_hand ?? item.quantity ?? 0,
   }));
 });
 
 const totalOnHandQty = computed(() =>
-  tableData.value.reduce(
-    (sum, item) => sum + Number(item.on_hand_qty || 0),
-    0
-  )
+  tableData.value.reduce((sum, item) => sum + Number(item.on_hand_qty || 0), 0)
 );
 
 const tableColumns: TableColumn[] = [
@@ -352,25 +332,6 @@ onBeforeMount(() => {
           <template #cell-last_movement="{ value }">
             {{ formatTableDate(value as string) }}
           </template>
-          <!-- <template #cell-actions="{ row }">
-            <div class="flex justify-end gap-2">
-              <GeneralIconButton class="h-9 w-9" color="default" :ghost="true">
-                <template #icon>
-                  <IconsEdit size="16" class="text-gray-700" />
-                </template>
-              </GeneralIconButton>
-              <GeneralIconButton
-                class="h-9 w-9 bg-white"
-                color="default"
-                :bordered="false"
-                @on-click="openDeleteSkuModal(row)"
-              >
-                <template #icon>
-                  <IconsDelete size="18" class="text-red-500" />
-                </template>
-              </GeneralIconButton>
-            </div>
-          </template> -->
         </GeneralTable>
         <GeneralPagination
           :page="params.page"

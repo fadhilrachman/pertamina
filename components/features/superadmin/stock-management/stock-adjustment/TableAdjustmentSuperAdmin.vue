@@ -205,15 +205,6 @@ onBeforeMount(() => {
           @change="handleFacilitiesChange"
         />
       </div>
-      <!-- <div class="min-w-[240px] space-y-1">
-        <label class="mb-1.5 text-sm font-[600] text-gray-700">SKU</label>
-        <GeneralDropdownSearch
-          v-model="params.sku_id"
-          :options="skuOptions"
-          placeholder="All SKU"
-          @change="handleSkuChange"
-        />
-      </div> -->
     </section>
     <section class="space-y-4" v-if="params.facility_id">
       <div class="bg-white p-6 rounded-xl space-y-4">

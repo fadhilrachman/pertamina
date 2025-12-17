@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import ModalDelete from "~/components/general/ModalDelete/index.vue";
 import type { TableColumn } from "~/components/general/Table/index.vue";
@@ -163,7 +162,7 @@ onMounted(() => {
                 class="h-9 w-9 bg-white"
                 color="default"
                 :bordered="false"
-                @on-click="openDeleteCompanyModal(row)"
+                @on-click="openDeleteCompanyModal(row as CompanyType)"
               >
                 <template #icon>
                   <IconsDelete size="18" class="text-red-500" />

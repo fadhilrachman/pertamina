@@ -92,6 +92,44 @@ const form = useForm<any>({
   initialValues: createInitialValues(),
 });
 const { values } = form;
+
+type StockOutFormValues = {
+  sku_id: string;
+  facility_id: string;
+  qty: string | number;
+  note?: string;
+  purpose: string;
+  endpoint?: string;
+  vehicle_text: string;
+  date: string;
+};
+
+const handleSubmit = async (val: Record<string, any>) => {
+  const payload = val as StockOutFormValues;
+
+  await stockTransactionStore.createDataStockTransaction(
+    {
+      lines: [
+        {
+          qty: Number(payload.qty),
+          facility_sku_id: payload.sku_id,
+          uom: "kg",
+        },
+      ],
+      note: payload.note,
+      purpose: payload.purpose,
+      endpoint: payload.endpoint,
+      trx_date: payload.date,
+      vehicle_text: payload.vehicle_text,
+      trx_type: "OUT",
+    },
+    {
+      uuid: idempotencyKey,
+    }
+  );
+
+  form.resetForm({ values: createInitialValues() });
+};
 const formFields = computed<FieldConfig[]>(() => [
   {
     name: "facility_id",
@@ -163,8 +201,6 @@ const formFields = computed<FieldConfig[]>(() => [
     placeholder: "e.g., BMW",
     grid: 6,
     requiredMark: true,
-    // options: vehicleOptions.value,
-    // disabled: !values.facility_id,
   },
 
   {
@@ -217,39 +253,9 @@ onMounted(() => {
           :fields="formFields"
           :validation-schema="formSchema"
           class-name=""
-          @submit="
-            async (val) => {
-              if (isManagementRole) {
-                return;
-              }
-              console.log({ val });
-
-              await stockTransactionStore.createDataStockTransaction(
-                {
-                  lines: [
-                    {
-                      qty: Number(val.qty),
-                      facility_sku_id: val.sku_id,
-                      uom: 'kg',
-                    },
-                  ],
-                  note: val.note,
-                  purpose: val.purpose,
-                  endpoint: val.endpoint,
-                  trx_date: val.date,
-                  vehicle_text: val.vehicle_text,
-                  trx_type: 'OUT',
-                },
-                {
-                  uuid: idempotencyKey,
-                }
-              );
-              form.resetForm({ values: createInitialValues() });
-            }
-          "
+          @submit="handleSubmit"
         />
         <div class="flex justify-end mt-4 gap-3 pt-2">
-          <!-- <GeneralOutlinedButton label="Cancel" type="button" /> -->
           <GeneralButton
             v-if="!isManagementRole"
             :loading="loadingWrite"

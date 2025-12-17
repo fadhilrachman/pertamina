@@ -107,16 +107,6 @@ const form = useForm<FacilitiesType>({
   initialValues: createInitialValues(),
 });
 
-// watch(
-//   () => ({
-//     mode: props.mode,
-//     selectedData: selectedData.value,
-//   }),
-//   ({ mode, selectedData }) => {
-
-//   },
-//   { immediate: true }
-// );
 const handleModalMounted = (instance: ElementEvent) => {
   modalInstance.value = instance;
 };

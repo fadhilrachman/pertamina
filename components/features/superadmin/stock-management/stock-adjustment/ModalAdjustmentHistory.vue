@@ -2,6 +2,7 @@
 import { computed, watch } from "vue";
 import { storeToRefs } from "pinia";
 import Modal from "~/components/general/Modal/index.vue";
+import type { TableColumn } from "~/components/general/Table/index.vue";
 import type { ElementEvent } from "~/types/element";
 import type { AdjustmentQueryParams } from "~/services/stock-management/stock-adjustment-services";
 import { useStockAdjustmentStore } from "~/store/stock-management/stock-adjustment-store";
@@ -23,6 +24,7 @@ const handleModalMounted = (instance: ElementEvent) => {
 };
 
 type AdjustmentHistoryItem = {
+  rowKey: string;
   id: string;
   warehouse: string;
   sku: string;
@@ -35,6 +37,61 @@ type AdjustmentHistoryItem = {
 
 const adjustmentStore = useStockAdjustmentStore();
 const { data, loadingList } = storeToRefs(adjustmentStore);
+
+const tableColumns: TableColumn[] = [
+  {
+    key: "id",
+    label: "ADJUSTMENT ID",
+    headerClass: "px-6",
+    cellClass: "px-6 py-4 align-top text-gray-900",
+  },
+  {
+    key: "warehouse",
+    label: "WAREHOUSE",
+    headerClass: "px-6",
+    cellClass: "px-6 py-4 align-top text-gray-900",
+  },
+  {
+    key: "sku",
+    label: "SKU",
+    headerClass: "px-6",
+    cellClass: "px-6 py-4 align-top text-gray-900 whitespace-pre-line",
+  },
+  {
+    key: "before",
+    label: "BEFORE",
+    align: "right",
+    headerClass: "px-6",
+    cellClass: "px-6 py-4 align-top text-gray-900",
+  },
+  {
+    key: "after",
+    label: "AFTER",
+    align: "right",
+    headerClass: "px-6",
+    cellClass: "px-6 py-4 align-top text-gray-900",
+  },
+  {
+    key: "adjustment",
+    label: "ADJUSTMENT",
+    align: "right",
+    headerClass: "px-6",
+    cellClass: "px-6 py-4 align-top font-semibold",
+  },
+  {
+    key: "date",
+    label: "DATE",
+    align: "right",
+    headerClass: "px-6",
+    cellClass: "px-6 py-4 align-top text-gray-900 whitespace-pre-line",
+  },
+  {
+    key: "user",
+    label: "USER",
+    headerClass: "px-6",
+    cellClass: "px-6 py-4 align-top text-gray-900",
+  },
+];
 
 const fetchHistory = async () => {
   if (!props.facilityId && !props.facilitySkuId) {
@@ -110,12 +167,16 @@ const historyItems = computed<AdjustmentHistoryItem[]>(() => {
   const raw =
     (data.value?.data?.data as unknown as StockAdjustmentItem[]) || [];
 
-  return raw.map((trx) => {
+  return raw.map((trx, index) => {
     const before = Number(trx.stock_before ?? 0);
     const after = Number(trx.stock_after ?? 0);
     const adjustment = Number(trx.adjustment ?? 0);
 
+    const trxId = trx.transaction_id || "";
+    const rowKey = trxId || `${trx.trx_date || "unknown"}-${index}`;
+
     return {
+      rowKey,
       id: trx.transaction_id || "-",
       warehouse: trx.facility?.name || "-",
       sku:
@@ -148,89 +209,29 @@ const formatAdjustment = (value: number | null | undefined) => {
     @mounted="handleModalMounted"
   >
     <template #body>
-      <div class="overflow-x-auto">
-        <table class="min-w-full text-sm">
-          <thead>
-            <tr class="bg-gray-50 text-gray-500 text-xs font-semibold">
-              <th class="px-6 py-3 text-left">ADJUSTMENT ID</th>
-              <th class="px-6 py-3 text-left">WAREHOUSE</th>
-              <th class="px-6 py-3 text-left">SKU</th>
-              <th class="px-6 py-3 text-right">BEFORE</th>
-              <th class="px-6 py-3 text-right">AFTER</th>
-              <th class="px-6 py-3 text-right">ADJUSTMENT</th>
-              <th class="px-6 py-3 text-right">DATE</th>
-              <th class="px-6 py-3 text-left">USER</th>
-            </tr>
-          </thead>
-          <tbody>
-            <template v-if="loadingList">
-              <tr>
-                <td
-                  colspan="8"
-                  class="px-6 py-6 text-center text-sm text-gray-500"
-                >
-                  Loading adjustment history...
-                </td>
-              </tr>
-            </template>
-            <template v-else-if="!historyItems.length">
-              <tr>
-                <td
-                  colspan="8"
-                  class="px-6 py-6 text-center text-sm text-gray-500"
-                >
-                  No adjustment history found.
-                </td>
-              </tr>
-            </template>
-            <template v-else>
-              <tr
-                v-for="item in historyItems"
-                :key="item.id"
-                class="border-t border-gray-100"
-              >
-                <td class="px-6 py-4 align-top text-gray-900">
-                  {{ item.id }}
-                </td>
-                <td class="px-6 py-4 align-top text-gray-900">
-                  {{ item.warehouse }}
-                </td>
-                <td
-                  class="px-6 py-4 align-top text-gray-900 whitespace-pre-line"
-                >
-                  {{ item.sku }}
-                </td>
-                <td class="px-6 py-4 align-top text-right text-gray-900">
-                  {{ item.before }}
-                </td>
-                <td class="px-6 py-4 align-top text-right text-gray-900">
-                  {{ item.after }}
-                </td>
-                <td
-                  class="px-6 py-4 align-top text-right font-semibold"
-                  :class="
-                    item.adjustment > 0
-                      ? 'text-emerald-600'
-                      : item.adjustment < 0
-                      ? 'text-red-600'
-                      : 'text-gray-900'
-                  "
-                >
-                  {{ formatAdjustment(item.adjustment) }}
-                </td>
-                <td
-                  class="px-6 py-4 align-top text-right text-gray-900 whitespace-pre-line"
-                >
-                  {{ item.date }}
-                </td>
-                <td class="px-6 py-4 align-top text-gray-900">
-                  {{ item.user }}
-                </td>
-              </tr>
-            </template>
-          </tbody>
-        </table>
-      </div>
+      <GeneralTable
+        :columns="tableColumns"
+        :data="historyItems"
+        :loading="loadingList"
+        row-key="rowKey"
+        striped
+        loading-text="Loading adjustment history..."
+        empty-text="No adjustment history found."
+      >
+        <template #cell-adjustment="{ value }">
+          <span
+            :class="
+              Number(value) > 0
+                ? 'text-emerald-600'
+                : Number(value) < 0
+                ? 'text-red-600'
+                : 'text-gray-900'
+            "
+          >
+            {{ formatAdjustment(value as number) }}
+          </span>
+        </template>
+      </GeneralTable>
     </template>
   </Modal>
 </template>

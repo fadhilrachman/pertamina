@@ -52,15 +52,12 @@ const formSchema = object({
   last_name: string().required("Last name is required"),
   email: string().required("Email is required"),
   password: string().required("Password is required"),
-  // .min(8, "Password must be at least 8 characters")
-  // .matches(/[a-z]/, "Password must contain at least one lowercase letter")
-// .matches(/[A-Z]/, "Password must contain at least one uppercase letter"),
-is_superadmin: string().required("User type is required"),
-company_id: string().when("is_superadmin", {
-  is: "false",
-  then: (schema) => schema.required("Company is required for regular user"),
-  otherwise: (schema) => schema.optional(),
-}),
+  is_superadmin: string().required("User type is required"),
+  company_id: string().when("is_superadmin", {
+    is: "false",
+    then: (schema) => schema.required("Company is required for regular user"),
+    otherwise: (schema) => schema.optional(),
+  }),
 });
 
 const createInitialValues = (): UserFormValues => ({
@@ -155,7 +152,8 @@ watch(
       const current = selectedData as UserType;
       const fallbackCompany =
         current.company_id ||
-        current.companies?.find((company: any) => company?.is_default)?.company_id ||
+        current.companies?.find((company: any) => company?.is_default)
+          ?.company_id ||
         current.companies?.[0]?.company_id ||
         current.companies?.[0]?.id ||
         "";
@@ -197,40 +195,32 @@ const handleCancel = () => {
   close();
 };
 
-async function handleFormSubmit(values: UserFormValues) {
+async function handleFormSubmit(payload: Record<string, any>) {
+  const values = payload as UserFormValues;
+  const isSuperadmin = values.is_superadmin === "true";
+
+  const basePayload = {
+    email: values.email,
+    first_name: values.first_name,
+    last_name: values.last_name,
+    is_superadmin: isSuperadmin,
+    company_id: isSuperadmin
+      ? undefined
+      : values.company_id?.toString() || undefined,
+  };
+
   try {
-    const companyId =
-      values.is_superadmin === "true"
-        ? undefined
-        : values.company_id
-        ? String(values.company_id)
-        : undefined;
-    const payload = {
-      email: values.email,
-      first_name: values.first_name,
-      last_name: values.last_name,
-      password: values.password,
-      is_superadmin: values.is_superadmin === "true",
-      company_id: companyId,
-    };
-
     if (props.mode === "update" && selectedData.value?.id) {
-      const updatePayload: any = {
+      await updateUser({
         id: selectedData.value.id,
-        email: payload.email,
-        first_name: payload.first_name,
-        last_name: payload.last_name,
-        is_superadmin: payload.is_superadmin,
-        company_id: payload.company_id,
-      };
-
-      if (values.password) {
-        updatePayload.password = values.password;
-      }
-
-      await updateUser(updatePayload);
+        ...basePayload,
+        ...(values.password && { password: values.password }),
+      });
     } else {
-      await createUser(payload);
+      await createUser({
+        ...basePayload,
+        password: values.password,
+      });
     }
 
     await getDataUsers({ page: 1, limit: 10 });

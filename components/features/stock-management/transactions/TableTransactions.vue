@@ -194,22 +194,8 @@ onBeforeMount(() => {
         title="Transactions"
         subtitle="View and manage all stock movements"
       />
-      <!-- <div class="flex justify-between space-x-2">
-        <GeneralButton color="success" label="Export to Excel">
-          <template #prefix>
-            <IconsDownload size="18" class="text-white" />
-          </template>
-        </GeneralButton>
-      </div> -->
     </header>
     <section class="flex bg-white p-6 rounded-xl items-end space-x-2">
-      <!-- <GeneralSearchInput
-        label="Search Name"
-        placeholder="Search Name"
-        class="max-w-[360px]"
-        :debounce="1000"
-        @change="handleFacilitiesChange"
-      /> -->
       <div class="min-w-[240px] space-y-1">
         <label class="mb-1.5 text-sm font-[600] text-gray-700"
           >Facilities</label

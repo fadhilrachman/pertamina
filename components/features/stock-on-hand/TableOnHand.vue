@@ -1,18 +1,12 @@
 <script setup lang="ts">
 import { computed, onBeforeMount, onMounted, reactive, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
-import ModalFormSku from "~/components/features/master-data/sku/ModalFormSku.vue";
-import ModalDelete from "~/components/general/ModalDelete/index.vue";
 import type { TableColumn } from "~/components/general/Table/index.vue";
-import type { ElementEvent } from "~/types/element";
 import { useSkuStore } from "~/store/master-data/sku-store";
 import { usePageStore } from "~/store/page";
-import type { SKUType } from "~/types/sku-type";
 import { useStockOnHand } from "~/store/stock-on-hand/stock-on-hand-store";
 import { useFacilitiesStore } from "~/store/master-data/facilities-store";
 import { formatTableDate } from "~/utils/functions";
-import { useSuperadminFacilitiesStore } from "~/store/superadmin/facilities-store";
-import { useSuperadminStockOnHandStore } from "~/store/superadmin/stock-on-hand-store";
 import { toast } from "vue3-toastify";
 
 const statusBadgeClass = (status: string | undefined) => {
@@ -63,8 +57,6 @@ const skuOptions = computed(
     })) || []
 );
 const { data, loadingWrite, loadingList } = storeToRefs(stockOnHandStore);
-const deleteModalRef = ref<ElementEvent | null>(null);
-const selectedSku = ref<Record<string, any> | null>(null);
 const exporting = ref(false);
 const tableData = computed(
   () => (data.value?.data?.data as any[]) || ([] as any[])
@@ -96,8 +88,6 @@ const tableColumns: TableColumn[] = [
   { key: "max_stock", label: "Max Stock" },
   { key: "status", label: "Status" },
   { key: "last_movement", label: "Last Movement" },
-
-  // { key: "actions", label: "Actions", align: "right" as const },
 ];
 
 const statusOptions = [
@@ -164,8 +154,6 @@ const handleExportExcel = async () => {
 watch(
   () => ({ ...params }),
   () => {
-    console.log({ params });
-
     stockOnHandStore.getDataStockOnHand({ ...params });
   }
 );
@@ -262,25 +250,6 @@ onBeforeMount(() => {
           <template #cell-last_movement="{ value }">
             {{ formatTableDate(value as string) }}
           </template>
-          <!-- <template #cell-actions="{ row }">
-            <div class="flex justify-end gap-2">
-              <GeneralIconButton class="h-9 w-9" color="default" :ghost="true">
-                <template #icon>
-                  <IconsEdit size="16" class="text-gray-700" />
-                </template>
-              </GeneralIconButton>
-              <GeneralIconButton
-                class="h-9 w-9 bg-white"
-                color="default"
-                :bordered="false"
-                @on-click="openDeleteSkuModal(row)"
-              >
-                <template #icon>
-                  <IconsDelete size="18" class="text-red-500" />
-                </template>
-              </GeneralIconButton>
-            </div>
-          </template> -->
         </GeneralTable>
         <GeneralPagination
           :page="params.page"

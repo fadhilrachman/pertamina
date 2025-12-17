@@ -155,20 +155,6 @@ onMounted(() => {
   facilitiesStore.getDataFacilities({ page: 1, limit: 1000 });
 });
 
-// watch(
-//   () => ({
-//     mode: props.mode,
-//     selectedData: selectedData.value,
-//   }),
-//   ({ mode, selectedData }) => {
-//     if (mode === "update" && selectedData) {
-//       form.resetForm({ values: selectedData as PayloadSKUType });
-//     } else {
-//       form.resetForm({ values: createInitialValues() });
-//     }
-//   },
-//   { immediate: true }
-// );
 const handleModalMounted = (instance: ElementEvent) => {
   modalInstance.value = instance;
 };

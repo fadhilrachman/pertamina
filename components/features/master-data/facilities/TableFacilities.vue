@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { onBeforeMount, onMounted, reactive, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import ModalDelete from "~/components/general/ModalDelete/index.vue";
 import type { TableColumn } from "~/components/general/Table/index.vue";
@@ -95,8 +94,6 @@ const handleStatusChange = (value: string | number) => {
 watch(
   () => ({ ...params }),
   () => {
-    console.log({ params });
-
     facilitiesStore.getDataFacilities({ ...params });
   }
 );
@@ -116,16 +113,6 @@ onMounted(() => {
         subtitle="Manage facilities and warehouses"
       />
       <div class="flex justify-between space-x-2">
-        <!-- <GeneralButton color="success" label="Download Template">
-          <template #prefix>
-            <IconsDownload size="18" class="text-white" />
-          </template>
-        </GeneralButton>//
-        <GeneralButton color="warning" label="Import">
-          <template #prefix>
-            <IconsUpload size="18" class="text-white" />
-          </template>
-        </GeneralButton> -->
         <GeneralButton
           color="primary"
           label="Add Warehouse"

@@ -53,9 +53,6 @@ const formSchema = object({
   sku_id: string().required("SKU Name is required"),
   facility_id: string().required("Facility Name is required"),
   qty: string().required("QTY is required"),
-  // uom: string().required("Unit of Measure is required"),
-  // reference_no: string().required("Reference No. is required"),
-  // reference_type: string().required("Reference Type is required"),
   date: string().required("Date is required"),
 });
 const createInitialValues = (): any => ({
@@ -73,6 +70,42 @@ const form = useForm<any>({
   initialValues: createInitialValues(),
 });
 const { values } = form;
+
+type StockInFormValues = {
+  sku_id: string;
+  facility_id: string;
+  qty: string | number;
+  note?: string;
+  reference_no?: string;
+  reference_type?: string;
+  date: string;
+};
+
+const handleSubmit = async (val: Record<string, any>) => {
+  const payload = val as StockInFormValues;
+
+  await stockTransactionStore.createDataStockTransaction(
+    {
+      lines: [
+        {
+          qty: Number(payload.qty),
+          facility_sku_id: payload.sku_id,
+          uom: "kg", // TEMPORARY
+        },
+      ],
+      note: payload.note,
+      reference_no: payload.reference_no,
+      reference_type: payload.reference_type,
+      trx_date: payload.date,
+      trx_type: "IN",
+    },
+    {
+      uuid: idempotencyKey,
+    }
+  );
+
+  form.resetForm({ values: createInitialValues() });
+};
 const formFields = computed<FieldConfig[]>(() => [
   {
     name: "facility_id",
@@ -103,15 +136,6 @@ const formFields = computed<FieldConfig[]>(() => [
     grid: 6,
   },
 
-  // {
-  //   name: "uom",
-  //   label: "UOM.",
-  //   requiredMark: true,
-  //   type: "text",
-  //   placeholder: "e.g., Unit, Liter, Kg",
-
-  //   grid: 6,
-  // },
   {
     name: "reference_no",
     label: "Reference No.",
@@ -120,14 +144,7 @@ const formFields = computed<FieldConfig[]>(() => [
     placeholder: "e.g., PO-12345",
     grid: 6,
   },
-  // {
-  //   name: "reference_type",
-  //   label: "Reference Type",
-  //   requiredMark: true,
-  //   type: "text",
-  //   placeholder: "e.g., Purchase Order",
-  //   grid: 6,
-  // },
+
   {
     name: "date",
     label: "Date Received  ",
@@ -146,11 +163,9 @@ const formFields = computed<FieldConfig[]>(() => [
   },
 ]);
 
-// Hanya fetch data SKU fasilitas ketika facility_id berubah dan terisi
 watch(
   () => values.facility_id,
   (next, prev) => {
-    // Debug perubahan facility_id
     console.log({ values });
     form.setValues({
       sku_id: "",
@@ -185,35 +200,7 @@ onMounted(() => {
           :fields="formFields"
           :validation-schema="formSchema"
           class-name=""
-          @submit="
-            async (val) => {
-              if (isManagementRole) {
-                return;
-              }
-              console.log({ val });
-
-              await stockTransactionStore.createDataStockTransaction(
-                {
-                  lines: [
-                    {
-                      qty: Number(val.qty),
-                      facility_sku_id: val.sku_id,
-                      uom: 'kg', //TEMPORARY
-                    },
-                  ],
-                  note: val.note,
-                  reference_no: val.reference_no,
-                  reference_type: val.reference_type,
-                  trx_date: val.date,
-                  trx_type: 'IN',
-                },
-                {
-                  uuid: idempotencyKey,
-                }
-              );
-              form.resetForm(createInitialValues());
-            }
-          "
+          @submit="handleSubmit"
         />
         <div class="flex justify-end mt-4 gap-3 pt-2">
           <GeneralOutlinedButton label="Cancel" type="button" />
