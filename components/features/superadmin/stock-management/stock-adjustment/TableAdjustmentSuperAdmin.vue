@@ -145,8 +145,6 @@ const handleDownloadTemplate = () => {
 watch(
   () => ({ ...params }),
   () => {
-    console.log({ params });
-
     stockOnHandStore.getDataStockOnHand({ ...params });
   }
 );
@@ -206,7 +204,7 @@ onBeforeMount(() => {
         />
       </div>
     </section>
-    <section class="space-y-4" v-if="params.facility_id">
+    <section class="space-y-4" v-if="params.facility_id || params.company_id">
       <div class="bg-white p-6 rounded-xl space-y-4">
         <GeneralTable
           :columns="tableColumns"
