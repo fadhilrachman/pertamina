@@ -231,6 +231,7 @@ onBeforeMount(() => {
 
     <ModalAdjustmentHistory
       id="modal-stock-history"
+      :company-id="params.company_id"
       :facility-id="params.facility_id"
       @mounted="handleHistoryModalMounted"
     />

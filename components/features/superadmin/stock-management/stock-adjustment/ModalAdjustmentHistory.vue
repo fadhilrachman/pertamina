@@ -94,7 +94,7 @@ const tableColumns: TableColumn[] = [
 ];
 
 const fetchHistory = async () => {
-  if (!props.facilityId && !props.facilitySkuId) {
+  if (!props.facilityId && !props.companyId) {
     adjustmentStore.data = {
       code: 200,
       data: {
@@ -120,11 +120,11 @@ const fetchHistory = async () => {
     params.facility_id = String(props.facilityId);
   }
 
-  if (props.facilitySkuId) {
-    params.facility_sku_id = String(props.facilitySkuId);
-  } else if (props.facilityId) {
-    params.facility_sku_id = String(props.facilityId);
-  }
+  // if (props.facilitySkuId) {
+  //   params.facility_sku_id = String(props.facilitySkuId);
+  // } else if (props.facilityId) {
+  //   params.facility_sku_id = String(props.facilityId);
+  // }
 
   if (props.companyId) {
     params.company_id = String(props.companyId);
@@ -179,10 +179,7 @@ const historyItems = computed<AdjustmentHistoryItem[]>(() => {
       rowKey,
       id: trx.transaction_id || "-",
       warehouse: trx.facility?.name || "-",
-      sku:
-        trx.facility_sku?.name ||
-        trx.facility_sku?.facility_sku_id ||
-        "-",
+      sku: trx.facility_sku?.name || trx.facility_sku?.facility_sku_id || "-",
       before: Number.isFinite(before) ? before : 0,
       after: Number.isFinite(after) ? after : 0,
       adjustment: Number.isFinite(adjustment) ? adjustment : 0,
