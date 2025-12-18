@@ -7,7 +7,7 @@ export interface SuperadminCompanyPayload {
   email: string;
   logo?: string | null;
   name: string;
-  owner_email: string;
+  owner_email?: string;
   pic_name: string;
 }
 

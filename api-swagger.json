@@ -1,0 +1,6936 @@
+{
+  "schemes": ["https"],
+  "swagger": "2.0",
+  "info": {
+    "description": "API documentation for Stock Management System with multi-tenant support",
+    "title": "Stock Management API",
+    "termsOfService": "http://swagger.io/terms/",
+    "contact": {
+      "name": "API Support",
+      "email": "support@transtrack.co"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    },
+    "version": "1.0"
+  },
+  "host": "ttsm.arnatech.id",
+  "basePath": "/",
+  "paths": {
+    "/api/v1/auth/login": {
+      "post": {
+        "description": "Login with email and password. Data is protected by HTTPS/TLS encryption in transit.",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Auth"],
+        "summary": "Login user",
+        "parameters": [
+          {
+            "description": "Login credentials",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/auth.LoginRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/auth.LoginResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/password": {
+      "put": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Update current user password",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Auth"],
+        "summary": "Update user password",
+        "parameters": [
+          {
+            "description": "Password update data",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/auth.UpdatePasswordRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/refresh-token": {
+      "post": {
+        "description": "Refresh access token using refresh token",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Auth"],
+        "summary": "Refresh access token",
+        "parameters": [
+          {
+            "description": "Refresh token data",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/auth.RefreshTokenRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/auth.RefreshTokenResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/register": {
+      "post": {
+        "description": "Register a new user account. If company data is provided, a new company will be created and the user will be assigned as Admin. If no company data is provided, the user will be created without a company and must be invited to join a company.",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Auth"],
+        "summary": "Register a new user",
+        "parameters": [
+          {
+            "description": "Registration data (company is optional)",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/auth.RegisterRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/auth.RegisterResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/session": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get current user session information",
+        "produces": ["application/json"],
+        "tags": ["Auth"],
+        "summary": "Get current session",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/auth.SessionResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/companies": {
+      "get": {
+        "description": "Get a paginated list of companies. This endpoint is public and does not require authentication.",
+        "produces": ["application/json"],
+        "tags": ["Company"],
+        "summary": "List all companies",
+        "parameters": [
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "Page number",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 10,
+            "description": "Items per page",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Search value",
+            "name": "search_value",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Create a new company",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Company"],
+        "summary": "Create a new company",
+        "parameters": [
+          {
+            "description": "Company data",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/company.CreateCompanyRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/companies/{id}": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get details of a specific company",
+        "produces": ["application/json"],
+        "tags": ["Company"],
+        "summary": "Get company by ID",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Company ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      },
+      "put": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Update an existing company",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Company"],
+        "summary": "Update a company",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Company ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Updated company data",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/company.UpdateCompanyRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Delete a company by ID",
+        "produces": ["application/json"],
+        "tags": ["Company"],
+        "summary": "Delete a company",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Company ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/dashboard/facility-stock": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get stock summary per facility",
+        "produces": ["application/json"],
+        "tags": ["Dashboard"],
+        "summary": "Get facility stock summary",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/dashboard.FacilityStockResponse"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/dashboard/overview": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get overview statistics for the dashboard. Optionally filter by facility using query parameter.",
+        "produces": ["application/json"],
+        "tags": ["Dashboard"],
+        "summary": "Get dashboard overview",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Facility ID to filter metrics by specific facility",
+            "name": "facility_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/dashboard.DashboardOverviewResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/dashboard/stock-distribution": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get stock distribution across all warehouses with percentages",
+        "produces": ["application/json"],
+        "tags": ["Dashboard"],
+        "summary": "Get stock distribution per warehouse",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/dashboard.StockDistributionResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/dashboard/stock-movement": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get daily stock movement for the last N days",
+        "produces": ["application/json"],
+        "tags": ["Dashboard"],
+        "summary": "Get stock movement chart data",
+        "parameters": [
+          {
+            "type": "integer",
+            "default": 7,
+            "description": "Number of days",
+            "name": "days",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/dashboard.StockMovementResponse"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/dashboard/top-inbound": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get top products by inbound quantity",
+        "produces": ["application/json"],
+        "tags": ["Dashboard"],
+        "summary": "Get top inbound products",
+        "parameters": [
+          {
+            "type": "integer",
+            "default": 10,
+            "description": "Limit",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/dashboard.TopProductResponse"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/dashboard/top-moving-skus": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get top moving SKUs based on transaction activity over specified period",
+        "produces": ["application/json"],
+        "tags": ["Dashboard"],
+        "summary": "Get top moving SKUs",
+        "parameters": [
+          {
+            "type": "integer",
+            "default": 30,
+            "description": "Number of days",
+            "name": "days",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 10,
+            "description": "Limit",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/dashboard.TopMovingSKUResponse"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/dashboard/top-outbound": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get top products by outbound quantity",
+        "produces": ["application/json"],
+        "tags": ["Dashboard"],
+        "summary": "Get top outbound products",
+        "parameters": [
+          {
+            "type": "integer",
+            "default": 10,
+            "description": "Limit",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/dashboard.TopProductResponse"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/facilities": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get a paginated list of facilities",
+        "produces": ["application/json"],
+        "tags": ["Facility"],
+        "summary": "List all facilities",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Search by code or name",
+            "name": "search",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by status (active/inactive)",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "Page number",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 10,
+            "description": "Items per page",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/facility.ListFacilityResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Create a new warehouse/facility",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Facility"],
+        "summary": "Create a new facility",
+        "parameters": [
+          {
+            "description": "Facility data",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/facility.CreateFacilityRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/facility.FacilityResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/facilities/{facility_id}/skus": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get all SKUs assigned to a facility, optionally filtered by search term",
+        "produces": ["application/json"],
+        "tags": ["Facility SKU"],
+        "summary": "List SKUs assigned to facility",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Facility ID",
+            "name": "facility_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Search by SKU name, SKU code, or description",
+            "name": "search",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/facility_sku.FacilitySKUResponse"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Assign a SKU to a facility with threshold",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Facility SKU"],
+        "summary": "Assign SKU to facility",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Facility ID",
+            "name": "facility_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Assignment data",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/facility_sku.AssignSKURequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/facility_sku.FacilitySKUResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/facilities/{facility_id}/skus/{sku_id}": {
+      "put": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Update low stock threshold for a SKU in facility",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Facility SKU"],
+        "summary": "Update SKU threshold in facility",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Facility ID",
+            "name": "facility_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "SKU ID",
+            "name": "sku_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Threshold data",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/facility_sku.UpdateThresholdRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/facility_sku.FacilitySKUResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Remove SKU assignment from facility",
+        "produces": ["application/json"],
+        "tags": ["Facility SKU"],
+        "summary": "Unassign SKU from facility",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Facility ID",
+            "name": "facility_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "SKU ID",
+            "name": "sku_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/facilities/{facility_id}/vehicles": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get all vehicles registered to a specific facility",
+        "produces": ["application/json"],
+        "tags": ["Vehicle"],
+        "summary": "List vehicles by facility",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Facility ID",
+            "name": "facility_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/vehicle.VehicleResponse"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/facilities/{id}": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get details of a specific facility",
+        "produces": ["application/json"],
+        "tags": ["Facility"],
+        "summary": "Get facility by ID",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Facility ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/facility.FacilityResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      },
+      "put": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Update an existing facility",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Facility"],
+        "summary": "Update a facility",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Facility ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Updated facility data",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/facility.UpdateFacilityRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/facility.FacilityResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Delete a facility (only if no stock exists)",
+        "produces": ["application/json"],
+        "tags": ["Facility"],
+        "summary": "Delete a facility",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Facility ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/import/sku-facility-sku": {
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Import SKU and their facility assignments from a single CSV file",
+        "consumes": ["multipart/form-data"],
+        "produces": ["application/json"],
+        "tags": ["Import"],
+        "summary": "Import SKU and Facility SKU from CSV",
+        "parameters": [
+          {
+            "type": "file",
+            "description": "CSV file",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/importdata.ImportResult"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/import/stock-adjustment": {
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Import stock adjustments from CSV file",
+        "consumes": ["multipart/form-data"],
+        "produces": ["application/json"],
+        "tags": ["Import"],
+        "summary": "Import Stock Adjustment from CSV",
+        "parameters": [
+          {
+            "type": "file",
+            "description": "CSV file",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/importdata.ImportResult"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/roles": {
+      "get": {
+        "description": "Get a paginated list of all roles from all companies. This endpoint is public and read-only (for reference only, no create/update/delete operations allowed).",
+        "produces": ["application/json"],
+        "tags": ["Role"],
+        "summary": "List all roles (Reference only)",
+        "parameters": [
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "Page number",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 10,
+            "description": "Items per page",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Search value",
+            "name": "search_value",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/roles/{id}": {
+      "get": {
+        "description": "Get details of a specific role. This endpoint is public and read-only (for reference only).",
+        "produces": ["application/json"],
+        "tags": ["Role"],
+        "summary": "Get role by ID (Reference only)",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Role ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/skus": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get a paginated list of SKUs",
+        "produces": ["application/json"],
+        "tags": ["SKU"],
+        "summary": "List all SKUs",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Search by SKU code or name",
+            "name": "search",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by status (active/inactive)",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "Page number",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 10,
+            "description": "Items per page",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/sku.ListSKUResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Create a new Stock Keeping Unit",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["SKU"],
+        "summary": "Create a new SKU",
+        "parameters": [
+          {
+            "description": "SKU data",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/sku.CreateSKURequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/sku.SKUResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/skus/{id}": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get details of a specific SKU",
+        "produces": ["application/json"],
+        "tags": ["SKU"],
+        "summary": "Get SKU by ID",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "SKU ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/sku.SKUResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      },
+      "put": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Update an existing SKU",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["SKU"],
+        "summary": "Update an SKU",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "SKU ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Updated SKU data",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/sku.UpdateSKURequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/sku.SKUResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Delete an SKU (only if no stock exists)",
+        "produces": ["application/json"],
+        "tags": ["SKU"],
+        "summary": "Delete an SKU",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "SKU ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stock/adjustments": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get adjustment transactions (ADJUST_IN/ADJUST_OUT), optionally filtered by facility_sku. Includes before/after stock if available in notes",
+        "produces": ["application/json"],
+        "tags": ["Stock Transaction"],
+        "summary": "List stock adjustments",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Filter by Facility SKU ID",
+            "name": "facility_sku_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "Page number",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 10,
+            "description": "Items per page",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/stock.ListStockAdjustmentResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stock/on-hand": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get current stock balance across facilities with detailed information including SKU code, name, category, warehouse, quantity, unit of measure, min/max stock, status, and last movement date",
+        "produces": ["application/json"],
+        "tags": ["Stock Balance"],
+        "summary": "List on-hand stock",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Filter by facility",
+            "name": "facility_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by SKU",
+            "name": "sku_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by status (available/low/out_of_stock/overstock)",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "Page number",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 10,
+            "description": "Items per page",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/stock.ListOnHandStockResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stock/on-hand/download": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Download current stock balance as Excel file with the same filters as list endpoint",
+        "produces": [
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        ],
+        "tags": ["Stock Balance"],
+        "summary": "Download on-hand stock as Excel",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Filter by facility",
+            "name": "facility_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by SKU",
+            "name": "sku_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by status (available/low/out_of_stock/overstock)",
+            "name": "status",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stock/transactions": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get a paginated list of stock transactions",
+        "produces": ["application/json"],
+        "tags": ["Stock Transaction"],
+        "summary": "List stock transactions",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Filter by transaction type",
+            "name": "trx_type",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter from date (YYYY-MM-DD)",
+            "name": "date_from",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter to date (YYYY-MM-DD)",
+            "name": "date_to",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by facility",
+            "name": "facility_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by SKU",
+            "name": "sku_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "Page number",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 10,
+            "description": "Items per page",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/stock.ListStockTransactionResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Create a new stock transaction (IN/OUT/ADJUST). Purpose can be: Sparepart, Transfer, Consumption, Other. Vehicle can be specified either by vehicle_id (FK to vehicles table) or vehicle_text (free text), both are optional.",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Stock Transaction"],
+        "summary": "Create stock transaction",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Idempotency key for safe retries",
+            "name": "X-Idempotency-Key",
+            "in": "header"
+          },
+          {
+            "description": "Transaction data",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/stock.CreateStockTransactionRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/stock.StockTransactionResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stock/transactions/{id}": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get details of a stock transaction",
+        "produces": ["application/json"],
+        "tags": ["Stock Transaction"],
+        "summary": "Get transaction by ID",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Transaction ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/stock.StockTransactionResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/superadmin/assign-user": {
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Assign a user to a company with a specific role",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Superadmin"],
+        "summary": "Assign user to company (Superadmin only)",
+        "parameters": [
+          {
+            "description": "Assignment data",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/superadmin.AssignUserRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/superadmin/companies": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get a paginated list of all companies in the system",
+        "produces": ["application/json"],
+        "tags": ["Superadmin"],
+        "summary": "List all companies (Superadmin only)",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Search by company name or PIC name",
+            "name": "search",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "Page number",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 10,
+            "description": "Items per page",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/superadmin.ListCompaniesResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Create a new company in the system",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Superadmin"],
+        "summary": "Create a new company (Superadmin only)",
+        "parameters": [
+          {
+            "description": "Company data",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/superadmin.CreateCompanyRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/superadmin.CompanyDetailResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/superadmin/companies/{id}": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get detailed information about a specific company",
+        "produces": ["application/json"],
+        "tags": ["Superadmin"],
+        "summary": "Get company by ID (Superadmin only)",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Company ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/superadmin.CompanyDetailResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      },
+      "put": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Update an existing company",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Superadmin"],
+        "summary": "Update a company (Superadmin only)",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Company ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Updated company data",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/superadmin.UpdateCompanyRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/superadmin.CompanyDetailResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Delete a company from the system",
+        "produces": ["application/json"],
+        "tags": ["Superadmin"],
+        "summary": "Delete a company (Superadmin only)",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Company ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/superadmin/dashboard": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get analytics data including total companies, total users, daily transactions per company, and aggregated transactions by company",
+        "produces": ["application/json"],
+        "tags": ["Superadmin"],
+        "summary": "Get superadmin dashboard analytics (Superadmin only)",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "date",
+            "description": "Start date (YYYY-MM-DD)",
+            "name": "date_from",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "description": "End date (YYYY-MM-DD)",
+            "name": "date_to",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Filter by company ID",
+            "name": "company_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/superadmin.DashboardResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/superadmin/facilities": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "List facilities with optional filter by company and search",
+        "produces": ["application/json"],
+        "tags": ["Superadmin"],
+        "summary": "List all facilities (Superadmin only)",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Filter by company ID",
+            "name": "company_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Search by name/code",
+            "name": "search",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by status (active/inactive)",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "Page number",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 20,
+            "description": "Items per page",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/superadmin.ListFacilitiesResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/superadmin/facilities/{id}": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get details of a specific facility",
+        "produces": ["application/json"],
+        "tags": ["Superadmin"],
+        "summary": "Get facility by ID (Superadmin only)",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Facility ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/superadmin.FacilityDetailResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/superadmin/facility-skus": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "List facility SKUs with optional filters by company, facility, sku",
+        "produces": ["application/json"],
+        "tags": ["Superadmin"],
+        "summary": "List facility SKUs (Superadmin only)",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Filter by company ID",
+            "name": "company_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Filter by facility ID",
+            "name": "facility_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Filter by SKU ID",
+            "name": "sku_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Search by description",
+            "name": "search",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "Page number",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 20,
+            "description": "Items per page",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/superadmin.ListFacilitySKUResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/superadmin/stock-on-hand": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "List stock balances with filters (company, facility, sku, status)",
+        "produces": ["application/json"],
+        "tags": ["Superadmin"],
+        "summary": "List stock on hand (Superadmin only)",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Filter by company ID",
+            "name": "company_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Filter by facility ID",
+            "name": "facility_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Filter by SKU ID",
+            "name": "sku_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by status (available, low, out_of_stock, overstock)",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "Page number",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 20,
+            "description": "Items per page",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/superadmin.ListStockOnHandResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/superadmin/stock-on-hand/download": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Download stock on hand as Excel file with the same filters as list endpoint",
+        "produces": [
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        ],
+        "tags": ["Superadmin"],
+        "summary": "Download stock on hand as Excel (Superadmin only)",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Filter by company ID",
+            "name": "company_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Filter by facility ID",
+            "name": "facility_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Filter by SKU ID",
+            "name": "sku_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "Page number",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 20,
+            "description": "Items per page",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "file"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/superadmin/stock/adjustments": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Show adjustment transactions (ADJUST_IN/ADJUST_OUT), optionally filtered by facility_sku. Includes before/after stock if present in notes",
+        "produces": ["application/json"],
+        "tags": ["Superadmin"],
+        "summary": "List stock adjustments (Superadmin)",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Filter by Facility SKU ID",
+            "name": "facility_sku_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "Page number",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 10,
+            "description": "Items per page",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/stock.ListStockAdjustmentResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/superadmin/transactions": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "List stock transactions with filters (company, facility, trx_type, date range)",
+        "produces": ["application/json"],
+        "tags": ["Superadmin"],
+        "summary": "List stock transactions (Superadmin only)",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Filter by company ID",
+            "name": "company_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Filter by facility ID",
+            "name": "facility_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by trx_type (IN, OUT, ADJUST_IN, ADJUST_OUT)",
+            "name": "trx_type",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "description": "Start date (YYYY-MM-DD)",
+            "name": "date_from",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "description": "End date (YYYY-MM-DD)",
+            "name": "date_to",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "Page number",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 20,
+            "description": "Items per page",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/superadmin.ListTransactionsResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/superadmin/transactions/{id}": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get details of a specific stock transaction",
+        "produces": ["application/json"],
+        "tags": ["Superadmin"],
+        "summary": "Get transaction by ID (Superadmin only)",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Transaction ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/stock.StockTransactionResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/superadmin/users": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get a paginated list of all users in the system",
+        "produces": ["application/json"],
+        "tags": ["Superadmin"],
+        "summary": "List all users (Superadmin only)",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Search by email, first name, or last name",
+            "name": "search",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "Page number",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 10,
+            "description": "Items per page",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/superadmin.ListUsersResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Create a new user in the system",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Superadmin"],
+        "summary": "Create a new user (Superadmin only)",
+        "parameters": [
+          {
+            "description": "User data",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/superadmin.CreateUserRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/superadmin.UserDetailResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/superadmin/users/{id}": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get detailed information about a specific user",
+        "produces": ["application/json"],
+        "tags": ["Superadmin"],
+        "summary": "Get user by ID (Superadmin only)",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "User ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/superadmin.UserDetailResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      },
+      "put": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Update an existing user",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Superadmin"],
+        "summary": "Update a user (Superadmin only)",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "User ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Updated user data",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/superadmin.UpdateUserRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/superadmin.UserDetailResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Delete a user from the system",
+        "produces": ["application/json"],
+        "tags": ["Superadmin"],
+        "summary": "Delete a user (Superadmin only)",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "User ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/superadmin/users/{user_id}/companies": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get all companies that a user has access to",
+        "produces": ["application/json"],
+        "tags": ["Superadmin"],
+        "summary": "Get user's companies (Superadmin only)",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "User ID",
+            "name": "user_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/superadmin.UserCompaniesResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/superadmin/users/{user_id}/companies/{company_id}": {
+      "delete": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Remove a user's access from a company",
+        "produces": ["application/json"],
+        "tags": ["Superadmin"],
+        "summary": "Remove user from company (Superadmin only)",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "User ID",
+            "name": "user_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Company ID",
+            "name": "company_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get a paginated list of users that have access to the current company",
+        "produces": ["application/json"],
+        "tags": ["User"],
+        "summary": "List users in company",
+        "parameters": [
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "Page number",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 10,
+            "description": "Items per page",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Search value",
+            "name": "search_value",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Search columns",
+            "name": "search_columns",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Sort column",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Sort order (asc/desc)",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/helper.IndexResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Create a new user and assign them to the current company with the specified role. If user already exists, they will be added to the company.",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["User"],
+        "summary": "Create user in company",
+        "parameters": [
+          {
+            "description": "User data",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/user.CreateUserRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/user.UserResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/{id}": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get user details by ID (must have access to current company)",
+        "produces": ["application/json"],
+        "tags": ["User"],
+        "summary": "Get user by ID",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "User ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/user.UserResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      },
+      "put": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Update user information and/or role in the current company",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["User"],
+        "summary": "Update user",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "User ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Updated user data",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/user.UpdateUserRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/user.UserResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Remove user access from the current company (does not delete the user account)",
+        "produces": ["application/json"],
+        "tags": ["User"],
+        "summary": "Remove user from company",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "User ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/vehicles": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get a paginated list of vehicles",
+        "produces": ["application/json"],
+        "tags": ["Vehicle"],
+        "summary": "List all vehicles",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Filter by facility",
+            "name": "facility_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by type (Truck/Van/Pickup)",
+            "name": "type",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by status",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Search by vehicle_id or license_plate",
+            "name": "search",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "description": "Page number",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 10,
+            "description": "Items per page",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/vehicle.ListVehicleResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Register a new vehicle to a facility",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Vehicle"],
+        "summary": "Create a new vehicle",
+        "parameters": [
+          {
+            "description": "Vehicle data",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/vehicle.CreateVehicleRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/vehicle.VehicleResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/vehicles/{id}": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get details of a specific vehicle",
+        "produces": ["application/json"],
+        "tags": ["Vehicle"],
+        "summary": "Get vehicle by ID",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Vehicle ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/vehicle.VehicleResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      },
+      "put": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Update an existing vehicle",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Vehicle"],
+        "summary": "Update a vehicle",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Vehicle ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Updated vehicle data",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/vehicle.UpdateVehicleRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/vehicle.VehicleResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Delete a vehicle by ID",
+        "produces": ["application/json"],
+        "tags": ["Vehicle"],
+        "summary": "Delete a vehicle",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Vehicle ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/v1/invitations": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get all invitations for the current company",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Company Invitations"],
+        "summary": "Get company invitations",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Filter by status (PENDING, ACCEPTED, EXPIRED, CANCELLED)",
+            "name": "status",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/company_invitation.InvitationsListResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Invite a user to join your company by email",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Company Invitations"],
+        "summary": "Create company invitation",
+        "parameters": [
+          {
+            "description": "Invitation details",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/company_invitation.CreateInvitationRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/company_invitation.InvitationResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/v1/invitations/accept": {
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Accept a company invitation using the invitation token",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Company Invitations"],
+        "summary": "Accept invitation",
+        "parameters": [
+          {
+            "description": "Invitation token",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/company_invitation.AcceptInvitationRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/v1/invitations/my": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get all pending invitations for the authenticated user",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Company Invitations"],
+        "summary": "Get my invitations",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/company_invitation.InvitationsListResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/v1/invitations/{id}/cancel": {
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Cancel a pending company invitation",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["Company Invitations"],
+        "summary": "Cancel invitation",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Invitation ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/v1/user/companies": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get all companies that the authenticated user has access to",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["User Companies"],
+        "summary": "Get user's companies",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/user_company.UserCompaniesResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/v1/user/companies/switch": {
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Switch the active company for the current user session",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["User Companies"],
+        "summary": "Switch active company",
+        "parameters": [
+          {
+            "description": "Company ID to switch to",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/user_company.SwitchCompanyRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "auth.LoginRequest": {
+      "type": "object",
+      "required": ["email", "password"],
+      "properties": {
+        "email": {
+          "type": "string",
+          "example": "user@example.com"
+        },
+        "password": {
+          "type": "string",
+          "example": "yourpassword"
+        }
+      }
+    },
+    "auth.LoginResponse": {
+      "type": "object",
+      "properties": {
+        "access_token": {
+          "type": "string"
+        },
+        "expires_in": {
+          "type": "integer"
+        },
+        "pending_invitations": {
+          "type": "integer"
+        },
+        "refresh_token": {
+          "type": "string"
+        },
+        "token_type": {
+          "type": "string"
+        }
+      }
+    },
+    "auth.RefreshTokenRequest": {
+      "type": "object",
+      "required": ["refresh_token"],
+      "properties": {
+        "refresh_token": {
+          "type": "string"
+        }
+      }
+    },
+    "auth.RefreshTokenResponse": {
+      "type": "object",
+      "properties": {
+        "access_token": {
+          "type": "string"
+        },
+        "expires_in": {
+          "type": "integer"
+        },
+        "refresh_token": {
+          "type": "string"
+        },
+        "token_type": {
+          "type": "string"
+        }
+      }
+    },
+    "auth.RegisterCompanyRequest": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "auth.RegisterRequest": {
+      "type": "object",
+      "required": ["email", "first_name", "last_name", "password"],
+      "properties": {
+        "company": {
+          "description": "Optional: jika ada, akan create company baru dan user jadi Admin",
+          "allOf": [
+            {
+              "$ref": "#/definitions/auth.RegisterCompanyRequest"
+            }
+          ]
+        },
+        "email": {
+          "type": "string"
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "auth.RegisterResponse": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "role": {
+          "$ref": "#/definitions/auth.Role"
+        }
+      }
+    },
+    "auth.Role": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/permission.Permission"
+          }
+        }
+      }
+    },
+    "auth.SessionResponse": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string"
+        },
+        "expired_at": {
+          "type": "string"
+        },
+        "user_agent": {
+          "type": "string"
+        }
+      }
+    },
+    "auth.UpdatePasswordRequest": {
+      "type": "object",
+      "required": ["new_password", "old_password"],
+      "properties": {
+        "new_password": {
+          "type": "string"
+        },
+        "old_password": {
+          "type": "string"
+        }
+      }
+    },
+    "company.CreateCompanyRequest": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "address": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "logo": {
+          "description": "URL or base64 encoded image",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "pic_name": {
+          "type": "string"
+        }
+      }
+    },
+    "company.UpdateCompanyRequest": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "address": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "logo": {
+          "description": "URL or base64 encoded image",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "pic_name": {
+          "type": "string"
+        }
+      }
+    },
+    "company_invitation.AcceptInvitationRequest": {
+      "type": "object",
+      "required": ["token"],
+      "properties": {
+        "token": {
+          "type": "string"
+        }
+      }
+    },
+    "company_invitation.CreateInvitationRequest": {
+      "type": "object",
+      "required": ["email", "role_id"],
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "role_id": {
+          "type": "string"
+        }
+      }
+    },
+    "company_invitation.InvitationResponse": {
+      "type": "object",
+      "properties": {
+        "accepted_at": {
+          "type": "string"
+        },
+        "company_id": {
+          "type": "string"
+        },
+        "company_name": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "expires_at": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "role_id": {
+          "type": "string"
+        },
+        "role_name": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "token": {
+          "type": "string"
+        }
+      }
+    },
+    "company_invitation.InvitationsListResponse": {
+      "type": "object",
+      "properties": {
+        "invitations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/company_invitation.InvitationResponse"
+          }
+        }
+      }
+    },
+    "dashboard.DashboardOverviewResponse": {
+      "type": "object",
+      "properties": {
+        "active_warehouses": {
+          "description": "Active warehouses (facilities)",
+          "type": "integer"
+        },
+        "low_stock_alerts": {
+          "description": "Low Stock Alerts",
+          "type": "integer"
+        },
+        "low_stock_count": {
+          "type": "integer"
+        },
+        "out_of_stock_count": {
+          "type": "integer"
+        },
+        "throughput_overview": {
+          "description": "Throughput Overview (Today's Activity)",
+          "allOf": [
+            {
+              "$ref": "#/definitions/dashboard.ThroughputOverview"
+            }
+          ]
+        },
+        "today_adjustment_count": {
+          "type": "integer"
+        },
+        "today_inbound_count": {
+          "type": "integer"
+        },
+        "today_outbound_count": {
+          "type": "integer"
+        },
+        "total_facilities": {
+          "description": "Legacy fields (kept for backward compatibility)",
+          "type": "integer"
+        },
+        "total_on_hand_quantity": {
+          "description": "Total On-Hand Quantity",
+          "type": "number"
+        },
+        "total_skus": {
+          "description": "Core Metrics",
+          "type": "integer"
+        },
+        "total_stock_value": {
+          "type": "number"
+        }
+      }
+    },
+    "dashboard.FacilityStockResponse": {
+      "type": "object",
+      "properties": {
+        "facility_id": {
+          "type": "string"
+        },
+        "facility_name": {
+          "description": "Warehouse name",
+          "type": "string"
+        },
+        "low_stock_count": {
+          "type": "integer"
+        },
+        "percentage": {
+          "description": "Percentage of total stock",
+          "type": "number"
+        },
+        "total_qty": {
+          "description": "Stock quantity in this warehouse",
+          "type": "number"
+        },
+        "total_skus": {
+          "type": "integer"
+        }
+      }
+    },
+    "dashboard.StockDistributionResponse": {
+      "type": "object",
+      "properties": {
+        "total_qty": {
+          "type": "number"
+        },
+        "warehouses": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/dashboard.FacilityStockResponse"
+          }
+        }
+      }
+    },
+    "dashboard.StockMovementResponse": {
+      "type": "object",
+      "properties": {
+        "adjustment_qty": {
+          "type": "number"
+        },
+        "date": {
+          "type": "string"
+        },
+        "inbound_qty": {
+          "type": "number"
+        },
+        "outbound_qty": {
+          "type": "number"
+        }
+      }
+    },
+    "dashboard.ThroughputOverview": {
+      "type": "object",
+      "properties": {
+        "adjustment_qty": {
+          "description": "Today's total adjustment quantity",
+          "type": "number"
+        },
+        "inbound_qty": {
+          "description": "Today's total inbound quantity",
+          "type": "number"
+        },
+        "outbound_qty": {
+          "description": "Today's total outbound quantity",
+          "type": "number"
+        },
+        "today_adjustment": {
+          "description": "Today's adjustment transactions count",
+          "type": "integer"
+        },
+        "today_inbound": {
+          "description": "Today's inbound transactions count",
+          "type": "integer"
+        },
+        "today_outbound": {
+          "description": "Today's outbound transactions count",
+          "type": "integer"
+        }
+      }
+    },
+    "dashboard.TopMovingSKUResponse": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string"
+        },
+        "net_movement": {
+          "description": "Net movement (in - out)",
+          "type": "number"
+        },
+        "on_hand_qty": {
+          "description": "Current stock on hand",
+          "type": "number"
+        },
+        "sku_code": {
+          "type": "string"
+        },
+        "sku_name": {
+          "type": "string"
+        },
+        "total_in_qty": {
+          "description": "Total inbound quantity",
+          "type": "number"
+        },
+        "total_out_qty": {
+          "description": "Total outbound quantity",
+          "type": "number"
+        },
+        "trx_count": {
+          "description": "Transaction count",
+          "type": "integer"
+        }
+      }
+    },
+    "dashboard.TopProductResponse": {
+      "type": "object",
+      "properties": {
+        "sku_code": {
+          "type": "string"
+        },
+        "sku_id": {
+          "type": "string"
+        },
+        "sku_name": {
+          "type": "string"
+        },
+        "total_qty": {
+          "type": "number"
+        },
+        "trx_count": {
+          "type": "integer"
+        }
+      }
+    },
+    "facility.CreateFacilityRequest": {
+      "type": "object",
+      "required": ["code", "name"],
+      "properties": {
+        "address": {
+          "type": "string"
+        },
+        "capacity": {
+          "type": "number",
+          "minimum": 0
+        },
+        "city": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "code": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 255
+        },
+        "status": {
+          "description": "Optional, defaults to \"active\"",
+          "type": "string",
+          "enum": ["active", "inactive"]
+        }
+      }
+    },
+    "facility.FacilityResponse": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string"
+        },
+        "capacity": {
+          "type": "number"
+        },
+        "city": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "company_id": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "deleted_at": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        }
+      }
+    },
+    "facility.ListFacilityResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/facility.FacilityResponse"
+          }
+        },
+        "limit": {
+          "type": "integer"
+        },
+        "page": {
+          "type": "integer"
+        },
+        "total": {
+          "type": "integer"
+        },
+        "total_pages": {
+          "type": "integer"
+        }
+      }
+    },
+    "facility.UpdateFacilityRequest": {
+      "type": "object",
+      "required": ["name", "status"],
+      "properties": {
+        "address": {
+          "type": "string"
+        },
+        "capacity": {
+          "type": "number",
+          "minimum": 0
+        },
+        "city": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "code": {
+          "description": "Optional, but if provided must be unique",
+          "type": "string",
+          "maxLength": 50
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 255
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "inactive"]
+        }
+      }
+    },
+    "facility_sku.AssignSKURequest": {
+      "type": "object",
+      "required": ["sku_id"],
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "high_stock_threshold": {
+          "type": "number",
+          "minimum": 0
+        },
+        "low_stock_threshold": {
+          "type": "number",
+          "minimum": 0
+        },
+        "sku_id": {
+          "type": "string"
+        }
+      }
+    },
+    "facility_sku.FacilitySKUResponse": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "facility_id": {
+          "type": "string"
+        },
+        "high_stock_threshold": {
+          "type": "number"
+        },
+        "id": {
+          "type": "string"
+        },
+        "low_stock_threshold": {
+          "type": "number"
+        },
+        "sku_code": {
+          "type": "string"
+        },
+        "sku_id": {
+          "type": "string"
+        },
+        "sku_name": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        }
+      }
+    },
+    "facility_sku.UpdateThresholdRequest": {
+      "type": "object",
+      "required": ["status"],
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "high_stock_threshold": {
+          "type": "number",
+          "minimum": 0
+        },
+        "low_stock_threshold": {
+          "type": "number",
+          "minimum": 0
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "inactive"]
+        }
+      }
+    },
+    "helper.IndexResponse": {
+      "type": "object",
+      "properties": {
+        "list": {},
+        "pagination": {
+          "$ref": "#/definitions/helper.PaginationResponse"
+        }
+      }
+    },
+    "helper.PaginationResponse": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer"
+        },
+        "page_size": {
+          "type": "integer"
+        },
+        "total_count": {
+          "type": "integer"
+        },
+        "total_pages": {
+          "type": "integer"
+        }
+      }
+    },
+    "helper.Response": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer"
+        },
+        "data": {},
+        "error": {},
+        "message": {
+          "type": "string"
+        },
+        "success": {
+          "type": "boolean"
+        }
+      }
+    },
+    "importdata.ImportResult": {
+      "type": "object",
+      "properties": {
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "failed_rows": {
+          "type": "integer"
+        },
+        "success_detail": {
+          "type": "string"
+        },
+        "success_rows": {
+          "type": "integer"
+        },
+        "total_rows": {
+          "type": "integer"
+        }
+      }
+    },
+    "permission.Permission": {
+      "type": "object",
+      "properties": {
+        "group": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "sku.CreateSKURequest": {
+      "type": "object",
+      "required": ["name", "sku_code", "unit"],
+      "properties": {
+        "category": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 255
+        },
+        "sku_code": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "unit": {
+          "type": "string",
+          "maxLength": 50
+        }
+      }
+    },
+    "sku.ListSKUResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/sku.SKUResponse"
+          }
+        },
+        "limit": {
+          "type": "integer"
+        },
+        "page": {
+          "type": "integer"
+        },
+        "total": {
+          "type": "integer"
+        },
+        "total_pages": {
+          "type": "integer"
+        }
+      }
+    },
+    "sku.SKUResponse": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "deleted_at": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "sku_code": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        }
+      }
+    },
+    "sku.UpdateSKURequest": {
+      "type": "object",
+      "required": ["name", "status", "unit"],
+      "properties": {
+        "category": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 255
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "inactive"]
+        },
+        "unit": {
+          "type": "string",
+          "maxLength": 50
+        }
+      }
+    },
+    "stock.AdjustmentFacility": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "stock.AdjustmentFacilitySKU": {
+      "type": "object",
+      "properties": {
+        "facility_sku_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "sku_id": {
+          "type": "string"
+        }
+      }
+    },
+    "stock.AdjustmentUser": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "stock.CreateStockTransactionRequest": {
+      "type": "object",
+      "required": ["lines", "trx_date", "trx_type"],
+      "properties": {
+        "endpoint": {
+          "type": "string"
+        },
+        "lines": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/stock.StockLineRequest"
+          }
+        },
+        "note": {
+          "type": "string"
+        },
+        "purpose": {
+          "type": "string",
+          "enum": ["Sparepart", "Transfer", "Consumption", "Other"]
+        },
+        "reference_no": {
+          "type": "string"
+        },
+        "reference_type": {
+          "type": "string"
+        },
+        "trx_date": {
+          "type": "string"
+        },
+        "trx_type": {
+          "type": "string",
+          "enum": ["IN", "OUT", "ADJUST", "ADJUST_IN", "ADJUST_OUT"]
+        },
+        "vehicle_id": {
+          "description": "Optional vehicle UUID (FK to vehicles table)",
+          "type": "string"
+        },
+        "vehicle_text": {
+          "description": "Optional vehicle text (free text alternative)",
+          "type": "string",
+          "maxLength": 255
+        }
+      }
+    },
+    "stock.ListOnHandStockResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/stock.OnHandStockResponse"
+          }
+        },
+        "limit": {
+          "type": "integer"
+        },
+        "page": {
+          "type": "integer"
+        },
+        "total": {
+          "type": "integer"
+        },
+        "total_pages": {
+          "type": "integer"
+        }
+      }
+    },
+    "stock.ListStockAdjustmentResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/stock.StockAdjustmentItem"
+          }
+        },
+        "limit": {
+          "type": "integer"
+        },
+        "page": {
+          "type": "integer"
+        },
+        "total": {
+          "type": "integer"
+        },
+        "total_pages": {
+          "type": "integer"
+        }
+      }
+    },
+    "stock.ListStockTransactionResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/stock.StockTransactionResponse"
+          }
+        },
+        "limit": {
+          "type": "integer"
+        },
+        "page": {
+          "type": "integer"
+        },
+        "total": {
+          "type": "integer"
+        },
+        "total_in": {
+          "type": "number"
+        },
+        "total_in_hand_stock": {
+          "type": "number"
+        },
+        "total_out": {
+          "type": "number"
+        },
+        "total_pages": {
+          "type": "integer"
+        }
+      }
+    },
+    "stock.OnHandStockResponse": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string"
+        },
+        "facility_id": {
+          "type": "string"
+        },
+        "facility_name": {
+          "type": "string"
+        },
+        "facility_sku_id": {
+          "description": "Will be empty UUID if facility_sku is not assigned",
+          "type": "string"
+        },
+        "last_movement": {
+          "description": "from last stock transaction",
+          "type": "string"
+        },
+        "max_stock": {
+          "description": "high_stock_threshold",
+          "type": "number"
+        },
+        "min_stock": {
+          "description": "low_stock_threshold",
+          "type": "number"
+        },
+        "on_hand_qty": {
+          "type": "number"
+        },
+        "sku_code": {
+          "type": "string"
+        },
+        "sku_id": {
+          "type": "string"
+        },
+        "sku_name": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "unit_of_measure": {
+          "description": "from SKU.Unit",
+          "type": "string"
+        },
+        "warehouse": {
+          "description": "facility_name (deprecated, use facility_name)",
+          "type": "string"
+        }
+      }
+    },
+    "stock.StockAdjustmentItem": {
+      "type": "object",
+      "properties": {
+        "adjustment": {
+          "type": "number"
+        },
+        "created_by": {
+          "$ref": "#/definitions/stock.AdjustmentUser"
+        },
+        "facility": {
+          "$ref": "#/definitions/stock.AdjustmentFacility"
+        },
+        "facility_sku": {
+          "$ref": "#/definitions/stock.AdjustmentFacilitySKU"
+        },
+        "note": {
+          "type": "string"
+        },
+        "stock_after": {
+          "type": "number"
+        },
+        "stock_before": {
+          "type": "number"
+        },
+        "transaction_id": {
+          "type": "string"
+        },
+        "trx_date": {
+          "type": "string"
+        },
+        "trx_type": {
+          "type": "string"
+        }
+      }
+    },
+    "stock.StockLineRequest": {
+      "type": "object",
+      "required": ["facility_sku_id", "qty"],
+      "properties": {
+        "facility_sku_id": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        },
+        "qty": {
+          "description": "For IN/OUT: transaction qty. For ADJUST: physical stock count",
+          "type": "number"
+        },
+        "uom": {
+          "description": "Optional: will use SKU.Unit if not provided",
+          "type": "string",
+          "maxLength": 50
+        }
+      }
+    },
+    "stock.StockLineResponse": {
+      "type": "object",
+      "properties": {
+        "facility_id": {
+          "type": "string"
+        },
+        "facility_name": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        },
+        "qty": {
+          "type": "number"
+        },
+        "sku_code": {
+          "type": "string"
+        },
+        "sku_id": {
+          "type": "string"
+        },
+        "sku_name": {
+          "type": "string"
+        },
+        "uom": {
+          "type": "string"
+        }
+      }
+    },
+    "stock.StockTransactionResponse": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string"
+        },
+        "created_by": {
+          "type": "string"
+        },
+        "endpoint": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "lines": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/stock.StockLineResponse"
+          }
+        },
+        "note": {
+          "type": "string"
+        },
+        "purpose": {
+          "type": "string"
+        },
+        "reference_no": {
+          "type": "string"
+        },
+        "reference_type": {
+          "type": "string"
+        },
+        "trx_date": {
+          "type": "string"
+        },
+        "trx_no": {
+          "type": "string"
+        },
+        "trx_type": {
+          "type": "string"
+        },
+        "vehicle_id": {
+          "type": "string"
+        },
+        "vehicle_info": {
+          "description": "Vehicle details if vehicle_id is provided",
+          "allOf": [
+            {
+              "$ref": "#/definitions/stock.VehicleInfo"
+            }
+          ]
+        },
+        "vehicle_text": {
+          "description": "Free text vehicle if vehicle_id is not provided",
+          "type": "string"
+        }
+      }
+    },
+    "stock.VehicleInfo": {
+      "type": "object",
+      "properties": {
+        "capacity": {
+          "type": "number"
+        },
+        "id": {
+          "type": "string"
+        },
+        "license_plate": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "vehicle_id": {
+          "type": "string"
+        }
+      }
+    },
+    "superadmin.AssignUserRequest": {
+      "type": "object",
+      "required": ["company_id", "role_id", "user_id"],
+      "properties": {
+        "company_id": {
+          "type": "string"
+        },
+        "is_default": {
+          "type": "boolean"
+        },
+        "role_id": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "string"
+        }
+      }
+    },
+    "superadmin.CompanyDetailResponse": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "logo": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "pic_name": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        },
+        "users": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/superadmin.CompanyUserResponse"
+          }
+        }
+      }
+    },
+    "superadmin.CompanySummaryResponse": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "logo": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "pic_name": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        }
+      }
+    },
+    "superadmin.CompanyTransactionSummary": {
+      "type": "object",
+      "properties": {
+        "company_id": {
+          "type": "string"
+        },
+        "company_name": {
+          "type": "string"
+        },
+        "total_adjust": {
+          "description": "Count of ADJUST_IN + ADJUST_OUT transactions",
+          "type": "integer"
+        },
+        "total_in": {
+          "description": "Count of IN transactions",
+          "type": "integer"
+        },
+        "total_in_qty": {
+          "description": "Sum of quantities for IN + ADJUST_IN",
+          "type": "number"
+        },
+        "total_out": {
+          "description": "Count of OUT transactions",
+          "type": "integer"
+        },
+        "total_out_qty": {
+          "description": "Sum of quantities for OUT + ADJUST_OUT",
+          "type": "number"
+        }
+      }
+    },
+    "superadmin.CompanyUserResponse": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "is_default": {
+          "type": "boolean"
+        },
+        "is_superadmin": {
+          "type": "boolean"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "role_id": {
+          "type": "string"
+        },
+        "role_name": {
+          "type": "string"
+        }
+      }
+    },
+    "superadmin.CreateCompanyRequest": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "address": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "logo": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "owner_email": {
+          "description": "Optional: email of user to assign as Admin",
+          "type": "string"
+        },
+        "pic_name": {
+          "type": "string"
+        }
+      }
+    },
+    "superadmin.CreateUserRequest": {
+      "type": "object",
+      "required": ["email", "first_name", "last_name", "password"],
+      "properties": {
+        "company_id": {
+          "description": "Required if IsSuperadmin=false, must be empty if IsSuperadmin=true",
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "is_superadmin": {
+          "type": "boolean"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string",
+          "minLength": 8
+        }
+      }
+    },
+    "superadmin.DailyTransactionByCompany": {
+      "type": "object",
+      "properties": {
+        "company_id": {
+          "type": "string"
+        },
+        "company_name": {
+          "type": "string"
+        },
+        "count": {
+          "type": "integer"
+        },
+        "date": {
+          "description": "YYYY-MM-DD",
+          "type": "string"
+        }
+      }
+    },
+    "superadmin.DashboardResponse": {
+      "type": "object",
+      "properties": {
+        "company_transactions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/superadmin.CompanyTransactionSummary"
+          }
+        },
+        "daily_transactions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/superadmin.DailyTransactionByCompany"
+          }
+        },
+        "total_companies": {
+          "type": "integer"
+        },
+        "total_users": {
+          "type": "integer"
+        }
+      }
+    },
+    "superadmin.FacilityDetailResponse": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string"
+        },
+        "capacity": {
+          "type": "number"
+        },
+        "city": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "company": {
+          "$ref": "#/definitions/superadmin.SimpleRef"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "deleted_at": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        }
+      }
+    },
+    "superadmin.FacilityListItem": {
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "company": {
+          "$ref": "#/definitions/superadmin.SimpleRef"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "superadmin.FacilitySKUListItem": {
+      "type": "object",
+      "properties": {
+        "company": {
+          "$ref": "#/definitions/superadmin.SimpleRef"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "facility": {
+          "$ref": "#/definitions/superadmin.SimpleRef"
+        },
+        "high_stock_threshold": {
+          "type": "number"
+        },
+        "id": {
+          "type": "string"
+        },
+        "low_stock_threshold": {
+          "type": "number"
+        },
+        "sku": {
+          "$ref": "#/definitions/superadmin.FacilitySKUSKU"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "superadmin.FacilitySKUSKU": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string"
+        },
+        "facility_sku_id": {
+          "type": "string"
+        },
+        "sku_code": {
+          "type": "string"
+        },
+        "sku_id": {
+          "type": "string"
+        },
+        "sku_name": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        }
+      }
+    },
+    "superadmin.ListCompaniesResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/superadmin.CompanySummaryResponse"
+          }
+        },
+        "limit": {
+          "type": "integer"
+        },
+        "page": {
+          "type": "integer"
+        },
+        "total": {
+          "type": "integer"
+        },
+        "total_pages": {
+          "type": "integer"
+        }
+      }
+    },
+    "superadmin.ListFacilitiesResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/superadmin.FacilityListItem"
+          }
+        },
+        "limit": {
+          "type": "integer"
+        },
+        "page": {
+          "type": "integer"
+        },
+        "total": {
+          "type": "integer"
+        },
+        "total_pages": {
+          "type": "integer"
+        }
+      }
+    },
+    "superadmin.ListFacilitySKUResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/superadmin.FacilitySKUListItem"
+          }
+        },
+        "limit": {
+          "type": "integer"
+        },
+        "page": {
+          "type": "integer"
+        },
+        "total": {
+          "type": "integer"
+        },
+        "total_pages": {
+          "type": "integer"
+        }
+      }
+    },
+    "superadmin.ListStockOnHandResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/superadmin.StockOnHandItem"
+          }
+        },
+        "limit": {
+          "type": "integer"
+        },
+        "page": {
+          "type": "integer"
+        },
+        "total": {
+          "type": "integer"
+        },
+        "total_pages": {
+          "type": "integer"
+        }
+      }
+    },
+    "superadmin.ListTransactionsResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/superadmin.TransactionListItem"
+          }
+        },
+        "limit": {
+          "type": "integer"
+        },
+        "page": {
+          "type": "integer"
+        },
+        "total": {
+          "type": "integer"
+        },
+        "total_in": {
+          "type": "number"
+        },
+        "total_in_hand_stock": {
+          "type": "number"
+        },
+        "total_out": {
+          "type": "number"
+        },
+        "total_pages": {
+          "type": "integer"
+        }
+      }
+    },
+    "superadmin.ListUsersResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/superadmin.UserSummaryResponse"
+          }
+        },
+        "limit": {
+          "type": "integer"
+        },
+        "page": {
+          "type": "integer"
+        },
+        "total": {
+          "type": "integer"
+        },
+        "total_pages": {
+          "type": "integer"
+        }
+      }
+    },
+    "superadmin.SimpleRef": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "superadmin.StockOnHandItem": {
+      "type": "object",
+      "properties": {
+        "company": {
+          "$ref": "#/definitions/superadmin.SimpleRef"
+        },
+        "facility": {
+          "$ref": "#/definitions/superadmin.SimpleRef"
+        },
+        "id": {
+          "type": "string"
+        },
+        "last_movement": {
+          "type": "string"
+        },
+        "max_stock": {
+          "type": "number"
+        },
+        "min_stock": {
+          "type": "number"
+        },
+        "on_hand_qty": {
+          "type": "number"
+        },
+        "sku": {
+          "$ref": "#/definitions/superadmin.StockOnHandSKU"
+        },
+        "status": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        }
+      }
+    },
+    "superadmin.StockOnHandSKU": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string"
+        },
+        "facility_sku_id": {
+          "type": "string"
+        },
+        "sku_code": {
+          "type": "string"
+        },
+        "sku_id": {
+          "type": "string"
+        },
+        "sku_name": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        }
+      }
+    },
+    "superadmin.TransactionLineItem": {
+      "type": "object",
+      "properties": {
+        "quantity": {
+          "type": "number"
+        },
+        "sku": {
+          "$ref": "#/definitions/superadmin.TransactionLineSKU"
+        },
+        "warehouse": {
+          "$ref": "#/definitions/superadmin.SimpleRef"
+        }
+      }
+    },
+    "superadmin.TransactionLineSKU": {
+      "type": "object",
+      "properties": {
+        "facility_sku_id": {
+          "type": "string"
+        },
+        "sku_code": {
+          "type": "string"
+        },
+        "sku_id": {
+          "type": "string"
+        },
+        "sku_name": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        }
+      }
+    },
+    "superadmin.TransactionListItem": {
+      "type": "object",
+      "properties": {
+        "company": {
+          "$ref": "#/definitions/superadmin.SimpleRef"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "endpoint": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "lines": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/superadmin.TransactionLineItem"
+          }
+        },
+        "purpose": {
+          "type": "string"
+        },
+        "trx_date": {
+          "type": "string"
+        },
+        "trx_no": {
+          "type": "string"
+        },
+        "trx_type": {
+          "type": "string"
+        }
+      }
+    },
+    "superadmin.UpdateCompanyRequest": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "address": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "logo": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "pic_name": {
+          "type": "string"
+        }
+      }
+    },
+    "superadmin.UpdateUserRequest": {
+      "type": "object",
+      "required": ["email", "first_name", "last_name"],
+      "properties": {
+        "company_id": {
+          "description": "Required if IsSuperadmin=false, must be empty if IsSuperadmin=true",
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "is_superadmin": {
+          "type": "boolean"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "password": {
+          "description": "Optional: only update if provided",
+          "type": "string"
+        }
+      }
+    },
+    "superadmin.UserCompaniesResponse": {
+      "type": "object",
+      "properties": {
+        "companies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/superadmin.UserCompanyAssignment"
+          }
+        },
+        "user_id": {
+          "type": "string"
+        }
+      }
+    },
+    "superadmin.UserCompanyAssignment": {
+      "type": "object",
+      "properties": {
+        "company_id": {
+          "type": "string"
+        },
+        "company_name": {
+          "type": "string"
+        },
+        "is_default": {
+          "type": "boolean"
+        },
+        "role_id": {
+          "type": "string"
+        },
+        "role_name": {
+          "type": "string"
+        }
+      }
+    },
+    "superadmin.UserDetailResponse": {
+      "type": "object",
+      "properties": {
+        "companies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/superadmin.UserCompanyAssignment"
+          }
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "is_superadmin": {
+          "type": "boolean"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        }
+      }
+    },
+    "superadmin.UserSummaryResponse": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "is_superadmin": {
+          "type": "boolean"
+        },
+        "last_name": {
+          "type": "string"
+        }
+      }
+    },
+    "user.CreateUserRequest": {
+      "description": "Request body for creating a new user in company",
+      "type": "object",
+      "required": ["email", "first_name", "last_name", "password", "role_id"],
+      "properties": {
+        "email": {
+          "description": "User email address\n@Example user@example.com",
+          "type": "string",
+          "example": "user@example.com"
+        },
+        "first_name": {
+          "description": "User first name\n@Example John",
+          "type": "string",
+          "example": "John"
+        },
+        "last_name": {
+          "description": "User last name\n@Example Doe",
+          "type": "string",
+          "example": "Doe"
+        },
+        "password": {
+          "description": "User password\n@Example SecurePassword123!",
+          "type": "string",
+          "example": "SecurePassword123!"
+        },
+        "role_id": {
+          "description": "Role ID (must belong to the company)\n@Example a1840e81-e458-49cb-b702-af0b109b61c5",
+          "type": "string",
+          "example": "a1840e81-e458-49cb-b702-af0b109b61c5"
+        }
+      }
+    },
+    "user.Role": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "Role ID",
+          "type": "string",
+          "example": "a1840e81-e458-49cb-b702-af0b109b61c5"
+        },
+        "name": {
+          "description": "Role name",
+          "type": "string",
+          "example": "Admin"
+        }
+      }
+    },
+    "user.UpdateUserRequest": {
+      "description": "Request body for updating user information",
+      "type": "object",
+      "required": ["email", "first_name", "last_name"],
+      "properties": {
+        "email": {
+          "description": "User email address\n@Example user@example.com",
+          "type": "string",
+          "example": "user@example.com"
+        },
+        "first_name": {
+          "description": "User first name\n@Example John",
+          "type": "string",
+          "example": "John"
+        },
+        "last_name": {
+          "description": "User last name\n@Example Doe",
+          "type": "string",
+          "example": "Doe"
+        },
+        "role_id": {
+          "description": "Role ID (optional, must belong to the company if provided)\n@Example a1840e81-e458-49cb-b702-af0b109b61c5",
+          "type": "string",
+          "example": "a1840e81-e458-49cb-b702-af0b109b61c5"
+        }
+      }
+    },
+    "user.UserResponse": {
+      "description": "User information with role",
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "description": "Creation timestamp",
+          "type": "string",
+          "example": "2025-12-11 10:00:00"
+        },
+        "email": {
+          "description": "User email",
+          "type": "string",
+          "example": "user@example.com"
+        },
+        "first_name": {
+          "description": "User first name",
+          "type": "string",
+          "example": "John"
+        },
+        "id": {
+          "description": "User ID",
+          "type": "string",
+          "example": "5aafe9fe-95c5-432f-a31d-de0ff7a196af"
+        },
+        "last_name": {
+          "description": "User last name",
+          "type": "string",
+          "example": "Doe"
+        },
+        "role": {
+          "description": "User role in the company",
+          "allOf": [
+            {
+              "$ref": "#/definitions/user.Role"
+            }
+          ]
+        },
+        "updated_at": {
+          "description": "Last update timestamp",
+          "type": "string",
+          "example": "2025-12-11 10:00:00"
+        }
+      }
+    },
+    "user_company.CompanyItem": {
+      "type": "object",
+      "properties": {
+        "company_id": {
+          "type": "string"
+        },
+        "company_name": {
+          "type": "string"
+        },
+        "is_default": {
+          "type": "boolean"
+        },
+        "role_id": {
+          "type": "string"
+        },
+        "role_name": {
+          "type": "string"
+        }
+      }
+    },
+    "user_company.SwitchCompanyRequest": {
+      "type": "object",
+      "required": ["company_id"],
+      "properties": {
+        "company_id": {
+          "type": "string"
+        }
+      }
+    },
+    "user_company.UserCompaniesResponse": {
+      "type": "object",
+      "properties": {
+        "companies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/user_company.CompanyItem"
+          }
+        }
+      }
+    },
+    "vehicle.CreateVehicleRequest": {
+      "type": "object",
+      "required": ["facility_id", "license_plate", "type", "vehicle_id"],
+      "properties": {
+        "capacity": {
+          "type": "number",
+          "minimum": 0
+        },
+        "facility_id": {
+          "type": "string"
+        },
+        "license_plate": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "type": {
+          "type": "string",
+          "enum": ["Truck", "Van", "Pickup"]
+        },
+        "vehicle_id": {
+          "type": "string",
+          "maxLength": 100
+        }
+      }
+    },
+    "vehicle.ListVehicleResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/vehicle.VehicleResponse"
+          }
+        },
+        "limit": {
+          "type": "integer"
+        },
+        "page": {
+          "type": "integer"
+        },
+        "total": {
+          "type": "integer"
+        },
+        "total_pages": {
+          "type": "integer"
+        }
+      }
+    },
+    "vehicle.UpdateVehicleRequest": {
+      "type": "object",
+      "required": [
+        "facility_id",
+        "license_plate",
+        "status",
+        "type",
+        "vehicle_id"
+      ],
+      "properties": {
+        "capacity": {
+          "type": "number",
+          "minimum": 0
+        },
+        "facility_id": {
+          "type": "string"
+        },
+        "license_plate": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "inactive"]
+        },
+        "type": {
+          "type": "string",
+          "enum": ["Truck", "Van", "Pickup"]
+        },
+        "vehicle_id": {
+          "type": "string",
+          "maxLength": 100
+        }
+      }
+    },
+    "vehicle.VehicleResponse": {
+      "type": "object",
+      "properties": {
+        "capacity": {
+          "type": "number"
+        },
+        "company_id": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "deleted_at": {
+          "type": "string"
+        },
+        "facility_id": {
+          "type": "string"
+        },
+        "facility_name": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "license_plate": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        },
+        "vehicle_id": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "BearerAuth": {
+      "description": "Type \"Bearer\" followed by a space and JWT token.",
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
+    }
+  },
+  "tags": [
+    {
+      "description": "Superadmin endpoints for managing users, companies, and user-company assignments",
+      "name": "Superadmin"
+    }
+  ]
+}

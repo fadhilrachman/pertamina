@@ -146,18 +146,18 @@ function getColSpanClass(field: FieldConfig) {
   return listColSpan[spanKey];
 }
 
-// function handleFileChange(
-//   field: FieldConfig,
-//   event: Event,
-//   control: FieldSlotProps["field"]
-// ) {
-//   if (!(event.target instanceof HTMLInputElement)) {
-//     return;
-//   }
-//   const files = event.target.files ? Array.from(event.target.files) : [];
-//   const parsed = field.multiple ? files : files[0] ?? null;
-//   control.onChange(parsed);
-// }
+function handleFileChange(
+  field: FieldConfig,
+  event: Event,
+  control: FieldSlotProps["field"]
+) {
+  if (!(event.target instanceof HTMLInputElement)) {
+    return;
+  }
+  const files = event.target.files ? Array.from(event.target.files) : [];
+  const parsed = field.multiple ? files : files[0] ?? null;
+  control.onChange(parsed);
+}
 
 function ensureArray<T>(value: T[] | null | undefined | T): T[] {
   if (Array.isArray(value)) return value;
@@ -612,7 +612,7 @@ function fileInputClasses(invalid: boolean, disabled?: boolean) {
             />
           </template>
 
-          <!-- <template v-else-if="field.type === 'file'">
+          <template v-else-if="field.type === 'file'">
             <input
               :id="`${id}-${field.name}`"
               type="file"
@@ -623,7 +623,7 @@ function fileInputClasses(invalid: boolean, disabled?: boolean) {
               "
               @change="handleFileChange(field, $event, fieldBinding)"
             />
-          </template> -->
+          </template>
 
           <p v-if="field.helperText" class="text-xs text-gray-500">
             {{ field.helperText }}

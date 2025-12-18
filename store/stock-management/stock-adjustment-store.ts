@@ -120,12 +120,12 @@ export const useStockAdjustmentStore = defineStore("stockAdjustment", {
           success: response?.success ?? true,
         };
       } catch (error: any) {
-        toast.error(
-          error?.message || "Failed get stock adjustment history data",
-          {
-            toastClassName: "toastify-error",
-          }
-        );
+        // toast.error(
+        //   error?.message || "Failed get stock adjustment history data",
+        //   {
+        //     toastClassName: "toastify-error",
+        //   }
+        // );
         throw error;
       } finally {
         this.loadingList = false;

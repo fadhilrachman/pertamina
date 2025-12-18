@@ -3,7 +3,7 @@ import { computed } from "vue";
 import { storeToRefs } from "pinia";
 import Modal from "~/components/general/Modal/index.vue";
 import type { ElementEvent } from "~/types/element";
-import { useStockTransaction } from "~/store/stock-management/stock-transaction-store";
+import { useSuperadminTransactionsStore } from "~/store/superadmin/transactions-store";
 import { formatTableDate } from "~/utils/functions";
 
 const props = defineProps<{
@@ -14,7 +14,7 @@ const emit = defineEmits<{
   (e: "mounted", payload: ElementEvent): void;
 }>();
 
-const stockTransactionStore = useStockTransaction();
+const stockTransactionStore = useSuperadminTransactionsStore();
 const { selectedData, selectedLineIndex } = storeToRefs(stockTransactionStore);
 
 const currentLine = computed(() => {

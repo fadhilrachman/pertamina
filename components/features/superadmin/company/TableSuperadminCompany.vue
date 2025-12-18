@@ -5,6 +5,7 @@ import type { TableColumn } from "~/components/general/Table/index.vue";
 import type { CompanyType } from "~/types/company-type";
 import type { ElementEvent } from "~/types/element";
 import { useSuperadminCompanyStore } from "~/store/superadmin/company-store";
+import ModalDelete from "~/components/general/ModalDelete/index.vue";
 import ModalFormSuperadminCompany from "./ModalFormSuperadminCompany.vue";
 
 const companyStore = useSuperadminCompanyStore();

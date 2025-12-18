@@ -3,7 +3,7 @@ import { computed, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useForm } from "vee-validate";
 import type { ElementEvent } from "~/types/element";
-import { object, string } from "yup";
+import { mixed, object, string } from "yup";
 import type { FieldConfig } from "~/components/general/FormGenerator/index.vue";
 import { useSuperadminCompanyStore } from "~/store/superadmin/company-store";
 import type { CompanyType } from "~/types/company-type";
@@ -61,6 +61,14 @@ const formFields: FieldConfig[] = [
     placeholder: "e.g., owner@company.com",
     grid: 6,
   },
+  {
+    name: "logo",
+    label: "Logo",
+    requiredMark: false,
+    type: "file",
+    helperText: "PNG/JPG up to 2MB",
+    grid: 12,
+  },
 ];
 
 const modalInstance = ref<ElementEvent | null>(null);
@@ -75,6 +83,7 @@ const formSchema = object({
   address: string().required("Address is required"),
   email: string().email().required("Email is required"),
   owner_email: string().email().required("Owner Email is required"),
+  logo: mixed().nullable(),
 });
 
 const createInitialValues = (): CompanyType => ({
@@ -83,7 +92,7 @@ const createInitialValues = (): CompanyType => ({
   address: "",
   email: "",
   owner_email: "",
-  logo: "",
+  logo: null,
 });
 
 const form = useForm<CompanyType>({
@@ -122,14 +131,37 @@ const handleCancel = () => {
   close();
 };
 
+function readFileAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () =>
+      reject(reader.error ?? new Error("Failed to read file"));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function resolveLogoValue(logo: CompanyType["logo"]) {
+  if (!logo) return undefined;
+  if (logo instanceof File) {
+    return await readFileAsDataUrl(logo);
+  }
+  if (typeof logo === "string" && logo.trim() !== "") {
+    return logo;
+  }
+  return undefined;
+}
+
 async function handleFormSubmit(values: Record<string, any>) {
   try {
+    const logo = await resolveLogoValue(values.logo);
     const payload = {
       name: values.name,
       pic_name: values.pic_name,
       address: values.address,
       email: values.email,
       owner_email: values.owner_email,
+      logo,
     };
 
     if (props.mode === "update" && selectedData.value?.id) {
