@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watch } from "vue";
+import { computed, reactive, watch } from "vue";
 import { storeToRefs } from "pinia";
 import Modal from "~/components/general/Modal/index.vue";
 import type { TableColumn } from "~/components/general/Table/index.vue";
@@ -35,6 +35,11 @@ type AdjustmentHistoryItem = {
 
 const adjustmentStore = useStockAdjustmentStore();
 const { data, loadingList } = storeToRefs(adjustmentStore);
+
+const params = reactive({
+  page: 1,
+  limit: 10,
+});
 
 const tableColumns: TableColumn[] = [
   {
@@ -92,17 +97,17 @@ const tableColumns: TableColumn[] = [
 ];
 
 const fetchHistory = async () => {
-  const params: AdjustmentQueryParams = {
-    page: 1,
-    limit: 50,
+  const queryParams: AdjustmentQueryParams = {
+    page: params.page,
+    limit: params.limit,
   };
 
   // if (props.facilityId) {
-  //   params.facility_id = String(props.facilityId);
+  //   queryParams.facility_id = String(props.facilityId);
   // }
 
   try {
-    await adjustmentStore.getAdjustments(params);
+    await adjustmentStore.getAdjustments(queryParams);
   } catch (error) {
     console.error("Failed to fetch adjustment history", error);
   }
@@ -111,9 +116,21 @@ const fetchHistory = async () => {
 watch(
   () => props.facilityId,
   () => {
-    fetchHistory();
+    const shouldResetPage = params.page !== 1;
+    params.page = 1;
+
+    if (!shouldResetPage) {
+      fetchHistory();
+    }
   },
   { immediate: true }
+);
+
+watch(
+  () => [params.page, params.limit],
+  () => {
+    fetchHistory();
+  }
 );
 
 const formatDateTime = (value: string) => {
@@ -166,6 +183,15 @@ const formatAdjustment = (value: number | null | undefined) => {
   const sign = numeric > 0 ? "+" : "-";
   return `${sign}${Math.abs(numeric)}`;
 };
+
+const handlePageChange = (page: number) => {
+  params.page = page;
+};
+
+const handlePageSizeChange = (pageSize: number) => {
+  params.limit = pageSize;
+  params.page = 1;
+};
 </script>
 
 <template>
@@ -177,29 +203,38 @@ const formatAdjustment = (value: number | null | undefined) => {
     @mounted="handleModalMounted"
   >
     <template #body>
-      <GeneralTable
-        :columns="tableColumns"
-        :data="historyItems"
-        :loading="loadingList"
-        row-key="rowKey"
-        striped
-        loading-text="Loading adjustment history..."
-        empty-text="No adjustment history found."
-      >
-        <template #cell-adjustment="{ value }">
-          <span
-            :class="
-              Number(value) > 0
-                ? 'text-emerald-600'
-                : Number(value) < 0
-                ? 'text-red-600'
-                : 'text-gray-900'
-            "
-          >
-            {{ formatAdjustment(value as number) }}
-          </span>
-        </template>
-      </GeneralTable>
+      <div class="space-y-4">
+        <GeneralTable
+          :columns="tableColumns"
+          :data="historyItems"
+          :loading="loadingList"
+          row-key="rowKey"
+          striped
+          loading-text="Loading adjustment history..."
+          empty-text="No adjustment history found."
+        >
+          <template #cell-adjustment="{ value }">
+            <span
+              :class="
+                Number(value) > 0
+                  ? 'text-emerald-600'
+                  : Number(value) < 0
+                  ? 'text-red-600'
+                  : 'text-gray-900'
+              "
+            >
+              {{ formatAdjustment(value as number) }}
+            </span>
+          </template>
+        </GeneralTable>
+        <GeneralPagination
+          :page="params.page"
+          :page-size="params.limit"
+          :total="data?.data?.total || 0"
+          @update:page="handlePageChange"
+          @update:page-size="handlePageSizeChange"
+        />
+      </div>
     </template>
   </Modal>
 </template>

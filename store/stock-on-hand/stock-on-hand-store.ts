@@ -28,7 +28,12 @@ export const useStockOnHand = defineStore("stockOnHand", {
       this.selectedData = data;
     },
     async getDataStockOnHand(
-      params: QueryParams & { search?: string; status?: string }
+      params: QueryParams & {
+        search?: string;
+        status?: string;
+        facility_id?: string;
+        sku_id?: string;
+      }
     ) {
       this.loadingList = true;
       try {

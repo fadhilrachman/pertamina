@@ -10,6 +10,8 @@ import { v4 as uuidv4 } from "uuid";
 import { useStockTransaction } from "~/store/stock-management/stock-transaction-store";
 import moment from "moment";
 import type { SessionResponseType } from "~/types/user-type";
+import type { AdjustmentQueryParams } from "~/services/stock-management/stock-adjustment-services";
+import { useStockAdjustmentStore } from "~/store/stock-management/stock-adjustment-store";
 
 const idempotencyKey = ref<string>("");
 const generateIdempotencyKey = () => {
@@ -112,6 +114,26 @@ const handleCancel = () => {
   close();
 };
 
+const adjustmentStore = useStockAdjustmentStore();
+
+const fetchHistory = async () => {
+  const params: AdjustmentQueryParams = {
+    page: 2,
+    limit: 10,
+    // facility_id: selectedData.value.facility_id,
+  };
+
+  // if (props.facilityId) {
+  //   params.facility_id = String(props.facilityId);
+  // }
+
+  try {
+    await adjustmentStore.getAdjustments(params);
+  } catch (error) {
+    console.error("Failed to fetch adjustment history", error);
+  }
+};
+
 const handleFormSubmit = async (val: any) => {
   if (isManagementRole.value) {
     return;
@@ -135,7 +157,8 @@ const handleFormSubmit = async (val: any) => {
     {
       lines: [
         {
-          qty: trxQty,
+          qty: Number(val.qty),
+          // qty: trxQty,
           facility_sku_id: data.facility_sku_id,
           uom: data.unit_of_measure,
         },
@@ -144,17 +167,19 @@ const handleFormSubmit = async (val: any) => {
       reference_no: val.reference_no,
       reference_type: val.reference_type,
       trx_date: moment().format("YYYY-MM-DD"),
-      trx_type: trxType,
+      trx_type: "ADJUST",
     },
     {
       uuid: idempotencyKey.value,
       lockKey,
     }
   );
+  await fetchHistory();
 
   await stockOnHandStore.getDataStockOnHand({
     page: 1,
     limit: 10,
+    facility_id: selectedData.value.facility_id,
   });
   resetForm();
   close();
