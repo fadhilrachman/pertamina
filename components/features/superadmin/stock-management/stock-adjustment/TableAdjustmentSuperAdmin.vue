@@ -136,7 +136,7 @@ const openHistoryModal = () => {
 
 const handleDownloadTemplate = () => {
   const link = document.createElement("a");
-  link.href = "/assets/template/stock_adjustment.xlsx";
+  link.href = "/template/stock_adjustment.xlsx";
   link.download = "stock_adjustment.xlsx";
   document.body.appendChild(link);
   link.click();

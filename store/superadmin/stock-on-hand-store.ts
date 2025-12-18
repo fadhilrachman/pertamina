@@ -20,6 +20,7 @@ export const useSuperadminStockOnHandStore = defineStore(
             company_id?: string;
             facility_id?: string;
             sku_id?: string;
+            status?: string;
           })
         | null,
       data: {} as ResponseApi<StockOnHandType>,
@@ -36,6 +37,7 @@ export const useSuperadminStockOnHandStore = defineStore(
           company_id?: string;
           facility_id?: string;
           sku_id?: string;
+          status?: string;
         }
       ) {
         this.loadingList = true;

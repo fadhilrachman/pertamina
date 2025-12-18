@@ -191,6 +191,7 @@ const handleExportExcel = async () => {
       company_id: params.company_id || undefined,
       facility_id: params.facility_id || undefined,
       sku_id: params.sku_id || undefined,
+      status: params.status || undefined,
       page: params.page,
       limit: params.limit,
     });

@@ -19,7 +19,7 @@ export const useSuperadminFacilitiesStore = defineStore(
       loadingWrite: false,
       loadingDetail: false,
       listParams: null as
-        | (QueryParams & { company_id?: string; search?: string })
+        | (QueryParams & { company_id?: string; search?: string; status?: string })
         | null,
       data: {} as ResponseApi<FacilitiesType>,
       dataDetail: {} as ResponseApiDetail<FacilitiesType>,
@@ -31,7 +31,7 @@ export const useSuperadminFacilitiesStore = defineStore(
       },
 
       async getDataFacilities(
-        params: QueryParams & { company_id?: string; search?: string }
+        params: QueryParams & { company_id?: string; search?: string; status?: string }
       ) {
         this.loadingList = true;
         this.listParams = params;

@@ -131,7 +131,7 @@ const handlePageSizeChange = (pageSize: number) => {
 
 const handleDownloadTemplate = () => {
   const link = document.createElement("a");
-  link.href = "/assets/template/sku_template.xlsx";
+  link.href = "/template/sku_template.xlsx";
   link.download = "sku_template.xlsx";
   document.body.appendChild(link);
   link.click();
@@ -146,8 +146,6 @@ const openImportModal = async () => {
 watch(
   () => ({ ...params, facility_id: warehouseId.value }),
   () => {
-    console.log({ params });
-
     facilitiesSkuStore.getDataFacilitiesSku({
       ...params,
       facility_id: warehouseId.value,

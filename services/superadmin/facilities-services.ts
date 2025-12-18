@@ -2,7 +2,11 @@ import { api } from "~/services/api";
 import type { QueryParams } from "~/types/common";
 
 export async function getSuperadminFacilities(
-  params: QueryParams & { company_id?: string; search?: string }
+  params: QueryParams & {
+    company_id?: string;
+    search?: string;
+    status?: string;
+  }
 ) {
   const queryParams: Record<string, string> = {
     page: String(params.page),
@@ -15,6 +19,10 @@ export async function getSuperadminFacilities(
 
   if (params.search) {
     queryParams.search = params.search;
+  }
+
+  if (params.status) {
+    queryParams.status = params.status;
   }
 
   return await api.get("/api/v1/superadmin/facilities", {

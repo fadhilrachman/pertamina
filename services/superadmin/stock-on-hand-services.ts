@@ -6,6 +6,7 @@ export async function getSuperadminStockOnHand(
     company_id?: string;
     facility_id?: string;
     sku_id?: string;
+    status?: string;
   }
 ) {
   const queryParams: Record<string, string> = {
@@ -23,6 +24,10 @@ export async function getSuperadminStockOnHand(
 
   if (params.sku_id) {
     queryParams.sku_id = params.sku_id;
+  }
+
+  if (params.status) {
+    queryParams.status = params.status;
   }
 
   return await api.get("/api/v1/superadmin/stock-on-hand", {
@@ -35,6 +40,7 @@ export async function downloadSuperadminStockOnHand(
     company_id?: string;
     facility_id?: string;
     sku_id?: string;
+    status?: string;
   }
 ) {
   const queryParams: Record<string, string> = {
@@ -52,6 +58,10 @@ export async function downloadSuperadminStockOnHand(
 
   if (params.sku_id) {
     queryParams.sku_id = params.sku_id;
+  }
+
+  if (params.status) {
+    queryParams.status = params.status;
   }
 
   return (await api.get("/api/v1/superadmin/stock-on-hand/download", {

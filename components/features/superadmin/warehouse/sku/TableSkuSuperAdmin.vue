@@ -78,8 +78,6 @@ const handlePageSizeChange = (pageSize: number) => {
 watch(
   () => ({ ...params, facility_id: warehouseId.value }),
   () => {
-    console.log({ params });
-
     facilitiesSkuStore.getDataFacilitySku({
       ...params,
       facility_id: warehouseId.value,

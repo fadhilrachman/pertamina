@@ -91,6 +91,15 @@ const handlePageSizeChange = (pageSize: number) => {
   params.page = 1;
 };
 
+const handleDownloadTemplate = () => {
+  const link = document.createElement("a");
+  link.href = "/template/template_import_sku_facility_sku.csv";
+  link.download = "template_import_sku_facility_sku.csv";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
 const handleStatusChange = (value: string | number) => {
   params.status = String(value);
   params.page = 1;
@@ -99,8 +108,6 @@ const handleStatusChange = (value: string | number) => {
 watch(
   () => ({ ...params }),
   () => {
-    console.log({ params });
-
     skuStore.getDataSku({ ...params });
   }
 );
@@ -119,12 +126,14 @@ onBeforeMount(() => {
 <template>
   <main class="space-y-8">
     <header class="flex justify-between items-end">
-      <GeneralTitle
-        title="SKU Master"
-        subtitle="Manage Stock Keeping Units"
-      />
+      <GeneralTitle title="SKU Master" subtitle="Manage Stock Keeping Units" />
       <div class="flex justify-between space-x-2">
-        <GeneralButton color="success" label="Download Template">
+        <GeneralButton
+          color="success"
+          label="Download Template"
+          type="button"
+          @on-click="handleDownloadTemplate"
+        >
           <template #prefix>
             <IconsDownload size="18" class="text-white" />
           </template>
