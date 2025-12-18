@@ -97,9 +97,9 @@ const fetchHistory = async () => {
     limit: 50,
   };
 
-  if (props.facilityId) {
-    params.facility_id = String(props.facilityId);
-  }
+  // if (props.facilityId) {
+  //   params.facility_id = String(props.facilityId);
+  // }
 
   try {
     await adjustmentStore.getAdjustments(params);
@@ -150,10 +150,7 @@ const historyItems = computed<AdjustmentHistoryItem[]>(() => {
       rowKey,
       id: trx.transaction_id || "-",
       warehouse: trx.facility?.name || "-",
-      sku:
-        trx.facility_sku?.name ||
-        trx.facility_sku?.facility_sku_id ||
-        "-",
+      sku: trx.facility_sku?.name || trx.facility_sku?.facility_sku_id || "-",
       before: Number.isFinite(before) ? before : 0,
       after: Number.isFinite(after) ? after : 0,
       adjustment: Number.isFinite(adjustment) ? adjustment : 0,
