@@ -1,1 +1,7 @@
 sku_code,sku_name,sku_unit,sku_description,facility_code,low_stock_threshold,high_stock_threshold,facility_sku_description
+SKU-TEST-001,Product Test 01,KG,Description for Product Test 01,string1,10,100,Facility SKU Description for Test 01
+SKU-TEST-002,Product Test 02,UNIT,Description for Product Test 02,string1,5,50,Facility SKU Description for Test 02
+SKU-TEST-003,Product Test 03,PCS,Description for Product Test 03,string1,20,200,Facility SKU Description for Test 03
+SKU-TEST-004,Product Test 04,KG,Description for Product Test 04,string1,15,150,Facility SKU Description for Test 04
+SKU-TEST-005,Product Test 05,UNIT,Description for Product Test 05,string1,8,80,Facility SKU Description for Test 05
+

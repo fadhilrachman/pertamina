@@ -22,6 +22,7 @@ import ModalFormSku from "./ModalFormSku.vue";
 import ModalFormEditSku from "./ModalFormEditSku.vue";
 import type { SessionResponseType } from "~/types/user-type";
 import ModalImportSku from "./ModalImportSku.vue";
+import { useSkuStore } from "~/store/master-data/sku-store";
 
 const $page = usePageStore();
 const facilitiesSkuStore = useFacilitiesSkuStore();
@@ -31,7 +32,7 @@ const modalEditRef = ref<InstanceType<typeof ModalFormEditSku> | null>(null);
 const deleteModalRef = ref<ElementEvent | null>(null);
 const selectedSku = ref<Record<string, any> | null>(null);
 const importModalRef = ref<InstanceType<typeof ModalImportSku> | null>(null);
-
+const skuStore = useSkuStore();
 const facilitiesStore = useFacilitiesStore();
 const { dataDetail } = storeToRefs(facilitiesStore);
 const route = useRoute();
@@ -102,6 +103,7 @@ const closeDeleteSkuModal = () => deleteModalRef.value?.hide();
 const handleConfirmDelete = async () => {
   if (!selectedSku.value) return;
   try {
+    await skuStore.deleteDataSku({ id: selectedSku.value.sku_id });
     await facilitiesSkuStore.deleteDataFacilitiesSku({
       id: String(selectedSku.value.sku_id),
       facility_id: warehouseId.value,
@@ -131,8 +133,8 @@ const handlePageSizeChange = (pageSize: number) => {
 
 const handleDownloadTemplate = () => {
   const link = document.createElement("a");
-  link.href = "/template/sku_template.xlsx";
-  link.download = "sku_template.xlsx";
+  link.href = "/template/template_import_sku_facility_sku.csv";
+  link.download = "template_import_sku_facility_sku.csv";
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

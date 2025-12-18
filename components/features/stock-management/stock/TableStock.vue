@@ -120,8 +120,8 @@ const openHistoryModal = () => {
 
 const handleDownloadTemplate = () => {
   const link = document.createElement("a");
-  link.href = "/template/stock_adjustment.xlsx";
-  link.download = "stock_adjustment.xlsx";
+  link.href = "/template/template_import_stock_adjustment.csv";
+  link.download = "template_import_stock_adjustment.csv";
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

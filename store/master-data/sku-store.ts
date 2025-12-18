@@ -114,8 +114,8 @@ export const useSkuStore = defineStore("sku", {
         await deleteSku({ id }); // API_UNCOMMENT
         toast.success("Success delete data SKU");
         return true;
-      } catch (error) {
-        toast.error("Failed delete data SKU", {
+      } catch (error: any) {
+        toast.error(error.message || "Failed delete data SKU", {
           toastClassName: "toastify-error",
         });
         throw error;

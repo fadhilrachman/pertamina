@@ -1,0 +1,7 @@
+facility_code,sku_code,qty,uom,note,reference_no
+WH-001,SKU-TEST-001,40,KG,Stock adjustment test for SKU 001,REF-001
+WH-001,SKU-TEST-002,60,UNIT,Stock adjustment test for SKU 002,REF-002
+WH-001,SKU-TEST-003,25,PCS,Stock adjustment test for SKU 003,REF-003
+WH-002,SKU-TEST-004,35,KG,Stock adjustment test for SKU 004,REF-004
+WH-002,SKU-TEST-005,45,UNIT,Stock adjustment test for SKU 005,REF-005
+

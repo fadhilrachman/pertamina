@@ -77,7 +77,9 @@ const handleModalMounted = (instance: ElementEvent) => {
             <p class="font-semibold text-gray-900">
               {{
                 currentLine
-                  ? `${currentLine.sku_code} - ${currentLine.sku_name}`
+                  ? `${currentLine.sku?.sku_code ?? currentLine.sku_code ?? "-"} - ${
+                      currentLine.sku?.sku_name ?? currentLine.sku_name ?? "-"
+                    }`
                   : "-"
               }}
             </p>
@@ -86,14 +88,18 @@ const handleModalMounted = (instance: ElementEvent) => {
           <div class="space-y-1">
             <p class="text-sm font-medium text-gray-500">Quantity</p>
             <p class="font-semibold text-gray-900">
-              {{ currentLine?.qty ?? "-" }}
+              {{ currentLine?.quantity ?? currentLine?.qty ?? "-" }}
             </p>
           </div>
 
           <div class="space-y-1">
             <p class="text-sm font-medium text-gray-500">Warehouse</p>
             <p class="font-semibold text-gray-900">
-              {{ currentLine?.facility_name ?? "-" }}
+              {{
+                currentLine?.warehouse?.name ??
+                currentLine?.facility_name ??
+                "-"
+              }}
             </p>
           </div>
 

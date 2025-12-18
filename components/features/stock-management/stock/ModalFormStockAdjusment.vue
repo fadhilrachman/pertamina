@@ -117,13 +117,25 @@ const handleFormSubmit = async (val: any) => {
     return;
   }
   const data = selectedData.value;
+  const currentQty = Number(val.current_qty ?? data?.on_hand_qty ?? 0);
+  const targetQty = Number(val.qty ?? 0);
+  const delta = targetQty - currentQty;
+  const trxType = delta >= 0 ? "IN" : "OUT";
+  const trxQty = Math.abs(delta);
+
+  if (trxQty === 0) {
+    resetForm();
+    close();
+    return;
+  }
+
   generateIdempotencyKey();
   const lockKey = `stock_${data?.facility_sku_id || data?.sku_id || "unknown"}`;
   await stockTransactionStore.createDataStockTransaction(
     {
       lines: [
         {
-          qty: Number(val.qty),
+          qty: trxQty,
           facility_sku_id: data.facility_sku_id,
           uom: data.unit_of_measure,
         },
@@ -132,7 +144,7 @@ const handleFormSubmit = async (val: any) => {
       reference_no: val.reference_no,
       reference_type: val.reference_type,
       trx_date: moment().format("YYYY-MM-DD"),
-      trx_type: "IN",
+      trx_type: trxType,
     },
     {
       uuid: idempotencyKey.value,
