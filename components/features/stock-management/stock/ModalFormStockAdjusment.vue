@@ -118,7 +118,7 @@ const adjustmentStore = useStockAdjustmentStore();
 
 const fetchHistory = async () => {
   const params: AdjustmentQueryParams = {
-    page: 2,
+    page: 1,
     limit: 10,
     // facility_id: selectedData.value.facility_id,
   };
