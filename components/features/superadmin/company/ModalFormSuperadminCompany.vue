@@ -53,20 +53,14 @@ const formFields: FieldConfig[] = [
     placeholder: "e.g., admin@company.com",
     grid: 6,
   },
-  {
-    name: "owner_email",
-    label: "Owner Email",
-    requiredMark: true,
-    type: "email",
-    placeholder: "e.g., owner@company.com",
-    grid: 6,
-  },
+
   {
     name: "logo",
     label: "Logo",
     requiredMark: false,
     type: "file",
     helperText: "PNG/JPG up to 2MB",
+    accept: "image/*",
     grid: 12,
   },
 ];
@@ -82,7 +76,6 @@ const formSchema = object({
   pic_name: string().required("PIC Name is required"),
   address: string().required("Address is required"),
   email: string().email().required("Email is required"),
-  owner_email: string().email().required("Owner Email is required"),
   logo: mixed().nullable(),
 });
 
@@ -91,7 +84,6 @@ const createInitialValues = (): CompanyType => ({
   pic_name: "",
   address: "",
   email: "",
-  owner_email: "",
   logo: null,
 });
 
@@ -160,7 +152,6 @@ async function handleFormSubmit(values: Record<string, any>) {
       pic_name: values.pic_name,
       address: values.address,
       email: values.email,
-      owner_email: values.owner_email,
       logo,
     };
 

@@ -42,6 +42,7 @@ export interface FieldConfig {
   multiple?: boolean;
   min?: number;
   max?: number;
+  accept?: string;
   // array-type specific config
   fields?: ReadonlyArray<FieldConfig>;
   addButtonLabel?: string;
@@ -618,6 +619,7 @@ function fileInputClasses(invalid: boolean, disabled?: boolean) {
               type="file"
               :multiple="field.multiple"
               :disabled="field.disabled"
+              :accept="field.accept"
               :class="
                 fileInputClasses(meta.touched && !meta.valid, field.disabled)
               "

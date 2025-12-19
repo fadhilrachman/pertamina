@@ -99,8 +99,6 @@ const resetForm = () => {
 };
 
 const open = () => {
-  console.log({ value: selectedData.value });
-
   resetForm();
   modalInstance.value?.show();
 };

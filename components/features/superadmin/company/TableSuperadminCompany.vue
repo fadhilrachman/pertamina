@@ -25,6 +25,7 @@ const params = reactive({
 });
 
 const tableColumns: TableColumn[] = [
+  { key: "logo", label: "Logo", align: "center" as const, headerClass: "w-[120px]" },
   { key: "name", label: "Company Name", headerClass: "min-w-[200px]" },
   { key: "pic_name", label: "PIC Name", headerClass: "min-w-[160px]" },
   { key: "email", label: "Email", headerClass: "min-w-[220px]" },
@@ -129,6 +130,21 @@ onMounted(() => {
           row-key="id"
           striped
         >
+          <template #cell-logo="{ value }">
+            <div class="flex justify-center">
+              <div
+                class="h-12 w-12 rounded-lg border border-gray-200 bg-gray-50 overflow-hidden flex items-center justify-center"
+              >
+                <img
+                  v-if="typeof value === 'string' && value.trim() !== ''"
+                  :src="value"
+                  alt="Company logo"
+                  class="h-full w-full object-contain"
+                />
+                <span v-else class="text-[11px] text-gray-400">No logo</span>
+              </div>
+            </div>
+          </template>
           <template #cell-actions="{ row }">
             <div class="flex justify-end gap-2">
               <GeneralIconButton
