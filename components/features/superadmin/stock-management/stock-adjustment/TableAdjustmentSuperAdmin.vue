@@ -91,7 +91,7 @@ const tableColumns: TableColumn[] = [
   { key: "sku_name", label: "SKU Name" },
 
   { key: "on_hand_qty", label: "On-Hand Quantity" },
-  { key: "unit_of_measure", label: "UOM" },
+  // { key: "unit_of_measure", label: "UOM" },
 
   // { key: "actions", label: "Actions", align: "right" as const },
 ];

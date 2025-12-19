@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed, watch } from "vue";
+import { computed, reactive, watch, onMounted } from "vue";
 import { storeToRefs } from "pinia";
 import Modal from "~/components/general/Modal/index.vue";
 import type { TableColumn } from "~/components/general/Table/index.vue";
 import type { ElementEvent } from "~/types/element";
 import type { AdjustmentQueryParams } from "~/services/stock-management/stock-adjustment-services";
 import { useStockAdjustmentStore } from "~/store/stock-management/stock-adjustment-store";
+import { useSuperadminFacilitiesStore } from "~/store/superadmin/facilities-store";
 import type { StockAdjustmentItem } from "~/types/stock-adjustment-type";
 
 const props = defineProps<{
@@ -37,6 +38,16 @@ type AdjustmentHistoryItem = {
 
 const adjustmentStore = useStockAdjustmentStore();
 const { data, loadingList } = storeToRefs(adjustmentStore);
+
+const facilitiesStore = useSuperadminFacilitiesStore();
+const { data: dataFacilities } = storeToRefs(facilitiesStore);
+
+const params = reactive({
+  page: 1,
+  limit: 50,
+  facility_id: props.facilityId ? String(props.facilityId) : "",
+  company_id: props.companyId ? String(props.companyId) : "",
+});
 
 const tableColumns: TableColumn[] = [
   {
@@ -83,7 +94,8 @@ const tableColumns: TableColumn[] = [
     label: "DATE",
     align: "right",
     headerClass: "px-6",
-    cellClass: "px-6 py-4 align-top text-gray-900 whitespace-pre-line",
+    cellClass:
+      "px-6 py-4  min-w-[140px] align-top text-gray-900 whitespace-pre-line",
   },
   {
     key: "user",
@@ -94,56 +106,60 @@ const tableColumns: TableColumn[] = [
 ];
 
 const fetchHistory = async () => {
-  if (!props.facilityId && !props.companyId) {
-    adjustmentStore.data = {
-      code: 200,
-      data: {
-        data: [],
-        limit: 0,
-        page: 1,
-        total: 0,
-        total_pages: 0,
-      },
-      error: "",
-      message: "",
-      success: true,
-    };
-    return;
-  }
-
-  const params: AdjustmentQueryParams = {
-    page: 1,
-    limit: 50,
+  const queryParams: AdjustmentQueryParams = {
+    page: params.page,
+    limit: params.limit,
   };
 
-  if (props.facilityId) {
-    params.facility_id = String(props.facilityId);
+  if (params.facility_id) {
+    queryParams.facility_id = String(params.facility_id);
   }
 
-  // if (props.facilitySkuId) {
-  //   params.facility_sku_id = String(props.facilitySkuId);
-  // } else if (props.facilityId) {
-  //   params.facility_sku_id = String(props.facilityId);
-  // }
+  if (props.facilitySkuId) {
+    queryParams.facility_sku_id = String(props.facilitySkuId);
+  }
 
-  if (props.companyId) {
-    params.company_id = String(props.companyId);
+  if (params.company_id) {
+    queryParams.company_id = String(params.company_id);
   }
 
   try {
-    await adjustmentStore.getAdjustments(params, { superadmin: true });
+    await adjustmentStore.getAdjustments(queryParams, { superadmin: true });
   } catch (error) {
     console.error("Failed to fetch adjustment history", error);
   }
 };
 
 watch(
-  () => [props.facilityId, props.facilitySkuId, props.companyId],
+  () => [props.facilityId, props.companyId],
+  ([facilityId, companyId]) => {
+    params.facility_id = facilityId ? String(facilityId) : "";
+    params.company_id = companyId ? String(companyId) : "";
+    params.page = 1;
+  },
+  { immediate: true }
+);
+
+watch(
+  () => [params.page, params.limit, params.facility_id, params.company_id],
   () => {
     fetchHistory();
   },
   { immediate: true }
 );
+
+const facilitiesOptions = computed(
+  () =>
+    dataFacilities.value?.data?.data?.map((item: any) => ({
+      id: String(item.id),
+      label: item.name,
+    })) || []
+);
+
+const handleFacilityChange = (value: string | number | null) => {
+  params.facility_id = value ? String(value) : "";
+  params.page = 1;
+};
 
 const formatDateTime = (value: string) => {
   if (!value) return "-";
@@ -195,6 +211,10 @@ const formatAdjustment = (value: number | null | undefined) => {
   const sign = numeric > 0 ? "+" : "-";
   return `${sign}${Math.abs(numeric)}`;
 };
+
+onMounted(() => {
+  facilitiesStore.getDataFacilities({ page: 1, limit: 1000, search: "" });
+});
 </script>
 
 <template>
@@ -206,6 +226,20 @@ const formatAdjustment = (value: number | null | undefined) => {
     @mounted="handleModalMounted"
   >
     <template #body>
+      <section class="flex bg-white p-4 rounded-xl items-end space-x-2 mb-4">
+        <div class="min-w-[240px] space-y-1">
+          <label class="mb-1.5 text-sm font-[600] text-gray-700">
+            Warehouse
+          </label>
+          <GeneralDropdownSearch
+            v-model="params.facility_id"
+            :options="facilitiesOptions"
+            placeholder="All Warehouses"
+            @change="handleFacilityChange"
+          />
+        </div>
+      </section>
+
       <GeneralTable
         :columns="tableColumns"
         :data="historyItems"

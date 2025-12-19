@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed, reactive, watch } from "vue";
+import { computed, reactive, watch, onMounted } from "vue";
 import { storeToRefs } from "pinia";
 import Modal from "~/components/general/Modal/index.vue";
 import type { TableColumn } from "~/components/general/Table/index.vue";
 import type { ElementEvent } from "~/types/element";
 import type { AdjustmentQueryParams } from "~/services/stock-management/stock-adjustment-services";
 import { useStockAdjustmentStore } from "~/store/stock-management/stock-adjustment-store";
+import { useFacilitiesStore } from "~/store/master-data/facilities-store";
 import type { StockAdjustmentItem } from "~/types/stock-adjustment-type";
 
 const props = defineProps<{
@@ -36,9 +37,13 @@ type AdjustmentHistoryItem = {
 const adjustmentStore = useStockAdjustmentStore();
 const { data, loadingList } = storeToRefs(adjustmentStore);
 
+const facilitiesStore = useFacilitiesStore();
+const { data: dataFacilities } = storeToRefs(facilitiesStore);
+
 const params = reactive({
   page: 1,
   limit: 10,
+  facility_id: props.facilityId ? String(props.facilityId) : "",
 });
 
 const tableColumns: TableColumn[] = [
@@ -86,7 +91,8 @@ const tableColumns: TableColumn[] = [
     label: "DATE",
     align: "right",
     headerClass: "px-6",
-    cellClass: "px-6 py-4 align-top text-gray-900 whitespace-pre-line",
+    cellClass:
+      "px-6 min-w-[140px] py-4 align-top text-gray-900 whitespace-pre-line",
   },
   {
     key: "user",
@@ -102,9 +108,9 @@ const fetchHistory = async () => {
     limit: params.limit,
   };
 
-  // if (props.facilityId) {
-  //   queryParams.facility_id = String(props.facilityId);
-  // }
+  if (params.facility_id) {
+    queryParams.facility_id = String(params.facility_id);
+  }
 
   try {
     await adjustmentStore.getAdjustments(queryParams);
@@ -115,23 +121,33 @@ const fetchHistory = async () => {
 
 watch(
   () => props.facilityId,
-  () => {
-    const shouldResetPage = params.page !== 1;
+  (next) => {
+    params.facility_id = next ? String(next) : "";
     params.page = 1;
-
-    if (!shouldResetPage) {
-      fetchHistory();
-    }
   },
   { immediate: true }
 );
 
 watch(
-  () => [params.page, params.limit],
+  () => [params.page, params.limit, params.facility_id],
   () => {
     fetchHistory();
-  }
+  },
+  { immediate: true }
 );
+
+const facilitiesOptions = computed(
+  () =>
+    dataFacilities.value?.data?.data?.map((item: any) => ({
+      id: String(item.id),
+      label: item.name,
+    })) || []
+);
+
+const handleFacilityChange = (value: string | number | null) => {
+  params.facility_id = value ? String(value) : "";
+  params.page = 1;
+};
 
 const formatDateTime = (value: string) => {
   if (!value) return "-";
@@ -192,6 +208,10 @@ const handlePageSizeChange = (pageSize: number) => {
   params.limit = pageSize;
   params.page = 1;
 };
+
+onMounted(() => {
+  facilitiesStore.getDataFacilities({ page: 1, limit: 1000 });
+});
 </script>
 
 <template>
@@ -203,6 +223,20 @@ const handlePageSizeChange = (pageSize: number) => {
     @mounted="handleModalMounted"
   >
     <template #body>
+      <section class="flex bg-white p-4 rounded-xl items-end space-x-2">
+        <div class="min-w-[240px] space-y-1">
+          <label class="mb-1.5 text-sm font-[600] text-gray-700">
+            Warehouse
+          </label>
+          <GeneralDropdownSearch
+            v-model="params.facility_id"
+            :options="facilitiesOptions"
+            placeholder="All Warehouses"
+            @change="handleFacilityChange"
+          />
+        </div>
+      </section>
+
       <div class="space-y-4">
         <GeneralTable
           :columns="tableColumns"

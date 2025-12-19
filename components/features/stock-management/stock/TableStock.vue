@@ -182,34 +182,9 @@ onBeforeMount(() => {
             </template>
           </GeneralButton>
         </template>
-        <!-- <GeneralButton
-          color="error"
-          label="Stock Out"
-          @on-click="openStockOutModal"
-        >
-          <template #prefix>
-            <IconsStockOut size="18" class="text-white" />
-          </template>
-        </GeneralButton>
-        <GeneralButton
-          color="primary"
-          label="Stock In"
-          @on-click="openStockInModal"
-        >
-          <template #prefix>
-            <IconsStockIn size="18" class="text-white" />
-          </template>
-        </GeneralButton> -->
       </div>
     </header>
     <section class="flex bg-white p-6 rounded-xl items-end space-x-2">
-      <!-- <GeneralSearchInput
-        label="Search Name"
-        placeholder="Search Name"
-        class="max-w-[360px]"
-        :debounce="1000"
-        @change="handleFacilitiesChange"
-      /> -->
       <div class="min-w-[240px] space-y-1">
         <label class="mb-1.5 text-sm font-[600] text-gray-700">Warehouse</label>
         <GeneralDropdownSearch
@@ -243,20 +218,6 @@ onBeforeMount(() => {
           </template>
           <template #cell-actions="{ row }">
             <div v-if="!isManagementRole" class="flex justify-end gap-2">
-              <!-- <GeneralButton
-                color="error"
-                label="Stock Out"
-                size="xs"
-                @on-click="openUpdateStockOutModal(row as StockOnHandType)"
-              >
-              </GeneralButton>
-              <GeneralButton
-                color="primary"
-                label="Stock in"
-                size="xs"
-                @on-click="openUpdateStockInModal(row as StockOnHandType)"
-              >
-              </GeneralButton> -->
               <GeneralButton
                 color="warning"
                 label="Adjust"

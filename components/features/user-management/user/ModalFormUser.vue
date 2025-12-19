@@ -76,6 +76,7 @@ const formFields = computed<FieldConfig[]>(() => [
     type: "password",
     placeholder: "Min. 8 characters",
     grid: 12,
+    togglePassword: true,
     helperText:
       "Password must contain uppercase, lowercase, and be at least 8 characters.",
   },
@@ -97,14 +98,8 @@ const formSchema = object({
   password: string()
     .required("Password is required")
     .min(8, "Password must be at least 8 characters")
-    .matches(
-      /[a-z]/,
-      "Password must contain at least one lowercase letter"
-    )
-    .matches(
-      /[A-Z]/,
-      "Password must contain at least one uppercase letter"
-    ),
+    .matches(/[a-z]/, "Password must contain at least one lowercase letter")
+    .matches(/[A-Z]/, "Password must contain at least one uppercase letter"),
   role_id: string().required("Role is required"),
 });
 

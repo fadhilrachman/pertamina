@@ -1,16 +1,19 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import ModalDelete from "~/components/general/ModalDelete/index.vue";
 import type { TableColumn } from "~/components/general/Table/index.vue";
 import type { ElementEvent } from "~/types/element";
 import type { UserType } from "~/types/user-type";
 import { useSuperadminUserStore } from "~/store/superadmin/user-store";
+import { useSuperadminCompanyStore } from "~/store/superadmin/company-store";
 import { formatTableDate } from "~/utils/functions";
 import ModalFormSuperadminUser from "./ModalFormSuperadminUser.vue";
 
 const userStore = useSuperadminUserStore();
 const { data, loadingWrite, loadingList } = storeToRefs(userStore);
+const companyStore = useSuperadminCompanyStore();
+const { data: companyData } = storeToRefs(companyStore);
 
 const deleteModalRef = ref<ElementEvent | null>(null);
 const selectedUser = ref<UserType | null>(null);
@@ -24,6 +27,7 @@ const params = reactive({
   search: "",
   page: 1,
   limit: 10,
+  company_id: "",
 });
 
 const tableColumns: TableColumn[] = [
@@ -33,6 +37,14 @@ const tableColumns: TableColumn[] = [
   { key: "created_at", label: "Created At" },
   { key: "actions", label: "Actions", align: "right" as const },
 ];
+
+const companyOptions = computed(
+  () =>
+    companyData.value?.data?.data?.map((item: any) => ({
+      id: String(item.id),
+      label: item.name,
+    })) || []
+);
 
 const handleDeleteModalMounted = (instance: ElementEvent) => {
   deleteModalRef.value = instance;
@@ -69,6 +81,11 @@ const handlePageSizeChange = (pageSize: number) => {
   params.page = 1;
 };
 
+const handleCompanyChange = (value: string | number | null) => {
+  params.company_id = value ? String(value) : "";
+  params.page = 1;
+};
+
 const openAddUserModal = () => {
   formModeRef.value = "add";
   selectedUser.value = null;
@@ -101,6 +118,7 @@ onMounted(() => {
   userStore.getDataUsers({
     ...params,
   });
+  companyStore.getDataCompanies({ page: 1, limit: 1000 });
 });
 </script>
 
@@ -129,6 +147,15 @@ onMounted(() => {
         :debounce="1000"
         @change="handleSearchChange"
       />
+      <div class="min-w-[240px] space-y-1">
+        <label class="mb-1.5 text-sm font-[600] text-gray-700">Company</label>
+        <GeneralDropdownSearch
+          v-model="params.company_id"
+          :options="companyOptions"
+          placeholder="All Companies"
+          @change="handleCompanyChange"
+        />
+      </div>
     </section>
 
     <section class="space-y-4">

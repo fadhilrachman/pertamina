@@ -278,13 +278,11 @@ onBeforeMount(() => {
         />
       </div>
       <div class="min-w-[240px] space-y-1">
-        <label class="mb-1.5 text-sm font-[600] text-gray-700"
-          >Facilities</label
-        >
+        <label class="mb-1.5 text-sm font-[600] text-gray-700">Warehouse</label>
         <GeneralDropdownSearch
           v-model="params.facility_id"
           :options="facilitiesOptions"
-          placeholder="All Facilities"
+          placeholder="All Warehouse"
           @change="handleFacilitiesChange"
         />
       </div>

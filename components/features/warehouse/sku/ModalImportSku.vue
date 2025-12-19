@@ -23,6 +23,7 @@ const emit = defineEmits<{
 
 const modalInstance = ref<ElementEvent | null>(null);
 const selectedFile = ref<File | null>(null);
+const fileInputRef = ref<HTMLInputElement | null>(null);
 
 const facilitiesSkuStore = useFacilitiesSkuStore();
 const { loadingWrite } = storeToRefs(facilitiesSkuStore);
@@ -32,13 +33,21 @@ const handleModalMounted = (instance: ElementEvent) => {
   modalInstance.value = instance;
 };
 
-const open = () => {
+const resetFileInput = () => {
   selectedFile.value = null;
+  if (fileInputRef.value) {
+    fileInputRef.value.value = "";
+  }
+};
+
+const open = () => {
+  resetFileInput();
   modalInstance.value?.show();
 };
 
 const close = () => {
   modalInstance.value?.hide();
+  resetFileInput();
 };
 
 const handleCancel = () => {
@@ -51,7 +60,7 @@ const handleFileChange = (event: Event) => {
   const file = target?.files?.[0] || null;
 
   if (!file) {
-    selectedFile.value = null;
+    resetFileInput();
     return;
   }
 
@@ -61,7 +70,7 @@ const handleFileChange = (event: Event) => {
   const isAllowed = allowedExtensions.some((ext) => lowerName.endsWith(ext));
 
   if (!isAllowed) {
-    selectedFile.value = null;
+    resetFileInput();
     toast.error("Invalid file type. Use CSV or XLSX.", {
       toastClassName: "toastify-error",
     });
@@ -69,7 +78,7 @@ const handleFileChange = (event: Event) => {
   }
 
   if (file.size > maxSize) {
-    selectedFile.value = null;
+    resetFileInput();
     toast.error("File too large. Max size is 5MB.", {
       toastClassName: "toastify-error",
     });
@@ -95,7 +104,11 @@ const handleUpload = async () => {
 
     emit("uploaded", selectedFile.value);
     close();
-  } catch {}
+  } catch {
+    // Error & toast already handled in store
+  } finally {
+    resetFileInput();
+  }
 };
 
 const handleModalOpened = () => emit("opened");
@@ -125,6 +138,7 @@ defineExpose({
             File Template SKU
           </label>
           <input
+            ref="fileInputRef"
             type="file"
             accept=".csv,.xlsx"
             class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"

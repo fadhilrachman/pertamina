@@ -12,19 +12,31 @@ import { formatTableDate } from "~/utils/functions";
 import ModalTransactionDetail from "./ModalTransactionDetail.vue";
 
 const trxTypeBadgeClass = (type: string | undefined) => {
-  if (!type) return "bg-gray-100 text-gray-600 border border-gray-200";
+  const defaultClass = "bg-gray-100 text-gray-600 border border-gray-200";
+  if (!type) return defaultClass;
 
   const normalized = type.toUpperCase();
+  const classMap: Record<string, string> = {
+    IN: "bg-emerald-50 text-emerald-700 border border-emerald-200",
+    OUT: "bg-rose-50 text-rose-700 border border-rose-200",
+    ADJUST_IN: "bg-sky-50 text-sky-700 border border-sky-200",
+    ADJUST_OUT: "bg-amber-50 text-amber-700 border border-amber-200",
+  };
 
-  if (normalized === "IN") {
-    return "bg-emerald-50 text-emerald-700 border border-emerald-200";
-  }
+  return classMap[normalized] || defaultClass;
+};
 
-  if (normalized === "OUT") {
-    return "bg-rose-50 text-rose-700 border border-rose-200";
-  }
+const formatTrxTypeLabel = (type: string | undefined) => {
+  if (!type) return "-";
+  const normalized = type.toUpperCase();
+  const labelMap: Record<string, string> = {
+    IN: "In",
+    OUT: "Out",
+    ADJUST_IN: "Adjust In",
+    ADJUST_OUT: "Adjust Out",
+  };
 
-  return "bg-gray-100 text-gray-600 border border-gray-200";
+  return labelMap[normalized] || type;
 };
 
 const $page = usePageStore();
@@ -128,8 +140,10 @@ const tableData = computed<TransactionTableRow[]>(() => {
 });
 
 const typeOptions = [
-  { id: "IN", label: "IN" },
-  { id: "OUT", label: "OUT" },
+  { id: "IN", label: "In" },
+  { id: "OUT", label: "Out" },
+  { id: "ADJUST_IN", label: "Adjust In" },
+  { id: "ADJUST_OUT", label: "Adjust Out" },
 ];
 
 const handleFacilitiesChange = (value: any) => {
@@ -197,13 +211,11 @@ onBeforeMount(() => {
     </header>
     <section class="flex bg-white p-6 rounded-xl items-end space-x-2">
       <div class="min-w-[240px] space-y-1">
-        <label class="mb-1.5 text-sm font-[600] text-gray-700"
-          >Facilities</label
-        >
+        <label class="mb-1.5 text-sm font-[600] text-gray-700">Warehouse</label>
         <GeneralDropdownSearch
           v-model="params.facility_id"
           :options="facilitiesOptions"
-          placeholder="All Facilities"
+          placeholder="All Warehouse"
           @change="handleFacilitiesChange"
         />
       </div>
@@ -258,7 +270,7 @@ onBeforeMount(() => {
               class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
               :class="trxTypeBadgeClass(value as string | undefined)"
             >
-              {{ (value as string) || "-" }}
+              {{ formatTrxTypeLabel(value as string | undefined) }}
             </span>
           </template>
           <template #cell-actions="{ row }">

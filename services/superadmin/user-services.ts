@@ -20,7 +20,7 @@ export interface SuperadminUpdateUserPayload {
 }
 
 export async function getSuperadminUsers(
-  params: QueryParams & { search?: string }
+  params: QueryParams & { search?: string; company_id?: string }
 ) {
   const queryParams: Record<string, string> = {
     page: String(params.page),
@@ -29,6 +29,10 @@ export async function getSuperadminUsers(
 
   if (params.search) {
     queryParams.search = params.search;
+  }
+
+  if (params.company_id) {
+    queryParams.company_id = String(params.company_id);
   }
 
   return await api.get("/api/v1/superadmin/users", { queryParams });

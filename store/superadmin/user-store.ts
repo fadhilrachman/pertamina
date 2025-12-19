@@ -21,7 +21,7 @@ export const useSuperadminUserStore = defineStore("superadminUser", {
     loadingList: false,
     loadingWrite: false,
     loadingDetail: false,
-    listParams: null as (QueryParams & { search?: string }) | null,
+    listParams: null as (QueryParams & { search?: string; company_id?: string }) | null,
     data: {} as ResponseApi<UserType>,
     dataDetail: {} as ResponseApiDetail<UserType>,
     selectedData: {} as UserType,
@@ -37,7 +37,9 @@ export const useSuperadminUserStore = defineStore("superadminUser", {
       this.selectedData = data;
     },
 
-    async getDataUsers(params: QueryParams & { search?: string }) {
+    async getDataUsers(
+      params: QueryParams & { search?: string; company_id?: string }
+    ) {
       this.loadingList = true;
       this.listParams = params;
 
