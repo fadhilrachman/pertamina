@@ -5,6 +5,7 @@ import type { ElementEvent } from "~/types/element";
 import { useStockTransaction } from "~/store/stock-management/stock-transaction-store";
 import { useStockOnHand } from "~/store/stock-on-hand/stock-on-hand-store";
 import { toast } from "vue3-toastify";
+import type { ImportResult } from "~/types/import";
 
 const props = defineProps<{
   listParams: {
@@ -25,6 +26,7 @@ const emit = defineEmits<{
 const modalInstance = ref<ElementEvent | null>(null);
 const selectedFile = ref<File | null>(null);
 const fileInputRef = ref<HTMLInputElement | null>(null);
+const importResult = ref<ImportResult | null>(null);
 
 const stockTransactionStore = useStockTransaction();
 const { loadingWrite } = storeToRefs(stockTransactionStore);
@@ -43,12 +45,14 @@ const resetFileInput = () => {
 
 const open = () => {
   resetFileInput();
+  importResult.value = null;
   modalInstance.value?.show();
 };
 
 const close = () => {
   modalInstance.value?.hide();
   resetFileInput();
+  importResult.value = null;
 };
 
 const handleCancel = () => {
@@ -89,18 +93,42 @@ const handleFileChange = (event: Event) => {
   selectedFile.value = file;
 };
 
+const parseImportResult = (payload: unknown): ImportResult | null => {
+  const base = (payload as any)?.data ?? payload;
+  if (!base || typeof base !== "object") return null;
+
+  const reports = Array.isArray((base as any).row_reports)
+    ? (base as any).row_reports
+    : [];
+
+  return {
+    errors: (base as any).errors ?? [],
+    failed_rows:
+      (base as any).failed_rows ?? (base as any).failedRows ?? undefined,
+    row_reports: reports,
+    success_detail:
+      (base as any).success_detail ?? (base as any).detail ?? undefined,
+    success_rows:
+      (base as any).success_rows ?? (base as any).successRows ?? undefined,
+    total_rows:
+      (base as any).total_rows ?? (base as any).totalRows ?? undefined,
+  };
+};
+
 const handleUpload = async () => {
   if (!selectedFile.value || loadingWrite.value) return;
 
   try {
-    await stockTransactionStore.importStockAdjustment(selectedFile.value);
+    const response = await stockTransactionStore.importStockAdjustment(
+      selectedFile.value
+    );
+    importResult.value = parseImportResult(response);
 
     await stockOnHandStore.getDataStockOnHand({
       ...props.listParams,
     } as any);
 
     emit("uploaded", selectedFile.value);
-    close();
   } catch {
     // Error & toast sudah ditangani di store
   } finally {
@@ -151,7 +179,7 @@ defineExpose({
 
         <div class="flex justify-end gap-3 pt-2">
           <GeneralOutlinedButton
-            label="Cancel"
+            label="Close"
             type="button"
             :disabled="loadingWrite"
             @on-click="handleCancel"
@@ -165,6 +193,11 @@ defineExpose({
             @on-click="handleUpload"
           />
         </div>
+
+        <GeneralImportResult
+          :result="importResult"
+          title="Hasil Import Stock Adjustment"
+        />
       </div>
     </template>
   </GeneralModal>

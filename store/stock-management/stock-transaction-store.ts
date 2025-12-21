@@ -14,6 +14,7 @@ import {
   postStockTransactions,
 } from "~/services/stock-management/stock-transactions-services";
 import { importStockAdjustment } from "~/services/import/import-services";
+import type { ImportResponse } from "~/types/import";
 
 export const useStockTransaction = defineStore("stockTransaction", {
   state: () => ({
@@ -137,7 +138,7 @@ export const useStockTransaction = defineStore("stockTransaction", {
       }
     },
 
-    async importStockAdjustment(file: File) {
+    async importStockAdjustment(file: File): Promise<ImportResponse> {
       this.loadingWrite = true;
       try {
         const response = await importStockAdjustment(file);

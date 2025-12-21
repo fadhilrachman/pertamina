@@ -18,6 +18,7 @@ import {
   putFacilitiesSku,
 } from "~/services/master-data/facilities-sku-services";
 import { importSkuFacilitySku } from "~/services/import/import-services";
+import type { ImportResponse } from "~/types/import";
 
 export const useFacilitiesSkuStore = defineStore("facilitiesSku", {
   state: () => ({
@@ -146,7 +147,7 @@ export const useFacilitiesSkuStore = defineStore("facilitiesSku", {
       }
     },
 
-    async importFacilitiesSku(file: File) {
+    async importFacilitiesSku(file: File): Promise<ImportResponse> {
       this.loadingWrite = true;
       try {
         const data = await importSkuFacilitySku(file);

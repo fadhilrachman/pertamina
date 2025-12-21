@@ -5,6 +5,7 @@ import { useRoute } from "vue-router";
 import type { ElementEvent } from "~/types/element";
 import { useFacilitiesSkuStore } from "~/store/master-data/facilities-sku-store";
 import { toast } from "vue3-toastify";
+import type { ImportResult } from "~/types/import";
 
 const props = defineProps<{
   listParams: {
@@ -24,6 +25,7 @@ const emit = defineEmits<{
 const modalInstance = ref<ElementEvent | null>(null);
 const selectedFile = ref<File | null>(null);
 const fileInputRef = ref<HTMLInputElement | null>(null);
+const importResult = ref<ImportResult | null>(null);
 
 const facilitiesSkuStore = useFacilitiesSkuStore();
 const { loadingWrite } = storeToRefs(facilitiesSkuStore);
@@ -42,12 +44,14 @@ const resetFileInput = () => {
 
 const open = () => {
   resetFileInput();
+  importResult.value = null;
   modalInstance.value?.show();
 };
 
 const close = () => {
   modalInstance.value?.hide();
   resetFileInput();
+  importResult.value = null;
 };
 
 const handleCancel = () => {
@@ -88,11 +92,36 @@ const handleFileChange = (event: Event) => {
   selectedFile.value = file;
 };
 
+const parseImportResult = (payload: unknown): ImportResult | null => {
+  const base = (payload as any)?.data ?? payload;
+  if (!base || typeof base !== "object") return null;
+
+  const reports = Array.isArray((base as any).row_reports)
+    ? (base as any).row_reports
+    : [];
+
+  return {
+    errors: (base as any).errors ?? [],
+    failed_rows:
+      (base as any).failed_rows ?? (base as any).failedRows ?? undefined,
+    row_reports: reports,
+    success_detail:
+      (base as any).success_detail ?? (base as any).detail ?? undefined,
+    success_rows:
+      (base as any).success_rows ?? (base as any).successRows ?? undefined,
+    total_rows:
+      (base as any).total_rows ?? (base as any).totalRows ?? undefined,
+  };
+};
+
 const handleUpload = async () => {
   if (!selectedFile.value || loadingWrite.value) return;
 
   try {
-    await facilitiesSkuStore.importFacilitiesSku(selectedFile.value);
+    const response = await facilitiesSkuStore.importFacilitiesSku(
+      selectedFile.value
+    );
+    importResult.value = parseImportResult(response);
 
     const facilityId = route.params.warehouse_id;
     if (facilityId) {
@@ -103,7 +132,6 @@ const handleUpload = async () => {
     }
 
     emit("uploaded", selectedFile.value);
-    close();
   } catch {
     // Error & toast already handled in store
   } finally {
@@ -155,7 +183,7 @@ defineExpose({
 
         <div class="flex justify-end gap-3 pt-2">
           <GeneralOutlinedButton
-            label="Cancel"
+            label="Close"
             type="button"
             :disabled="loadingWrite"
             @on-click="handleCancel"
@@ -169,6 +197,11 @@ defineExpose({
             @on-click="handleUpload"
           />
         </div>
+
+        <GeneralImportResult
+          :result="importResult"
+          title="Hasil Import SKU"
+        />
       </div>
     </template>
   </GeneralModal>

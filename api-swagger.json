@@ -1912,7 +1912,7 @@
             "BearerAuth": []
           }
         ],
-        "description": "Get adjustment transactions (ADJUST_IN/ADJUST_OUT), optionally filtered by facility_sku. Includes before/after stock if available in notes",
+        "description": "Get adjustment transactions (ADJUST_IN/ADJUST_OUT), optionally filtered by facility_sku or facility. Includes before/after stock if available in notes",
         "produces": ["application/json"],
         "tags": ["Stock Transaction"],
         "summary": "List stock adjustments",
@@ -1922,6 +1922,13 @@
             "format": "uuid",
             "description": "Filter by Facility SKU ID",
             "name": "facility_sku_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Filter by Facility ID",
+            "name": "facility_id",
             "in": "query"
           },
           {
@@ -3046,11 +3053,25 @@
             "BearerAuth": []
           }
         ],
-        "description": "Show adjustment transactions (ADJUST_IN/ADJUST_OUT), optionally filtered by facility_sku. Includes before/after stock if present in notes",
+        "description": "Show adjustment transactions (ADJUST_IN/ADJUST_OUT), optionally filtered by company, facility_sku, or facility. Includes before/after stock if present in notes",
         "produces": ["application/json"],
         "tags": ["Superadmin"],
         "summary": "List stock adjustments (Superadmin)",
         "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Filter by Company ID",
+            "name": "company_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Filter by Facility ID",
+            "name": "facility_id",
+            "in": "query"
+          },
           {
             "type": "string",
             "format": "uuid",
@@ -5346,6 +5367,12 @@
         "failed_rows": {
           "type": "integer"
         },
+        "row_reports": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/importdata.RowReport"
+          }
+        },
         "success_detail": {
           "type": "string"
         },
@@ -5354,6 +5381,24 @@
         },
         "total_rows": {
           "type": "integer"
+        }
+      }
+    },
+    "importdata.RowReport": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "row_number": {
+          "type": "integer"
+        },
+        "status": {
+          "description": "\"success\" or \"failed\"",
+          "type": "string"
         }
       }
     },
@@ -5477,6 +5522,17 @@
         "unit": {
           "type": "string",
           "maxLength": 50
+        }
+      }
+    },
+    "stock.AdjustmentCompany": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
         }
       }
     },
@@ -5700,6 +5756,9 @@
       "properties": {
         "adjustment": {
           "type": "number"
+        },
+        "company": {
+          "$ref": "#/definitions/stock.AdjustmentCompany"
         },
         "created_by": {
           "$ref": "#/definitions/stock.AdjustmentUser"
