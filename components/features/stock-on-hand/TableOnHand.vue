@@ -221,7 +221,7 @@ onBeforeMount(() => {
     <section class="flex bg-white p-6 rounded-xl items-end space-x-2">
       <div class="min-w-[240px] space-y-1">
         <label class="mb-1.5 text-sm font-[600] text-gray-700"
-          >Facilities</label
+          >Warehouses</label
         >
         <GeneralDropdownSearch
           v-model="params.facility_id"
