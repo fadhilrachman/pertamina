@@ -33,6 +33,7 @@ const params = reactive({
 const tableColumns: TableColumn[] = [
   { key: "name", label: "Name", headerClass: "min-w-[180px]" },
   { key: "email", label: "Email", headerClass: "min-w-[220px]" },
+  { key: "company_name", label: "Company", headerClass: "min-w-[200px]" },
   { key: "role", label: "Role" },
   { key: "created_at", label: "Created At" },
   { key: "actions", label: "Actions", align: "right" as const },
@@ -45,6 +46,29 @@ const companyOptions = computed(
       label: item.name,
     })) || []
 );
+
+const tableData = computed(() => {
+  const list =
+    data.value?.data?.data ||
+    (Array.isArray(data.value?.data) ? data.value?.data : []);
+
+  return (list as UserType[]).map((item) => {
+    const companies = item.companies || [];
+    const defaultCompany =
+      companies.find((company) => company?.is_default) || companies[0];
+
+    const companyName =
+      item.company_name ||
+      defaultCompany?.company_name ||
+      defaultCompany?.name ||
+      "-";
+
+    return {
+      ...item,
+      company_name: companyName,
+    };
+  });
+});
 
 const handleDeleteModalMounted = (instance: ElementEvent) => {
   deleteModalRef.value = instance;
@@ -162,7 +186,7 @@ onMounted(() => {
       <div class="bg-white p-6 rounded-xl space-y-4">
         <GeneralTable
           :columns="tableColumns"
-          :data="data?.data?.data"
+          :data="tableData"
           :loading="loadingList"
           row-key="id"
           striped

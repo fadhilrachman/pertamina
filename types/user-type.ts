@@ -9,6 +9,7 @@ export interface UserType {
   last_name?: string;
   role_id?: string;
   is_superadmin?: boolean;
+  company_name?: string;
   companies?: Array<{
     company_id?: string;
     company_name?: string;

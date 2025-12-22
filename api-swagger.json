@@ -3285,6 +3285,13 @@
             "in": "query"
           },
           {
+            "type": "string",
+            "format": "uuid",
+            "description": "Filter by company ID",
+            "name": "company_id",
+            "in": "query"
+          },
+          {
             "type": "integer",
             "default": 1,
             "description": "Page number",
@@ -6675,6 +6682,12 @@
     "superadmin.UserSummaryResponse": {
       "type": "object",
       "properties": {
+        "companies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/superadmin.SimpleRef"
+          }
+        },
         "created_at": {
           "type": "string"
         },
