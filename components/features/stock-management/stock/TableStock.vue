@@ -11,10 +11,10 @@ import {
 import { storeToRefs } from "pinia";
 import type { TableColumn } from "~/components/general/Table/index.vue";
 import type { ElementEvent } from "~/types/element";
-import { useSkuStore } from "~/store/master-data/sku-store";
 import { usePageStore } from "~/store/page";
 import { useStockOnHand } from "~/store/stock-on-hand/stock-on-hand-store";
 import { useFacilitiesStore } from "~/store/master-data/facilities-store";
+import { useFacilitiesSkuStore } from "~/store/master-data/facilities-sku-store";
 import { formatTableDate } from "~/utils/functions";
 import ModalFormStockIn from "./ModalFormStockIn.vue";
 import ModalFormStockOut from "./ModalFormStockOut.vue";
@@ -29,9 +29,9 @@ const formModeRef = ref(<"add" | "update">"add");
 
 const stockOnHandStore = useStockOnHand();
 const facilitiesStore = useFacilitiesStore();
-const skuStore = useSkuStore();
+const facilitiesSkuStore = useFacilitiesSkuStore();
 const { data: dataFacilities } = storeToRefs(facilitiesStore);
-const { data: dataSkuStore } = storeToRefs(skuStore);
+const { data: dataFacilitiesSku } = storeToRefs(facilitiesSkuStore);
 const { data: authData } = useAuth();
 
 const isManagementRole = computed(() => {
@@ -48,13 +48,20 @@ const facilitiesOptions = computed(
     })) || []
 );
 
-const skuOptions = computed(
-  () =>
-    dataSkuStore.value?.data?.data?.map((item) => ({
-      id: item.id,
-      label: item.name,
-    })) || []
-);
+const skuOptions = computed(() => {
+  if (!params.facility_id) return [];
+
+  const list =
+    dataFacilitiesSku.value?.data?.data ||
+    (Array.isArray(dataFacilitiesSku.value?.data)
+      ? dataFacilitiesSku.value?.data
+      : []);
+
+  return list.map((item: any) => ({
+    id: item.sku_id || item.id,
+    label: item.sku_name || item.name || item.sku_code || item.sku_id,
+  }));
+});
 const { data, loadingWrite, loadingList } = storeToRefs(stockOnHandStore);
 
 const stockAdjustmentModalRef = ref<InstanceType<
@@ -83,11 +90,24 @@ const tableColumns: TableColumn[] = [
   { key: "actions", label: "Actions", align: "right" as const },
 ];
 
+const fetchFacilitySkus = async (facilityId: string | number | null) => {
+  const parsed = facilityId ? String(facilityId) : "";
+  if (!parsed) return;
+
+  await facilitiesSkuStore.getDataFacilitiesSku({
+    facility_id: parsed,
+    page: 1,
+    limit: 1000,
+  });
+};
+
 const handleFacilitiesChange = (value: any) => {
-  params.facility_id = value;
+  params.facility_id = value ? String(value) : "";
+  params.page = 1;
 };
 const handleSkuChange = (value: any) => {
-  params.sku_id = value;
+  params.sku_id = value ? String(value) : "";
+  params.page = 1;
 };
 
 const handlePageChange = (page: number) => {
@@ -127,6 +147,14 @@ const handleDownloadTemplate = () => {
   document.body.removeChild(link);
 };
 watch(
+  () => params.facility_id,
+  (next) => {
+    params.sku_id = "";
+    fetchFacilitySkus(next);
+  }
+);
+
+watch(
   () => ({ ...params }),
   () => {
     stockOnHandStore.getDataStockOnHand({ ...params });
@@ -137,7 +165,7 @@ onMounted(() => {
   stockOnHandStore.getDataStockOnHand({
     ...params,
   });
-  skuStore.getDataSku({ page: 1, limit: 1000 });
+  fetchFacilitySkus(params.facility_id);
   facilitiesStore.getDataFacilities({ page: 1, limit: 1000 });
 });
 

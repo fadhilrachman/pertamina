@@ -6,7 +6,13 @@ export async function postSku(payload: PayloadSKUType) {
   return await api.post("/api/v1/skus", { body: payload });
 }
 
-export async function getSku(params: QueryParams) {
+export async function getSku(
+  params: QueryParams & {
+    search?: string;
+    status?: string;
+    facility_id?: string;
+  }
+) {
   return await api.get("/api/v1/skus", { queryParams: params });
 }
 export async function getSkuDetail(params: { id: string }) {

@@ -29,7 +29,11 @@ export const useSkuStore = defineStore("sku", {
       this.selectedData = data;
     },
     async getDataSku(
-      params: QueryParams & { search?: string; status?: string }
+      params: QueryParams & {
+        search?: string;
+        status?: string;
+        facility_id?: string;
+      }
     ) {
       this.loadingList = true;
       try {

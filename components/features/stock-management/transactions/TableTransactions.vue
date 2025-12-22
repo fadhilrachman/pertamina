@@ -3,9 +3,9 @@ import { computed, onBeforeMount, onMounted, reactive, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import type { TableColumn } from "~/components/general/Table/index.vue";
 import type { ElementEvent } from "~/types/element";
-import { useSkuStore } from "~/store/master-data/sku-store";
 import { usePageStore } from "~/store/page";
 import { useFacilitiesStore } from "~/store/master-data/facilities-store";
+import { useFacilitiesSkuStore } from "~/store/master-data/facilities-sku-store";
 import { useStockTransaction } from "~/store/stock-management/stock-transaction-store";
 import type { StockTransactionType } from "~/types/stock-transaction-type";
 import { formatTableDate } from "~/utils/functions";
@@ -42,9 +42,9 @@ const formatTrxTypeLabel = (type: string | undefined) => {
 const $page = usePageStore();
 const stockTransactionStore = useStockTransaction();
 const facilitiesStore = useFacilitiesStore();
-const skuStore = useSkuStore();
+const facilitiesSkuStore = useFacilitiesSkuStore();
 const { data: dataFacilities } = storeToRefs(facilitiesStore);
-const { data: dataSkuStore } = storeToRefs(skuStore);
+const { data: dataFacilitiesSku } = storeToRefs(facilitiesSkuStore);
 
 const facilitiesOptions = computed(
   () =>
@@ -54,13 +54,20 @@ const facilitiesOptions = computed(
     })) || []
 );
 
-const skuOptions = computed(
-  () =>
-    dataSkuStore.value?.data?.data?.map((item) => ({
-      id: item.id,
-      label: item.name,
-    })) || []
-);
+const skuOptions = computed(() => {
+  if (!params.facility_id) return [];
+
+  const list =
+    dataFacilitiesSku.value?.data?.data ||
+    (Array.isArray(dataFacilitiesSku.value?.data)
+      ? dataFacilitiesSku.value?.data
+      : []);
+
+  return list.map((item: any) => ({
+    id: item.sku_id || item.id,
+    label: item.sku_name || item.name || item.sku_code || item.sku_id,
+  }));
+});
 const { data, loadingWrite, loadingList } = storeToRefs(stockTransactionStore);
 const deleteModalRef = ref<ElementEvent | null>(null);
 const selectedSku = ref<Record<string, any> | null>(null);
@@ -146,11 +153,24 @@ const typeOptions = [
   { id: "ADJUST_OUT", label: "Adjust Out" },
 ];
 
+const fetchFacilitySkus = async (facilityId: string | number | null) => {
+  const parsed = facilityId ? String(facilityId) : "";
+  if (!parsed) return;
+
+  await facilitiesSkuStore.getDataFacilitiesSku({
+    facility_id: parsed,
+    page: 1,
+    limit: 1000,
+  });
+};
+
 const handleFacilitiesChange = (value: any) => {
-  params.facility_id = value;
+  params.facility_id = value ? String(value) : "";
+  params.page = 1;
 };
 const handleSkuChange = (value: any) => {
-  params.sku_id = value;
+  params.sku_id = value ? String(value) : "";
+  params.page = 1;
 };
 
 const handlePageChange = (page: number) => {
@@ -182,6 +202,14 @@ const handleViewTransaction = (row: any) => {
 };
 
 watch(
+  () => params.facility_id,
+  (next) => {
+    params.sku_id = "";
+    fetchFacilitySkus(next);
+  }
+);
+
+watch(
   () => ({ ...params }),
   () => {
     stockTransactionStore.getDataTransactions({ ...params });
@@ -192,7 +220,7 @@ onMounted(() => {
   stockTransactionStore.getDataTransactions({
     ...params,
   });
-  skuStore.getDataSku({ page: 1, limit: 1000 });
+  fetchFacilitySkus(params.facility_id);
   facilitiesStore.getDataFacilities({ page: 1, limit: 1000 });
 });
 
