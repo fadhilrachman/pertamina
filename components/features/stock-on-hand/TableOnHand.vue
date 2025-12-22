@@ -226,7 +226,7 @@ onBeforeMount(() => {
         <GeneralDropdownSearch
           v-model="params.facility_id"
           :options="facilitiesOptions"
-          placeholder="All Facilities"
+          placeholder="All Warehouses "
           @change="handleFacilitiesChange"
         />
       </div>

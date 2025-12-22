@@ -38,7 +38,7 @@ const companyOptions = computed(
 const tableColumns: TableColumn[] = [
   { key: "code", label: "Code" },
   { key: "company", label: "Company" },
-  { key: "name", label: "Facility Name", headerClass: "min-w-[200px]" },
+  { key: "name", label: "Warehouse Name", headerClass: "min-w-[200px]" },
   { key: "address", label: "Address" },
   { key: "capacity", label: "Capacity" },
   { key: "status", label: "Status" },
@@ -93,10 +93,7 @@ onMounted(() => {
 <template>
   <main class="space-y-8">
     <header class="flex justify-between items-end">
-      <GeneralTitle
-        title="Warehouse Master"
-        subtitle="Manage facilities and warehouses"
-      />
+      <GeneralTitle title="Warehouse Master" subtitle="Manage warehouses" />
       <div class="flex justify-between space-x-2"></div>
     </header>
     <section class="flex bg-white p-6 rounded-xl items-end space-x-2">

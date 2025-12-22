@@ -35,7 +35,7 @@ const params = reactive({
 });
 const tableColumns: TableColumn[] = [
   { key: "code", label: "Code" },
-  { key: "name", label: "Facility Name", headerClass: "min-w-[200px]" },
+  { key: "name", label: "Warehouse Name", headerClass: "min-w-[200px]" },
   { key: "address", label: "Address" },
   { key: "capacity", label: "Capacity" },
   { key: "status", label: "Status" },
@@ -122,10 +122,7 @@ onMounted(() => {
 <template>
   <main class="space-y-8">
     <header class="flex justify-between items-end">
-      <GeneralTitle
-        title="Warehouse Master"
-        subtitle="Manage facilities and warehouses"
-      />
+      <GeneralTitle title="Warehouse Master" subtitle="Manage warehouses" />
       <div class="flex justify-between space-x-2">
         <!-- <GeneralButton color="success" label="Download Template">
           <template #prefix>
