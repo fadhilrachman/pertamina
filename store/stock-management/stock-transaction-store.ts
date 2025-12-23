@@ -112,7 +112,7 @@ export const useStockTransaction = defineStore("stockTransaction", {
 
         toast.success(`Success create data ${trxLabel}`);
         return true;
-      } catch (error) {
+      } catch (error: any) {
         console.log({ error });
 
         const trxType = (body.trx_type || "").toLowerCase();
@@ -126,7 +126,7 @@ export const useStockTransaction = defineStore("stockTransaction", {
           trxLabel = "Stock adjustment";
         }
 
-        toast.error(`Failed create data ${trxLabel}`, {
+        toast.error(error?.message || `Failed create data ${trxLabel}`, {
           toastClassName: "toastify-error",
         });
         throw error;
