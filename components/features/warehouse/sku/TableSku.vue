@@ -103,7 +103,7 @@ const closeDeleteSkuModal = () => deleteModalRef.value?.hide();
 const handleConfirmDelete = async () => {
   if (!selectedSku.value) return;
   try {
-    await skuStore.deleteDataSku({ id: selectedSku.value.sku_id });
+    // await skuStore.deleteDataSku({ id: selectedSku.value.sku_id });
     await facilitiesSkuStore.deleteDataFacilitiesSku({
       id: String(selectedSku.value.sku_id),
       facility_id: warehouseId.value,
