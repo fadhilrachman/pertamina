@@ -20,6 +20,10 @@ const sessionRoleName = computed(() => {
   return raw?.data?.role?.name || "";
 });
 
+const sessionData = computed<SessionResponseType | null>(() => {
+  return (data.value as SessionResponseType | null) ?? null;
+});
+
 const normalizedRole = computed(() => sessionRoleName.value.toLowerCase());
 
 const isAdministrator = computed(() => normalizedRole.value === "superadmin");
@@ -52,9 +56,7 @@ const getMenuActiveClass = (menuItem: ISidebar) => {
 };
 
 const getIconMenuActive = (menuItem: ISidebar) => {
-  return isMenuActive(menuItem)
-    ? "stroke-primary-600"
-    : "stroke-gray-700";
+  return isMenuActive(menuItem) ? "stroke-primary-600" : "stroke-gray-700";
 };
 
 const getActiveClass = (route: string) => {
@@ -161,7 +163,11 @@ watch(
           >
             LOGO
           </p> -->
-          <img :src="Logo" alt="Logo" class="max-h-[30px]" />
+          <img
+            :src="sessionData?.data?.current_company?.logo || Logo"
+            alt="Logo"
+            class="max-h-[30px]"
+          />
           <!-- <p class="text-[11px] uppercase tracking-[0.2em] text-gray-500">
             Lorem, ipsum dolor.
           </p> -->

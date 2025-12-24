@@ -34,6 +34,12 @@ export interface SessionProfileType {
   last_name: string;
   created_at: string;
   updated_at: string;
+  current_company: {
+    id: string;
+    name: string;
+    logo?: string;
+  };
+
   email?: string;
   role: SessionRoleType;
 }

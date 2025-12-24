@@ -125,10 +125,11 @@ const formFields = computed<FieldConfig[]>(() => [
   },
   {
     name: "is_superadmin",
-    label: "User Type",
+    label: "User Role",
     requiredMark: true,
     type: "switch",
     switchLabel: "Superadmin",
+
     grid: 12,
   },
   {

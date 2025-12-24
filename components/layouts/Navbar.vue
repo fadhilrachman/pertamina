@@ -21,6 +21,8 @@ const displayName = computed(() => {
   return fullName || email || "User";
 });
 
+console.log({ sessionData });
+
 const displayRole = computed(() => {
   const session = sessionData.value;
   return session?.data?.role?.name || "User";
@@ -81,7 +83,11 @@ async function handleLogout() {
     class="fixed w-full z-0 bg-white border-b px-6 md:pr-8 md:pl-[300px] h-[60px] flex items-center justify-between"
   >
     <div class="flex items-center gap-4 whitespace-nowrap">
-      <img :src="Logo" alt="Pertamina Drilling logo" class="h-7 w-auto" />
+      <img
+        :src="sessionData?.data.current_company?.logo"
+        alt="Pertamina Drilling logo"
+        class="h-7 w-auto"
+      />
       <div class="h-6 border-l border-gray-300" />
       <h3 class="font-semibold text-gray-700 pl-1">
         Inventory Management System
