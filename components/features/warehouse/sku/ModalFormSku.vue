@@ -247,26 +247,28 @@ async function handleFormSubmit(values: Record<string, any>) {
         // uom: values.unit,
       });
 
-      await transactionStore.createDataStockTransaction(
-        {
-          lines: [
-            {
-              qty: Number(values.beginning_inventory),
-              facility_sku_id: resultSku?.data?.id,
-              uom: "kg", //TEMPORARY
-            },
-          ],
-          note: values.description,
-          // reference_no: val.reference_no,
-          // reference_type: val.reference_type,
-          trx_date: moment().format("YYYY-MM-DD"),
-          trx_type: "IN",
-        },
-        {
-          uuid: idempotencyKey.value,
-          lockKey,
-        }
-      );
+      if (Number(values.beginning_inventory) != 0) {
+        await transactionStore.createDataStockTransaction(
+          {
+            lines: [
+              {
+                qty: Number(values.beginning_inventory),
+                facility_sku_id: resultSku?.data?.id,
+                uom: "kg", //TEMPORARY
+              },
+            ],
+            note: values.description,
+            // reference_no: val.reference_no,
+            // reference_type: val.reference_type,
+            trx_date: moment().format("YYYY-MM-DD"),
+            trx_type: "IN",
+          },
+          {
+            uuid: idempotencyKey.value,
+            lockKey,
+          }
+        );
+      }
     } else {
       const resultSku = await createDataSku(values);
       const resultSkuFacilities =
@@ -281,27 +283,29 @@ async function handleFormSubmit(values: Record<string, any>) {
           // min_stock: values.min_stock,
           // uom: values.unit,
         });
+      if (Number(values.beginning_inventory) != 0) {
+        await transactionStore.createDataStockTransaction(
+          {
+            lines: [
+              {
+                qty: Number(values.beginning_inventory),
+                facility_sku_id: resultSkuFacilities?.data?.id,
+                uom: "kg", //TEMPORARY
+              },
+            ],
+            note: values.description,
+            // reference_no: val.reference_no,
+            // reference_type: val.reference_type,
+            trx_date: moment().format("YYYY-MM-DD"),
+            trx_type: "IN",
+          },
+          {
+            uuid: idempotencyKey.value,
+            lockKey,
+          }
+        );
+      }
 
-      await transactionStore.createDataStockTransaction(
-        {
-          lines: [
-            {
-              qty: Number(values.beginning_inventory),
-              facility_sku_id: resultSkuFacilities?.data?.id,
-              uom: "kg", //TEMPORARY
-            },
-          ],
-          note: values.description,
-          // reference_no: val.reference_no,
-          // reference_type: val.reference_type,
-          trx_date: moment().format("YYYY-MM-DD"),
-          trx_type: "IN",
-        },
-        {
-          uuid: idempotencyKey.value,
-          lockKey,
-        }
-      );
       console.log({ resultSku });
     }
     facilitiesSkuStore.getDataFacilitiesSku({
