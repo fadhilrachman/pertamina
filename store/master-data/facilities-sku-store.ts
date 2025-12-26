@@ -94,6 +94,8 @@ export const useFacilitiesSkuStore = defineStore("facilitiesSku", {
       try {
         const data = await postFacilitiesSku(body); // API_UNCOMMENT
         // toast.success("Success assign data SKU to Facilities");
+        toast.success("Success create data SKU");
+
         return data;
         return true;
       } catch (error: any) {

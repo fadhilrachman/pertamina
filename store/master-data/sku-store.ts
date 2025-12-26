@@ -84,7 +84,6 @@ export const useSkuStore = defineStore("sku", {
       this.loadingWrite = true;
       try {
         const result = await postSku(body); // API_UNCOMMENT
-        toast.success("Success create data SKU");
         return result;
       } catch (error) {
         toast.error("Failed create data SKU", {

@@ -12,6 +12,7 @@ import { useFacilitiesSkuStore } from "~/store/master-data/facilities-sku-store"
 import { useStockTransaction } from "~/store/stock-management/stock-transaction-store";
 import { v4 as uuidv4 } from "uuid";
 import moment from "moment";
+import { toast } from "vue3-toastify";
 
 const idempotencyKey = ref<string>("");
 const generateIdempotencyKey = () => {
@@ -305,17 +306,14 @@ async function handleFormSubmit(values: Record<string, any>) {
           }
         );
       }
-
-      console.log({ resultSku });
     }
     facilitiesSkuStore.getDataFacilitiesSku({
       facility_id: warehouseId as string,
       limit: 10,
       page: 1,
     });
-    // form.resetForm({ values: createInitialValues() });
+    // toast.success("Success create data SKU");
 
-    // getDataSku({ page: 1, limit: 10 });
     handleCancel();
 
     return true;
