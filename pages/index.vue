@@ -1,7 +1,7 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useRouter } from "vue-router";
 
-<template>
-  <div class="text-gray-500">pages</div>
-</template>
+useRouter().replace("/dashboard");
+</script>
 
-<style scoped></style>
+<template></template>
