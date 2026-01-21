@@ -6,11 +6,30 @@ export async function postStockTransactions(
   payload: PayloadStockTransactionType,
   { uuid }: { uuid: string }
 ) {
+  const { attachments: _attachments, ...body } = payload;
+
   return await api.post("/api/v1/stock/transactions", {
-    body: payload,
+    body,
     headers: {
       "X-Idempotency-Key": uuid,
     },
+  });
+}
+
+export async function uploadStockTransactionAttachments(params: {
+  id: string;
+  files: File[];
+}) {
+  const formData = new FormData();
+
+  params.files.forEach((file) => {
+    if (file) {
+      formData.append("files", file);
+    }
+  });
+
+  return await api.post(`/api/v1/stock/transactions/${params.id}/attachments`, {
+    body: formData,
   });
 }
 

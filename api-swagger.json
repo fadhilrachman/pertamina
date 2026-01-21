@@ -1,5 +1,5 @@
 {
-  "schemes": ["https"],
+  "schemes": ["http", "https"],
   "swagger": "2.0",
   "info": {
     "description": "API documentation for Stock Management System with multi-tenant support",
@@ -15,7 +15,7 @@
     },
     "version": "1.0"
   },
-  "host": "ttsm.arnatech.id",
+  "host": "localhost:4000",
   "basePath": "/",
   "paths": {
     "/api/v1/auth/login": {
@@ -1980,6 +1980,66 @@
         }
       }
     },
+    "/api/v1/stock/attachments/{attachment_id}": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get a temporary download URL for a specific attachment",
+        "produces": ["application/json"],
+        "tags": ["Stock Transaction"],
+        "summary": "Get download URL for an attachment",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Attachment ID",
+            "name": "attachment_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/stock.StockTransactionAttachmentResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
     "/api/v1/stock/on-hand": {
       "get": {
         "security": [
@@ -2289,6 +2349,126 @@
           },
           "404": {
             "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stock/transactions/{id}/attachments": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Get metadata of all attachments for a stock transaction",
+        "produces": ["application/json"],
+        "tags": ["Stock Transaction"],
+        "summary": "List attachments for a stock transaction",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Transaction ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/stock.StockTransactionAttachmentResponse"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/helper.Response"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Upload one or more files (images, PDF, etc.) as attachments for a stock transaction",
+        "consumes": ["multipart/form-data"],
+        "produces": ["application/json"],
+        "tags": ["Stock Transaction"],
+        "summary": "Upload attachments for a stock transaction",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Transaction ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "file",
+            "description": "Attachment files (can be multiple)",
+            "name": "files",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/helper.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/stock.StockTransactionAttachmentResponse"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "schema": {
               "$ref": "#/definitions/helper.Response"
             }
@@ -5807,8 +5987,9 @@
           "type": "string"
         },
         "qty": {
-          "description": "For IN/OUT: transaction qty. For ADJUST: physical stock count",
-          "type": "number"
+          "description": "For IN/OUT: transaction qty (must be \u003E 0). For ADJUST: physical stock count (can be 0)",
+          "type": "number",
+          "minimum": 0
         },
         "uom": {
           "description": "Optional: will use SKU.Unit if not provided",
@@ -5849,9 +6030,44 @@
         }
       }
     },
+    "stock.StockTransactionAttachmentResponse": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string"
+        },
+        "created_by": {
+          "type": "string"
+        },
+        "file_name": {
+          "type": "string"
+        },
+        "file_size": {
+          "type": "integer"
+        },
+        "file_type": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "storage_path": {
+          "type": "string"
+        },
+        "storage_url": {
+          "type": "string"
+        }
+      }
+    },
     "stock.StockTransactionResponse": {
       "type": "object",
       "properties": {
+        "attachments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/stock.StockTransactionAttachmentResponse"
+          }
+        },
         "created_at": {
           "type": "string"
         },

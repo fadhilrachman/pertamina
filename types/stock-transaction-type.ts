@@ -10,7 +10,7 @@ export interface PayloadStockTransactionType {
   trx_type?: string;
   vehicle_id?: string;
   vehicle_text?: string;
-
+  attachments?: File[];
   uom?: string; // TEMPORARY
 }
 
@@ -27,6 +27,7 @@ export interface StockTransactionType {
   created_by: string;
   endpoint: string;
   id: string;
+  attachments?: StockTransactionAttachment[];
   lines: {
     sku: {
       sku_id: string;
@@ -56,4 +57,15 @@ export interface StockTransactionType {
     type: string;
     vehicle_id: string;
   };
+}
+
+export interface StockTransactionAttachment {
+  created_at?: string;
+  created_by?: string;
+  file_name?: string;
+  file_size?: number;
+  file_type?: string;
+  id: string;
+  storage_path?: string;
+  storage_url?: string;
 }

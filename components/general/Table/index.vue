@@ -11,6 +11,11 @@ export interface TableColumn {
   cellClass?: string;
 }
 
+type RowClassResolver = (
+  row: Record<string, any>,
+  index: number
+) => string | string[] | Record<string, boolean> | undefined;
+
 const props = defineProps({
   columns: {
     type: Array as PropType<readonly TableColumn[]>,
@@ -40,6 +45,10 @@ const props = defineProps({
     type: String,
     default: "No records found.",
   },
+  rowClass: {
+    type: [String, Function] as PropType<string | RowClassResolver>,
+    default: "",
+  },
 });
 
 const columnCount = computed(() => props.columns.length);
@@ -59,6 +68,20 @@ const skeletonRowCount = 4;
 const skeletonWidths = ["w-5/6", "w-2/3", "w-3/4", "w-1/2"];
 const getSkeletonWidthClass = (index: number) => {
   return skeletonWidths[index % skeletonWidths.length];
+};
+
+const resolveRowClass = (row: Record<string, any>, index: number) => {
+  if (typeof props.rowClass === "function") {
+    const custom = props.rowClass(row, index);
+    if (custom) return custom;
+    return rowBackgroundClass(index);
+  }
+
+  if (props.rowClass) {
+    return [rowBackgroundClass(index), props.rowClass];
+  }
+
+  return rowBackgroundClass(index);
 };
 </script>
 
@@ -124,7 +147,7 @@ const getSkeletonWidthClass = (index: number) => {
         <tr
           v-for="(row, rowIndex) in data"
           :key="rowKey ? row[rowKey] ?? rowIndex : rowIndex"
-          :class="rowBackgroundClass(rowIndex)"
+          :class="resolveRowClass(row, rowIndex)"
         >
           <td
             v-for="column in columns"

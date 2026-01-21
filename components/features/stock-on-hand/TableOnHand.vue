@@ -19,7 +19,7 @@ const statusBadgeClass = (status: string | undefined) => {
   }
 
   if (["low", "warning"].includes(normalized)) {
-    return "bg-amber-50 text-amber-700 border border-amber-200";
+    return "bg-amber-100 text-amber-700 border border-amber-200";
   }
 
   if (["out_of_stock", "inactive"].includes(normalized)) {
@@ -74,6 +74,12 @@ const totalOnHandQty = computed(() =>
     0
   )
 );
+const rowClassByStatus = (row: any) => {
+  const status =
+    typeof row?.status === "string" ? row.status.toLowerCase() : "";
+  if (status === "low") return "!bg-yellow-50";
+  return "";
+};
 
 const params = reactive({
   sku_id: "",
@@ -264,6 +270,7 @@ onBeforeMount(() => {
           :loading="loadingList"
           row-key="id"
           striped
+          :row-class="rowClassByStatus"
         >
           <template #cell-status="{ value }">
             <span

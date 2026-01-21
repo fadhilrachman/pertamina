@@ -12,9 +12,12 @@ import type {
 import {
   getTransactions,
   postStockTransactions,
+  uploadStockTransactionAttachments,
 } from "~/services/stock-management/stock-transactions-services";
 import { importStockAdjustment } from "~/services/import/import-services";
 import type { ImportResponse } from "~/types/import";
+import type { ResponseApiDetail } from "~/types/common";
+import type { StockTransactionAttachment } from "~/types/stock-transaction-type";
 
 export const useStockTransaction = defineStore("stockTransaction", {
   state: () => ({
@@ -87,7 +90,7 @@ export const useStockTransaction = defineStore("stockTransaction", {
     async createDataStockTransaction(
       body: PayloadStockTransactionType,
       { uuid, lockKey }: { uuid: string; lockKey?: string }
-    ) {
+    ): Promise<ResponseApiDetail<StockTransactionType> | false> {
       const acquired = lockKey ? this.acquireLock(lockKey) : true;
       if (!acquired) {
         toast.error("Another operation for this item is in progress.", {
@@ -96,9 +99,11 @@ export const useStockTransaction = defineStore("stockTransaction", {
         return false;
       }
 
+      const { attachments: _attachments, ...payload } = body;
+
       this.loadingWrite = true;
       try {
-        await postStockTransactions(body, { uuid }); // API_UNCOMMENT
+        const response = await postStockTransactions(payload, { uuid }); // API_UNCOMMENT
         const trxType = (body.trx_type || "").toLowerCase();
         let trxLabel = "Stock transaction";
 
@@ -111,7 +116,7 @@ export const useStockTransaction = defineStore("stockTransaction", {
         }
 
         toast.success(`Success create data ${trxLabel}`);
-        return true;
+        return response as ResponseApiDetail<StockTransactionType>;
       } catch (error: any) {
         console.log({ error });
 
@@ -153,6 +158,40 @@ export const useStockTransaction = defineStore("stockTransaction", {
         throw error;
       } finally {
         this.loadingWrite = false;
+      }
+    },
+
+    async uploadTransactionAttachments({
+      transactionId,
+      files,
+      skipLoadingToggle = false,
+    }: {
+      transactionId: string;
+      files: File[];
+      skipLoadingToggle?: boolean;
+    }): Promise<ResponseApiDetail<StockTransactionAttachment[]> | false> {
+      if (!transactionId || !files.length) return false;
+
+      if (!skipLoadingToggle) {
+        this.loadingWrite = true;
+      }
+
+      try {
+        const response = await uploadStockTransactionAttachments({
+          id: transactionId,
+          files,
+        });
+        toast.success("Attachments uploaded");
+        return response as ResponseApiDetail<StockTransactionAttachment[]>;
+      } catch (error: any) {
+        toast.error(error?.message || "Failed to upload attachments", {
+          toastClassName: "toastify-error",
+        });
+        throw error;
+      } finally {
+        if (!skipLoadingToggle) {
+          this.loadingWrite = false;
+        }
       }
     },
 

@@ -63,13 +63,14 @@ const createInitialValues = (): any => ({
   description: "",
   // reference_type: "",
   date: "",
+  attachments: [] as File[],
 });
 
 const form = useForm<any>({
   validationSchema: formSchema,
   initialValues: createInitialValues(),
 });
-const { values } = form;
+const { values, setFieldValue } = form;
 
 type StockInFormValues = {
   sku_id: string;
@@ -79,12 +80,13 @@ type StockInFormValues = {
   reference_no?: string;
   reference_type?: string;
   date: string;
+  attachments?: File[];
 };
 
 const handleSubmit = async (val: Record<string, any>) => {
   const payload = val as StockInFormValues;
 
-  await stockTransactionStore.createDataStockTransaction(
+  const res = await stockTransactionStore.createDataStockTransaction(
     {
       lines: [
         {
@@ -103,6 +105,15 @@ const handleSubmit = async (val: Record<string, any>) => {
       uuid: idempotencyKey,
     }
   );
+
+  const transactionId = (res as any)?.data?.id;
+
+  if (transactionId && payload.attachments?.length) {
+    await stockTransactionStore.uploadTransactionAttachments({
+      transactionId,
+      files: payload.attachments as File[],
+    });
+  }
 
   form.resetForm({ values: createInitialValues() });
 };
@@ -202,6 +213,17 @@ onMounted(() => {
           class-name=""
           @submit="handleSubmit"
         />
+        <div class="mt-4">
+          <GeneralAttachmentUpload
+            label="Attachments"
+            hint="Optional supporting photos or PDFs (max 5 files, 5 MB each)."
+            accept="image/*,application/pdf"
+            :model-value="values.attachments"
+            :max-files="5"
+            :max-size-mb="5"
+            @update:model-value="(files) => setFieldValue('attachments', files)"
+          />
+        </div>
         <div class="flex justify-end mt-4 gap-3 pt-2">
           <GeneralOutlinedButton label="Cancel" type="button" />
           <GeneralButton
