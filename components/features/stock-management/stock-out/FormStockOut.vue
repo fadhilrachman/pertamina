@@ -269,11 +269,11 @@ onMounted(() => {
         <div class="mt-4">
           <GeneralAttachmentUpload
             label="Attachments"
-            hint="Optional supporting photos or PDFs (max 5 files, 5 MB each)."
+            hint="Optional supporting photos or PDFs."
             accept="image/*,application/pdf"
             :model-value="values.attachments"
             :max-files="5"
-            :max-size-mb="5"
+            :max-size-mb="50"
             @update:model-value="(files) => setFieldValue('attachments', files)"
           />
         </div>
