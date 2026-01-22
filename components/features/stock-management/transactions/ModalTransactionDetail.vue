@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import Modal from "~/components/general/Modal/index.vue";
 import type { ElementEvent } from "~/types/element";
 import { useStockTransaction } from "~/store/stock-management/stock-transaction-store";
 import { formatTableDate } from "~/utils/functions";
 import type { StockTransactionAttachment } from "~/types/stock-transaction-type";
+import { getStockTransactionAttachments } from "~/services/stock-management/stock-transactions-services";
 
 const props = defineProps<{
   id: string;
@@ -17,6 +18,9 @@ const emit = defineEmits<{
 
 const stockTransactionStore = useStockTransaction();
 const { selectedData, selectedLineIndex } = storeToRefs(stockTransactionStore);
+
+const attachments = ref<StockTransactionAttachment[]>([]);
+const isLoadingAttachments = ref(false);
 
 const currentLine = computed(() => {
   const trx = selectedData.value;
@@ -44,10 +48,36 @@ const handleModalMounted = (instance: ElementEvent) => {
   emit("mounted", instance);
 };
 
-const attachments = computed<StockTransactionAttachment[]>(() => {
-  const list = selectedData.value?.attachments;
-  return Array.isArray(list) ? list : [];
-});
+const fetchAttachments = async (trxId?: string) => {
+  attachments.value = [];
+  if (!trxId) return;
+
+  isLoadingAttachments.value = true;
+  try {
+    const response = await getStockTransactionAttachments({ id: trxId });
+    const payload = (response as any)?.data;
+    const list = Array.isArray(payload)
+      ? payload
+      : Array.isArray(payload?.data)
+        ? payload.data
+        : [];
+
+    attachments.value = list;
+  } catch (error) {
+    console.error("Failed to fetch transaction attachments", error);
+    attachments.value = [];
+  } finally {
+    isLoadingAttachments.value = false;
+  }
+};
+
+watch(
+  () => selectedData.value?.id,
+  (nextId) => {
+    fetchAttachments(nextId);
+  },
+  { immediate: true }
+);
 
 const formatFileSize = (size?: number) => {
   if (!size && size !== 0) return "-";
@@ -137,7 +167,14 @@ const formatFileSize = (size?: number) => {
           </div>
 
           <div
-            v-if="attachments.length === 0"
+            v-if="isLoadingAttachments"
+            class="rounded-lg border border-dashed border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-500"
+          >
+            Loading attachments...
+          </div>
+
+          <div
+            v-else-if="attachments.length === 0"
             class="rounded-lg border border-dashed border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-500"
           >
             No attachments uploaded.

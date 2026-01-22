@@ -1,6 +1,9 @@
 import { api } from "~/services/api";
-import type { QueryParams } from "~/types/common";
-import type { PayloadStockTransactionType } from "~/types/stock-transaction-type";
+import type { QueryParams, ResponseApiDetail } from "~/types/common";
+import type {
+  PayloadStockTransactionType,
+  StockTransactionAttachment,
+} from "~/types/stock-transaction-type";
 
 export async function postStockTransactions(
   payload: PayloadStockTransactionType,
@@ -31,6 +34,12 @@ export async function uploadStockTransactionAttachments(params: {
   return await api.post(`/api/v1/stock/transactions/${params.id}/attachments`, {
     body: formData,
   });
+}
+
+export async function getStockTransactionAttachments(params: { id: string }) {
+  return (await api.get(
+    `/api/v1/stock/transactions/${params.id}/attachments`
+  )) as ResponseApiDetail<StockTransactionAttachment[]>;
 }
 
 export async function getTransactions(
