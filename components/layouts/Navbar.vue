@@ -21,8 +21,6 @@ const displayName = computed(() => {
   return fullName || email || "User";
 });
 
-console.log({ sessionData });
-
 const displayRole = computed(() => {
   const session = sessionData.value;
   return session?.data?.role?.name || "User";

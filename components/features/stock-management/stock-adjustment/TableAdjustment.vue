@@ -112,10 +112,8 @@ const handleStatusChange = (value: string | number) => {
 watch(
   () => ({ ...params }),
   () => {
-    console.log({ params });
-
     skuStore.getDataSku({ ...params });
-  }
+  },
 );
 
 onMounted(() => {

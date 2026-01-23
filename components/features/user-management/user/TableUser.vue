@@ -101,10 +101,8 @@ const handlePageSizeChange = (pageSize: number) => {
 watch(
   () => ({ ...params }),
   () => {
-    console.log({ params });
-
     userStore.getDataUser({ ...params });
-  }
+  },
 );
 
 onMounted(() => {

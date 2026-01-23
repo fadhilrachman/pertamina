@@ -33,7 +33,7 @@ const companyOptions = computed(
         id: item.id ?? "",
         label: item.name,
       }))
-      .filter((option) => option.id !== "") || []
+      .filter((option) => option.id !== "") || [],
 );
 const tableColumns: TableColumn[] = [
   { key: "code", label: "Code" },
@@ -76,10 +76,8 @@ const handleStatusChange = (value: string | number) => {
 watch(
   () => ({ ...params }),
   () => {
-    console.log({ params });
-
     facilitiesStore.getDataFacilities({ ...params });
-  }
+  },
 );
 
 onMounted(() => {

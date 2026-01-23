@@ -41,7 +41,7 @@ const facilitiesOptions = computed(
     facilitiesData.value?.data?.data?.map((item) => ({
       id: item.id,
       label: item.name,
-    })) || []
+    })) || [],
 );
 
 const skuOptions = computed(
@@ -49,7 +49,7 @@ const skuOptions = computed(
     skuData.value?.data?.data?.map((item) => ({
       id: item.sku_code,
       label: `${item.sku_code} - ${item.name}`,
-    })) || []
+    })) || [],
 );
 
 const formSchema = object({
@@ -83,14 +83,14 @@ const { values, setFieldValue } = form;
 const skuList = computed(
   () =>
     skuData.value?.data?.data ||
-    (Array.isArray(skuData.value?.data) ? skuData.value?.data : [])
+    (Array.isArray(skuData.value?.data) ? skuData.value?.data : []),
 );
 
 const selectedSku = computed<any | null>(() => {
   if (!values.sku_code) return null;
   return (
     skuList.value.find(
-      (item: any) => String(item.sku_code) === String(values.sku_code)
+      (item: any) => String(item.sku_code) === String(values.sku_code),
     ) || null
   );
 });
@@ -100,7 +100,7 @@ watch(
   (code) => {
     const sku =
       skuList.value.find(
-        (item: any) => String(item.sku_code) === String(code)
+        (item: any) => String(item.sku_code) === String(code),
       ) || null;
 
     if (sku) {
@@ -117,7 +117,7 @@ watch(
       // setFieldValue("max_stock", "0", false);
       // setFieldValue("min_stock", "0", false);
     }
-  }
+  },
 );
 
 const formFields = computed<FieldConfig[]>(() => {
@@ -223,7 +223,6 @@ async function handleFormSubmit(values: Record<string, any>) {
   const isExistingSku = !!selectedSku.value;
 
   // const isExistingSku = skuOptions.value !== undefined;
-  console.log({ values });
 
   try {
     generateIdempotencyKey();
@@ -231,7 +230,7 @@ async function handleFormSubmit(values: Record<string, any>) {
 
     if (isExistingSku) {
       const idSku = skuData.value?.data?.data?.find(
-        (item) => item.sku_code === values.sku_code
+        (item) => item.sku_code === values.sku_code,
       )?.id;
 
       // console.log({ idSku, skuData });
@@ -267,7 +266,7 @@ async function handleFormSubmit(values: Record<string, any>) {
           {
             uuid: idempotencyKey.value,
             lockKey,
-          }
+          },
         );
       }
     } else {
@@ -303,7 +302,7 @@ async function handleFormSubmit(values: Record<string, any>) {
           {
             uuid: idempotencyKey.value,
             lockKey,
-          }
+          },
         );
       }
     }

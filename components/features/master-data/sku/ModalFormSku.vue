@@ -15,7 +15,7 @@ const props = withDefaults(
   }>(),
   {
     mode: "add",
-  }
+  },
 );
 const isUpdateMode = computed(() => props.mode === "update");
 
@@ -35,7 +35,7 @@ const facilitiesOptions = computed(
     facilitiesData.value?.data?.data?.map((item) => ({
       id: item.id,
       label: item.name,
-    })) || []
+    })) || [],
 );
 
 const formFields = computed<FieldConfig[]>(() => [
@@ -161,15 +161,10 @@ const handleModalMounted = (instance: ElementEvent) => {
 
 const open = () => {
   if (props.mode === "update") {
-    console.log("update");
-
     form.resetForm({ values: selectedData.value as PayloadSKUType });
   } else {
-    console.log("add");
-
     form.resetForm({ values: createInitialValues() });
   }
-  console.log(form.values);
 
   modalInstance.value?.show();
 };

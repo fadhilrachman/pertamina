@@ -30,7 +30,7 @@ const facilitiesSkuList = computed(
     facilitiesSkuData.value?.data?.data ||
     (Array.isArray(facilitiesSkuData.value?.data)
       ? facilitiesSkuData.value?.data
-      : [])
+      : []),
 );
 
 const facilitiesSkuOptions = computed(
@@ -38,7 +38,7 @@ const facilitiesSkuOptions = computed(
     facilitiesSkuList.value.map((item) => ({
       id: item.id,
       label: `${item.sku_code} - ${item.sku_name}`,
-    })) || []
+    })) || [],
 );
 
 const facilitiesOptions = computed(
@@ -46,7 +46,7 @@ const facilitiesOptions = computed(
     facilitiesData.value?.data?.data?.map((item) => ({
       id: item.id,
       label: item.name,
-    })) || []
+    })) || [],
 );
 
 const formSchema = object({
@@ -103,7 +103,7 @@ const handleSubmit = async (val: Record<string, any>) => {
     },
     {
       uuid: idempotencyKey,
-    }
+    },
   );
 
   const transactionId = (res as any)?.data?.id;
@@ -177,7 +177,6 @@ const formFields = computed<FieldConfig[]>(() => [
 watch(
   () => values.facility_id,
   (next, prev) => {
-    console.log({ values });
     form.setValues({
       sku_id: "",
     });
@@ -187,7 +186,7 @@ watch(
       facility_id: next,
     });
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 onMounted(() => {

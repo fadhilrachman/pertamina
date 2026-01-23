@@ -106,10 +106,8 @@ const handleStatusChange = (value: string | number) => {
 watch(
   () => ({ ...params }),
   () => {
-    console.log({ params });
-
     facilitiesStore.getDataFacilities({ ...params });
-  }
+  },
 );
 
 onMounted(() => {

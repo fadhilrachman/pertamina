@@ -37,7 +37,7 @@ ChartJS.register(
   PointElement,
   CategoryScale,
   LinearScale,
-  ArcElement
+  ArcElement,
 );
 
 const $page = usePageStore();
@@ -68,7 +68,6 @@ watch(selectedFacilityId, (newVal) => {
   } else {
     dashboardStore.getDataDashboardOverview({ facility_id });
   }
-  console.log(facility_id);
   dashboardStore.getDataDashboardStockDistribution({ facility_id });
   dashboardStore.getDataDashboardTopMovingSku({ facility_id });
 });
@@ -87,7 +86,7 @@ const facilitiesOptions = computed(
     dataFacilities.value?.data?.data?.map((item) => ({
       id: item.id,
       label: item.name,
-    })) || []
+    })) || [],
 );
 
 const stockInOutData = computed(() => {
@@ -208,7 +207,7 @@ const summaryCards = computed(() => {
 const topMovingSkus = computed(() => {
   const list = dataTopMovingSku.value.data || [];
   const sorted = [...list].sort(
-    (a, b) => (b.net_movement ?? 0) - (a.net_movement ?? 0)
+    (a, b) => (b.net_movement ?? 0) - (a.net_movement ?? 0),
   );
 
   return sorted.slice(0, 5).map((item) => ({

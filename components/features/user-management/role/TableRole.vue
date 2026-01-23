@@ -83,10 +83,8 @@ const handlePageSizeChange = (pageSize: number) => {
 watch(
   () => ({ ...params }),
   () => {
-    console.log({ params });
-
     roleStore.getDataSku({ ...params });
-  }
+  },
 );
 
 onMounted(() => {

@@ -103,13 +103,6 @@ export default defineEventHandler(async (event) => {
         message: "API base URL not configured",
       });
     }
-    console.log({
-      apiBaseUrl,
-      payload: {
-        email,
-        password,
-      },
-    });
 
     // Make the request to the third-party API
     const response = await $fetch<LoginResponse>(
@@ -121,9 +114,8 @@ export default defineEventHandler(async (event) => {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-      }
+      },
     );
-    console.log({ response });
 
     // If we get here, the login was successful
     // Set any necessary cookies based on the response

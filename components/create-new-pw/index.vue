@@ -14,7 +14,7 @@ const schema = object({
     .matches(/[0-9]/, "Password must contain at least one number")
     .matches(
       /[^a-zA-Z0-9]/,
-      "Password must contain at least one special character"
+      "Password must contain at least one special character",
     ),
   passwordConfirm: string()
     .required("Confirm password is required")
@@ -30,7 +30,6 @@ const { value: passwordConfirm } = useField<string>("passwordConfirm");
 
 const onSubmit = handleSubmit((values) => {
   // TODO: INTEGRATION FORGOT PASSWORD
-  console.log(values);
 });
 </script>
 

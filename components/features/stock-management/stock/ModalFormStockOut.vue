@@ -22,7 +22,7 @@ const props = withDefaults(
   }>(),
   {
     mode: "add",
-  }
+  },
 );
 const isUpdateMode = computed(() => props.mode === "update");
 
@@ -46,7 +46,7 @@ const facilitiesSkuList = computed(
     facilitiesSkuData.value?.data?.data ||
     (Array.isArray(facilitiesSkuData.value?.data)
       ? facilitiesSkuData.value?.data
-      : [])
+      : []),
 );
 
 const facilitiesSkuOptions = computed(
@@ -54,7 +54,7 @@ const facilitiesSkuOptions = computed(
     facilitiesSkuList.value.map((item) => ({
       id: item.id,
       label: `${item.sku_code} - ${item.sku_name}`,
-    })) || []
+    })) || [],
 );
 
 const vehicleOptions = computed(
@@ -62,14 +62,14 @@ const vehicleOptions = computed(
     vehiclesData.value?.data?.data?.map((item) => ({
       id: item.id,
       label: item.license_plate,
-    })) || []
+    })) || [],
 );
 const facilitiesOptions = computed(
   () =>
     facilitiesData.value?.data?.data?.map((item) => ({
       id: item.id,
       label: item.name,
-    })) || []
+    })) || [],
 );
 
 const formSchema = object({
@@ -194,7 +194,7 @@ watch(
         facility_id: next,
       });
     }
-  }
+  },
 );
 
 onMounted(() => {
@@ -214,7 +214,6 @@ const resetForm = () => {
 const open = async () => {
   if (props.mode === "update") {
     const data = selectedData.value;
-    console.log({ data });
 
     if (!data) return;
 
@@ -224,10 +223,9 @@ const open = async () => {
       limit: 1000,
       facility_id: data.facility_id,
     });
-    console.log({ facilitiesSkuList });
 
     const facilitySku = facilitiesSkuList.value.find(
-      (item) => item.sku_code === data.sku_code
+      (item) => item.sku_code === data.sku_code,
     );
 
     form.resetForm({
@@ -274,7 +272,7 @@ const handleFormSubmit = async (val: any) => {
     {
       uuid: idempotencyKey.value,
       lockKey,
-    }
+    },
   );
   await stockOnHandStore.getDataStockOnHand({
     page: 1,

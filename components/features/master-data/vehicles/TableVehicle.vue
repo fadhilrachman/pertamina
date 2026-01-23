@@ -107,10 +107,8 @@ const handleStatusChange = (value: string | number) => {
 watch(
   () => ({ ...params }),
   () => {
-    console.log({ params });
-
     vehiclesStore.getDataVehicles({ ...params });
-  }
+  },
 );
 
 onMounted(() => {
@@ -127,10 +125,7 @@ onBeforeMount(() => {
 <template>
   <main class="space-y-8">
     <header class="flex justify-between items-end">
-      <GeneralTitle
-        title="Vehicle Master"
-        subtitle="Manage fleet vehicles"
-      />
+      <GeneralTitle title="Vehicle Master" subtitle="Manage fleet vehicles" />
       <div class="flex justify-between space-x-2">
         <GeneralButton
           color="primary"

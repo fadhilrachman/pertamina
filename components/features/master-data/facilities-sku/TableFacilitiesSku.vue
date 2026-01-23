@@ -62,13 +62,13 @@ const facilitiesOptions = computed(
     dataFacilities.value?.data?.data?.map((item) => ({
       id: item.id,
       label: item.name,
-    })) || []
+    })) || [],
 );
 
 const tableData = computed(
   () =>
     data.value?.data?.data ||
-    (Array.isArray(data.value?.data) ? data.value?.data : [])
+    (Array.isArray(data.value?.data) ? data.value?.data : []),
 );
 
 const tableTotal = computed(() => {
@@ -77,7 +77,7 @@ const tableTotal = computed(() => {
 });
 
 const tableEmptyText = computed(() =>
-  params.facility_id ? "No records found." : "Select Facility First"
+  params.facility_id ? "No records found." : "Select Facility First",
 );
 const openAddSkuModal = async () => {
   formModeRef.value = "add";
@@ -138,7 +138,7 @@ const handleStatusChange = (value: string | number) => {
 };
 
 const handleFacilitiesChange = (
-  value: string | number | (string | number)[] | null
+  value: string | number | (string | number)[] | null,
 ) => {
   params.facility_id = Array.isArray(value)
     ? value[0]
@@ -165,7 +165,7 @@ watch(
   () => ({ ...params }),
   () => {
     skuStore.getDataFacilitiesSku({ ...params });
-  }
+  },
 );
 
 watch(
@@ -176,7 +176,7 @@ watch(
       params.facility_id = parsed;
       params.page = 1;
     }
-  }
+  },
 );
 
 onMounted(() => {
@@ -185,7 +185,6 @@ onMounted(() => {
   });
 
   facilitiesStore.getDataFacilities({ page: 1, limit: 1000 });
-  console.log({ data });
 });
 
 onBeforeMount(() => {

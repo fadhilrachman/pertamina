@@ -36,7 +36,7 @@ const skuOptions = computed(
     skuData.value?.data?.data?.map((item) => ({
       id: item.sku_code,
       label: `${item.sku_code}`,
-    })) || []
+    })) || [],
 );
 
 const formSchema = object({
@@ -71,14 +71,14 @@ const { values, setFieldValue } = form;
 const skuList = computed(
   () =>
     skuData.value?.data?.data ||
-    (Array.isArray(skuData.value?.data) ? skuData.value?.data : [])
+    (Array.isArray(skuData.value?.data) ? skuData.value?.data : []),
 );
 
 const selectedSku = computed<any | null>(() => {
   if (!values.sku_code) return null;
   return (
     skuList.value.find(
-      (item: any) => String(item.sku_code) === String(values.sku_code)
+      (item: any) => String(item.sku_code) === String(values.sku_code),
     ) || null
   );
 });
@@ -88,7 +88,7 @@ watch(
   (code) => {
     const sku =
       skuList.value.find(
-        (item: any) => String(item.sku_code) === String(code)
+        (item: any) => String(item.sku_code) === String(code),
       ) || null;
 
     if (sku) {
@@ -104,7 +104,7 @@ watch(
       // setFieldValue("max_stock", "0", false);
       // setFieldValue("min_stock", "0", false);
     }
-  }
+  },
 );
 
 const formFields = computed<FieldConfig[]>(() => {
@@ -195,7 +195,6 @@ const handleModalMounted = (instance: ElementEvent) => {
 
 const open = () => {
   const current = selectedFacilitiesSku.value as FacilitiesSkuType | undefined;
-  console.log({ current });
 
   if (current && current.id) {
     form.resetForm({

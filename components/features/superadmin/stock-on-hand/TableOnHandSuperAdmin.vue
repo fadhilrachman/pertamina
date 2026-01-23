@@ -50,7 +50,7 @@ const companyOptions = computed(
     companyData.value?.data?.data?.map((item: CompanyType) => ({
       id: item.id,
       label: item.name,
-    })) || []
+    })) || [],
 );
 
 const facilitiesOptions = computed(
@@ -58,7 +58,7 @@ const facilitiesOptions = computed(
     dataFacilities.value?.data?.data?.map((item) => ({
       id: item.id,
       label: item.name,
-    })) || []
+    })) || [],
 );
 
 // const skuOptions = computed(
@@ -119,7 +119,7 @@ const tableData = computed(() => {
 });
 
 const totalOnHandQty = computed(() =>
-  tableData.value.reduce((sum, item) => sum + Number(item.on_hand_qty || 0), 0)
+  tableData.value.reduce((sum, item) => sum + Number(item.on_hand_qty || 0), 0),
 );
 
 const rowClassByStatus = (row: any) => {
@@ -218,7 +218,7 @@ const handleExportExcel = async () => {
       error?.message || "Failed to export stock on hand. Please try again.",
       {
         toastClassName: "toastify-error",
-      }
+      },
     );
   } finally {
     exporting.value = false;
@@ -228,10 +228,8 @@ const handleExportExcel = async () => {
 watch(
   () => ({ ...params }),
   () => {
-    console.log({ params });
-
     stockOnHandStore.getDataStockOnHand({ ...params });
-  }
+  },
 );
 
 onMounted(() => {

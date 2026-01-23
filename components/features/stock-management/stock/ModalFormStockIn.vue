@@ -21,7 +21,7 @@ const props = withDefaults(
   }>(),
   {
     mode: "add",
-  }
+  },
 );
 const isUpdateMode = computed(() => props.mode === "update");
 const emit = defineEmits(["opened", "closed"]);
@@ -39,7 +39,7 @@ const facilitiesSkuList = computed(
     facilitiesSkuData.value?.data?.data ||
     (Array.isArray(facilitiesSkuData.value?.data)
       ? facilitiesSkuData.value?.data
-      : [])
+      : []),
 );
 
 const facilitiesSkuOptions = computed(
@@ -47,7 +47,7 @@ const facilitiesSkuOptions = computed(
     facilitiesSkuList.value.map((item) => ({
       id: item.id,
       label: `${item.sku_code} - ${item.sku_name}`,
-    })) || []
+    })) || [],
 );
 
 const facilitiesOptions = computed(
@@ -55,7 +55,7 @@ const facilitiesOptions = computed(
     facilitiesData.value?.data?.data?.map((item) => ({
       id: item.id,
       label: item.name,
-    })) || []
+    })) || [],
 );
 
 const formSchema = object({
@@ -179,7 +179,7 @@ watch(
         facility_id: next,
       });
     }
-  }
+  },
 );
 
 onMounted(() => {
@@ -209,7 +209,7 @@ const open = async () => {
     });
 
     const facilitySku = facilitiesSkuList.value.find(
-      (item) => item.sku_code === data.sku_code
+      (item) => item.sku_code === data.sku_code,
     );
 
     form.resetForm({
@@ -256,7 +256,7 @@ const handleFormSubmit = async (val: any) => {
     {
       uuid: idempotencyKey.value,
       lockKey,
-    }
+    },
   );
 
   await stockOnHandStore.getDataStockOnHand({
@@ -272,9 +272,7 @@ const handleModalClosed = () => emit("closed");
 
 watch(
   () => modalInstance.value,
-  (next) => {
-    console.log("uhuyyyy");
-  }
+  (next) => {},
   //   { immediate: true }
 );
 defineExpose({
