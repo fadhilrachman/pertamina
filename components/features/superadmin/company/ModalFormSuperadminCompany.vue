@@ -8,13 +8,16 @@ import type { FieldConfig } from "~/components/general/FormGenerator/index.vue";
 import { useSuperadminCompanyStore } from "~/store/superadmin/company-store";
 import type { CompanyType } from "~/types/company-type";
 
+const MAX_LOGO_SIZE = 2 * 1024 * 1024; // 2MB
+const ACCEPTED_LOGO_TYPES = ["image/png", "image/jpeg"];
+
 const props = withDefaults(
   defineProps<{
     mode?: "add" | "update";
   }>(),
   {
     mode: "add",
-  }
+  },
 );
 const isUpdateMode = computed(() => props.mode === "update");
 
@@ -60,7 +63,7 @@ const formFields: FieldConfig[] = [
     requiredMark: false,
     type: "file",
     helperText: "PNG/JPG up to 2MB",
-    accept: "image/*",
+    accept: "image/png,image/jpeg",
     grid: 12,
   },
 ];
@@ -76,7 +79,20 @@ const formSchema = object({
   pic_name: string().required("PIC Name is required"),
   address: string().required("Address is required"),
   email: string().email().required("Email is required"),
-  logo: mixed().nullable(),
+  logo: mixed<File | string | null>()
+    .nullable()
+    .test("fileType", "Logo must be an image (PNG/JPG)", (value) => {
+      if (!value || typeof value === "string") return true;
+      return ACCEPTED_LOGO_TYPES.includes(value.type);
+    }),
+  // .test(
+  //   "fileSize",
+  //   "Logo size must be under 2MB",
+  //   (value) => {
+  //     if (!value || typeof value === "string") return true;
+  //     return value.size <= MAX_LOGO_SIZE;
+  //   }
+  // ),
 });
 
 const createInitialValues = (): CompanyType => ({
@@ -104,7 +120,7 @@ watch(
       form.resetForm({ values: createInitialValues() });
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 const handleModalMounted = (instance: ElementEvent) => {
@@ -134,14 +150,16 @@ function readFileAsDataUrl(file: File): Promise<string> {
 }
 
 async function resolveLogoValue(logo: CompanyType["logo"]) {
-  if (!logo) return undefined;
+  // if (!logo) return undefined;
   if (logo instanceof File) {
     return await readFileAsDataUrl(logo);
   }
   if (typeof logo === "string" && logo.trim() !== "") {
     return logo;
   }
-  return undefined;
+  return logo;
+
+  // return undefined;
 }
 
 async function handleFormSubmit(values: Record<string, any>) {

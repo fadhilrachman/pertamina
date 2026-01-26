@@ -1,0 +1,12 @@
+{
+  "lines": [
+    {
+      "qty": 20,
+      "facility_sku_id": "d2e92cc0-d2bb-4a4c-a9e7-8829c494f10a",
+      "uom": "UNIT"
+    }
+  ],
+  "note": "",
+  "trx_date": "2026-01-26",
+  "trx_type": "ADJUST"
+}
